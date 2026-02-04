@@ -2,12 +2,8 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
+const path = require('path');
 require('dotenv').config();
-
-const authRoutes = require('./routes/auth.routes');
-const transactionRoutes = require('./routes/transactions.routes');
-const accountRoutes = require('./routes/accounts.routes');
-const dashboardRoutes = require('./routes/dashboard.routes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -19,18 +15,24 @@ app.use(morgan('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Servir arquivos estáticos do frontend
-app.use(express.static('../frontend'));
+// Servir frontend
+app.use(express.static(path.join(__dirname, '../../frontend')));
 
 // Rotas da API
-app.use('/api/auth', authRoutes);
-app.use('/api/transactions', transactionRoutes);
-app.use('/api/accounts', accountRoutes);
-app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/auth', require('./routes/auth.routes'));
 
-// Rota para o frontend
-app.get('/', (req, res) => {
-    res.sendFile('index.html', { root: '../frontend' });
+// Rota de health check para Render
+app.get('/api/health', (req, res) => {
+    res.json({ 
+        status: 'OK', 
+        timestamp: new Date().toISOString(),
+        service: 'Atlas Financeiro API'
+    });
+});
+
+// Todas as outras rotas vão para o frontend (SPA)
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../../frontend/index.html'));
 });
 
 // Middleware de erro
@@ -43,16 +45,8 @@ app.use((err, req, res, next) => {
     });
 });
 
-// Rota 404
-app.use('*', (req, res) => {
-    res.status(404).json({
-        success: false,
-        message: 'Rota não encontrada'
-    });
-});
-
 app.listen(PORT, () => {
-    console.log(`🚀 Servidor rodando na porta ${PORT}`);
+    console.log(`🚀 Servidor Atlas rodando na porta ${PORT}`);
     console.log(`📊 Ambiente: ${process.env.NODE_ENV || 'development'}`);
     console.log(`🌐 Acesse: http://localhost:${PORT}`);
 });
