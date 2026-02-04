@@ -1,83 +1,59 @@
 const express = require('express');
+const cors = require('cors');
+const helmet = require('helmet');
+const morgan = require('morgan');
 const path = require('path');
-const fs = require('fs');
+require('dotenv').config();
+
 const app = express();
 const PORT = process.env.PORT || 10000;
 
-// Middleware básico
+// Middleware
+app.use(helmet());
+app.use(cors());
+app.use(morgan('dev'));
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-// Tentar servir frontend de diferentes lugares
-const frontendPaths = [
-    path.join(__dirname, '../../frontend'),
-    path.join(__dirname, '../frontend'),
-    path.join(process.cwd(), 'frontend'),
-    path.join(process.cwd(), '../frontend')
-];
+// Servir frontend
+const frontendPath = path.join(__dirname, '../../frontend');
+app.use(express.static(frontendPath));
 
-let frontendFound = false;
-for (const frontendPath of frontendPaths) {
-    const indexPath = path.join(frontendPath, 'index.html');
-    if (fs.existsSync(indexPath)) {
-        console.log(`✅ Frontend encontrado em: ${frontendPath}`);
-        app.use(express.static(frontendPath));
-        frontendFound = true;
-        break;
-    }
-}
+// Importar rotas
+const authRoutes = require('./routes/auth.routes');
+const dashboardRoutes = require('./routes/dashboard.routes');
 
-// Se não encontrar frontend, criar um básico
-if (!frontendFound) {
-    console.log('⚠️ Frontend não encontrado. Servindo página básica.');
-    
-    app.get('/', (req, res) => {
-        res.send(`
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <title>Atlas Financeiro</title>
-                <style>
-                    body { font-family: Arial; padding: 40px; text-align: center; }
-                    h1 { color: #3b82f6; }
-                    .btn { background: #3b82f6; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; display: inline-block; margin: 10px; }
-                </style>
-            </head>
-            <body>
-                <h1>🚀 Atlas Financeiro</h1>
-                <p>Backend funcionando! Mas frontend não encontrado.</p>
-                <p>Verifique se o arquivo <code>frontend/index.html</code> está no repositório.</p>
-                <a href="/api/health" class="btn">Verificar API</a>
-                <a href="https://github.com/Atlas-4t145/portal-atlas" class="btn" target="_blank">GitHub</a>
-            </body>
-            </html>
-        `);
-    });
-}
+// Rotas da API
+app.use('/api/auth', authRoutes);
+app.use('/api/dashboard', dashboardRoutes);
 
-// API Routes
+// Rota de health check
 app.get('/api/health', (req, res) => {
-    res.json({
-        status: 'OK',
-        service: 'Atlas Financeiro',
+    res.json({ 
+        status: 'OK', 
         timestamp: new Date().toISOString(),
-        frontend: frontendFound ? 'encontrado' : 'não encontrado'
+        service: 'Atlas Financeiro API',
+        version: '1.0.0'
     });
 });
 
-app.get('/api/test', (req, res) => {
-    res.json({ message: 'API funcionando!', user: 'demo' });
+// Todas as outras rotas vão para o frontend (SPA)
+app.get('*', (req, res) => {
+    res.sendFile(path.join(frontendPath, 'index.html'));
 });
 
-// Default route
-app.get('*', (req, res) => {
-    if (frontendFound) {
-        res.sendFile('index.html', { root: './frontend' });
-    } else {
-        res.redirect('/');
-    }
+// Middleware de erro
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).json({
+        success: false,
+        message: 'Erro interno do servidor'
+    });
 });
 
 app.listen(PORT, () => {
     console.log(`🚀 Servidor Atlas rodando na porta ${PORT}`);
-    console.log(`🌐 Acesse: https://atlas-database.onrender.com`);
+    console.log(`📊 Ambiente: ${process.env.NODE_ENV || 'development'}`);
+    console.log(`📁 Frontend: ${frontendPath}`);
+    console.log(`🌐 API disponível em: /api/*`);
 });
