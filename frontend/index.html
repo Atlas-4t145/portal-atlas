@@ -1311,5 +1311,259 @@
             }, 60000); // A cada minuto
         });
     </script>
+
+    <script>
+// API Service
+class ApiService {
+    constructor() {
+        // Usa a URL atual do Render automaticamente
+        this.baseUrl = window.location.origin + '/api';
+    }
+
+    async fetchData(endpoint) {
+        try {
+            const response = await fetch(`${this.baseUrl}${endpoint}`);
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.error(`Erro ao buscar ${endpoint}:`, error);
+            return { success: false, data: null };
+        }
+    }
+
+    async getOverview() {
+        return await this.fetchData('/dashboard/overview');
+    }
+
+    async getOffenders() {
+        return await this.fetchData('/dashboard/offenders');
+    }
+
+    async getCategories() {
+        return await this.fetchData('/dashboard/categories');
+    }
+
+    async getRecurring() {
+        return await this.fetchData('/dashboard/recurring');
+    }
+
+    async getCalendar() {
+        return await this.fetchData('/dashboard/calendar');
+    }
+}
+
+// Formatar moeda
+function formatCurrency(value) {
+    return new Intl.NumberFormat('pt-BR', {
+        style: 'currency',
+        currency: 'BRL'
+    }).format(value);
+}
+
+// Atualizar dashboard com dados da API
+async function loadDashboardData() {
+    const api = new ApiService();
+    
+    try {
+        // 1. Carregar Visão Geral
+        const overview = await api.getOverview();
+        if (overview.success) {
+            document.querySelector('.income-amount').textContent = formatCurrency(overview.data.income);
+            document.querySelector('.expense-amount').textContent = formatCurrency(overview.data.expenses);
+            document.querySelector('.balance-amount').textContent = formatCurrency(overview.data.balance);
+            document.querySelector('.savings-amount').textContent = formatCurrency(overview.data.savings);
+            document.getElementById('current-month').textContent = overview.data.currentMonth;
+            
+            // Atualizar saúde financeira
+            const healthCircle = document.querySelector('.health-circle');
+            healthCircle.textContent = `${overview.data.healthScore}%`;
+            healthCircle.className = 'health-circle ' + 
+                (overview.data.healthScore >= 80 ? 'health-excellent' : 
+                 overview.data.healthScore >= 60 ? 'health-good' : 
+                 overview.data.healthScore >= 40 ? 'health-warning' : 'health-danger');
+            
+            // Atualizar comparativo
+            document.querySelector('.health-details .health-title').textContent = 
+                overview.data.healthScore >= 70 ? 'Boa Saúde Financeira' : 
+                overview.data.healthScore >= 50 ? 'Saúde Financeira Regular' : 'Saúde Financeira Baixa';
+        }
+
+        // 2. Carregar Contas Ofensoras
+        const offenders = await api.getOffenders();
+        if (offenders.success) {
+            const offendersContainer = document.querySelector('.section:nth-child(1) .offender-card:first-child').parentNode;
+            // Atualizar dados existentes ou criar dinamicamente
+            const offenderCards = document.querySelectorAll('.offender-card');
+            offenders.data.forEach((offender, index) => {
+                if (offenderCards[index]) {
+                    offenderCards[index].querySelector('.offender-name').textContent = offender.name;
+                    offenderCards[index].querySelector('.offender-amount').textContent = formatCurrency(offender.amount);
+                    
+                    const details = offenderCards[index].querySelector('.offender-details');
+                    if (details) {
+                        if (offender.overBudget) {
+                            details.children[0].textContent = `${offender.overBudget}% acima do orçamento`;
+                            details.children[1].textContent = `${offender.percentage}% das despesas totais`;
+                        } else if (offender.installments) {
+                            details.children[0].textContent = `Parcela ${offender.installments}`;
+                            details.children[1].textContent = `Vence dia ${offender.dueDay} de cada mês`;
+                        }
+                    }
+                }
+            });
+        }
+
+        // 3. Carregar Categorias
+        const categories = await api.getCategories();
+        if (categories.success) {
+            const categoryCards = document.querySelectorAll('.account-type-card');
+            categories.data.forEach((category, index) => {
+                if (categoryCards[index]) {
+                    categoryCards[index].querySelector('.account-type-name').textContent = category.name;
+                    categoryCards[index].querySelector('.account-type-value').textContent = formatCurrency(category.amount);
+                    categoryCards[index].querySelector('div[style*="font-size: 12px"]').textContent = 
+                        `${category.percentage}% ${category.name === 'Investimentos' ? 'da renda' : 'das despesas'}`;
+                }
+            });
+        }
+
+        // 4. Carregar Contas Recorrentes
+        const recurring = await api.getRecurring();
+        if (recurring.success) {
+            const recurringItems = document.querySelectorAll('.recurring-item');
+            recurring.data.forEach((item, index) => {
+                if (recurringItems[index]) {
+                    recurringItems[index].querySelector('.recurring-title').textContent = item.name;
+                    recurringItems[index].querySelector('.recurring-info').textContent = item.description;
+                    recurringItems[index].querySelector('.recurring-due-date').textContent = `Dia ${item.dueDay}`;
+                    recurringItems[index].querySelector('.recurring-amount').textContent = `- ${formatCurrency(item.amount)}`;
+                    
+                    // Atualizar ícone
+                    const icon = recurringItems[index].querySelector('.recurring-icon');
+                    icon.className = `recurring-icon ${item.type}`;
+                    icon.innerHTML = `<i class="fas fa-${item.icon}"></i>`;
+                }
+            });
+        }
+
+        // 5. Carregar Calendário
+        const calendar = await api.getCalendar();
+        if (calendar.success) {
+            // Atualizar totais
+            let todayTotal = 0;
+            let soonTotal = 0;
+            
+            calendar.data.forEach(item => {
+                if (item.status === 'today') todayTotal += item.amount;
+                if (item.status === 'soon') soonTotal += item.amount;
+            });
+            
+            const todayElement = document.querySelector('.calendar-due-dot').parentNode.parentNode
+                .querySelector('div[style*="margin-top: 20px"] div:nth-child(1)');
+            if (todayElement) {
+                todayElement.querySelector('div:nth-child(4)').textContent = `Total: ${formatCurrency(todayTotal)}`;
+            }
+            
+            const soonElement = document.querySelector('.calendar-due-dot').parentNode.parentNode
+                .querySelector('div[style*="margin-top: 20px"] div:nth-child(2)');
+            if (soonElement) {
+                soonElement.querySelector('div:nth-child(4)').textContent = `Total: ${formatCurrency(soonTotal)}`;
+            }
+        }
+
+        console.log('✅ Dashboard carregado com sucesso da API!');
+
+    } catch (error) {
+        console.error('❌ Erro ao carregar dashboard:', error);
+        // Mostrar alerta
+        showModal('Erro de Conexão', 
+            'Não foi possível conectar com a API.\n\n' +
+            'Verifique se:\n' +
+            '1. O backend está rodando\n' +
+            '2. A URL da API está correta\n' +
+            '3. Não há problemas de CORS\n\n' +
+            'Usando dados locais como fallback.');
+    }
+}
+
+// Função para mostrar modal (já existe no seu código, apenas garantir)
+function showModal(title, message) {
+    // Criar overlay
+    const overlay = document.createElement('div');
+    overlay.style.position = 'fixed';
+    overlay.style.top = '0';
+    overlay.style.left = '0';
+    overlay.style.width = '100%';
+    overlay.style.height = '100%';
+    overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+    overlay.style.display = 'flex';
+    overlay.style.justifyContent = 'center';
+    overlay.style.alignItems = 'center';
+    overlay.style.zIndex = '1000';
+    
+    // Criar modal
+    const modal = document.createElement('div');
+    modal.style.backgroundColor = 'white';
+    modal.style.borderRadius = 'var(--border-radius)';
+    modal.style.padding = '30px';
+    modal.style.maxWidth = '500px';
+    modal.style.width = '90%';
+    modal.style.boxShadow = '0 20px 60px rgba(0, 0, 0, 0.3)';
+    
+    // Adicionar título
+    const titleElement = document.createElement('h3');
+    titleElement.textContent = title;
+    titleElement.style.marginBottom = '15px';
+    titleElement.style.color = 'var(--dark)';
+    titleElement.style.fontSize = '20px';
+    
+    // Adicionar mensagem
+    const messageElement = document.createElement('div');
+    messageElement.textContent = message;
+    messageElement.style.marginBottom = '25px';
+    messageElement.style.color = 'var(--gray)';
+    messageElement.style.whiteSpace = 'pre-line';
+    messageElement.style.lineHeight = '1.6';
+    
+    // Adicionar botão de fechar
+    const closeButton = document.createElement('button');
+    closeButton.textContent = 'Fechar';
+    closeButton.className = 'btn-primary';
+    closeButton.style.width = '100%';
+    closeButton.addEventListener('click', function() {
+        document.body.removeChild(overlay);
+    });
+    
+    // Montar modal
+    modal.appendChild(titleElement);
+    modal.appendChild(messageElement);
+    modal.appendChild(closeButton);
+    overlay.appendChild(modal);
+    
+    // Adicionar ao body
+    document.body.appendChild(overlay);
+    
+    // Fechar ao clicar fora do modal
+    overlay.addEventListener('click', function(e) {
+        if (e.target === overlay) {
+            document.body.removeChild(overlay);
+        }
+    });
+}
+
+// Inicializar quando a página carregar
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🚀 Iniciando Atlas Financeiro...');
+    
+    // Carregar dados da API
+    loadDashboardData();
+    
+    // Configurar eventos existentes (mantenha o seu código aqui)
+    // ... seu código existente de event listeners ...
+    
+    // Atualizar dados a cada 30 segundos
+    setInterval(loadDashboardData, 30000);
+});
+</script>
 </body>
 </html>
