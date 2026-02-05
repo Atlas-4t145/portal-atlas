@@ -1551,19 +1551,154 @@ function showModal(title, message) {
     });
 }
 
-// Inicializar quando a página carregar
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('🚀 Iniciando Atlas Financeiro...');
-    
-    // Carregar dados da API
-    loadDashboardData();
-    
-    // Configurar eventos existentes (mantenha o seu código aqui)
-    // ... seu código existente de event listeners ...
-    
-    // Atualizar dados a cada 30 segundos
-    setInterval(loadDashboardData, 30000);
-});
-</script>
+        // Inicialização do painel
+        document.addEventListener('DOMContentLoaded', function() {
+            // Configurar mês atual
+            document.getElementById('current-month').textContent = financialData.currentMonth;
+            
+            // Adicionar evento ao botão de nova transação
+            document.getElementById('add-transaction').addEventListener('click', function() {
+                showModal("Nova Transação", "Aqui você pode registrar qualquer transação financeira:\n\n1. Receitas (salário, vendas, etc.)\n2. Despesas (compras, contas, etc.)\n3. Transferências\n4. Investimentos\n\nTodos os dados serão categorizados automaticamente.");
+            });
+            
+            // Configurar upload de extrato
+            document.getElementById('upload-extract').addEventListener('click', function() {
+                showModal("Analisar Extrato Bancário", "Faça upload do extrato em PDF do seu banco para:\n\n✓ Identificar automaticamente todas as transações\n✓ Categorizar receitas e despesas\n✓ Detectar padrões de gastos\n✓ Sugerir otimizações financeiras\n✓ Atualizar seu saldo automaticamente");
+            });
+            
+            // Configurar navegação entre meses
+            const monthNames = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", 
+                               "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+            let currentDate = new Date(2023, 5, 1); // Junho 2023
+            
+            document.getElementById('prev-month').addEventListener('click', function() {
+                currentDate.setMonth(currentDate.getMonth() - 1);
+                updateMonthDisplay();
+            });
+            
+            document.getElementById('next-month').addEventListener('click', function() {
+                currentDate.setMonth(currentDate.getMonth() + 1);
+                updateMonthDisplay();
+            });
+            
+            function updateMonthDisplay() {
+                const monthName = monthNames[currentDate.getMonth()];
+                const year = currentDate.getFullYear();
+                document.getElementById('current-month').textContent = `${monthName} ${year}`;
+                
+                // Em um sistema real, aqui buscaríamos os dados do novo mês
+                console.log(`Carregando dados de ${monthName} ${year}...`);
+                alert(`Dados de ${monthName} ${year} carregados com sucesso!`);
+            }
+            
+            // Adicionar eventos de clique nas categorias de contas
+            const accountTypeCards = document.querySelectorAll('.account-type-card');
+            accountTypeCards.forEach(card => {
+                card.addEventListener('click', function() {
+                    const typeName = this.querySelector('.account-type-name').textContent;
+                    showModal(`Detalhes: ${typeName}`, `Aqui você veria todas as transações desta categoria:\n\n• Lista completa de contas\n• Gráficos de evolução\n• Comparativo com meses anteriores\n• Sugestões de economia\n\nTotal atual: ${this.querySelector('.account-type-value').textContent}`);
+                });
+            });
+            
+            // Adicionar eventos de clique nas contas recorrentes
+            const recurringItems = document.querySelectorAll('.recurring-item');
+            recurringItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    const title = this.querySelector('.recurring-title').textContent;
+                    const details = this.querySelector('.recurring-info').textContent;
+                    const amount = this.querySelector('.recurring-amount').textContent;
+                    const dueDate = this.querySelector('.recurring-due-date').textContent;
+                    
+                    showModal(`Detalhes: ${title}`, 
+                        `${details}\n\n` +
+                        `Valor: ${amount}\n` +
+                        `Vencimento: ${dueDate}\n\n` +
+                        `Opções:\n` +
+                        `✓ Marcar como pago\n` +
+                        `✓ Alterar data de vencimento\n` +
+                        `✓ Editar valor\n` +
+                        `✓ Configurar lembretes`);
+                });
+            });
+            
+            // Função para mostrar modal simples
+            function showModal(title, message) {
+                // Criar overlay
+                const overlay = document.createElement('div');
+                overlay.style.position = 'fixed';
+                overlay.style.top = '0';
+                overlay.style.left = '0';
+                overlay.style.width = '100%';
+                overlay.style.height = '100%';
+                overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+                overlay.style.display = 'flex';
+                overlay.style.justifyContent = 'center';
+                overlay.style.alignItems = 'center';
+                overlay.style.zIndex = '1000';
+                
+                // Criar modal
+                const modal = document.createElement('div');
+                modal.style.backgroundColor = 'white';
+                modal.style.borderRadius = 'var(--border-radius)';
+                modal.style.padding = '30px';
+                modal.style.maxWidth = '500px';
+                modal.style.width = '90%';
+                modal.style.boxShadow = '0 20px 60px rgba(0, 0, 0, 0.3)';
+                
+                // Adicionar título
+                const titleElement = document.createElement('h3');
+                titleElement.textContent = title;
+                titleElement.style.marginBottom = '15px';
+                titleElement.style.color = 'var(--dark)';
+                titleElement.style.fontSize = '20px';
+                
+                // Adicionar mensagem
+                const messageElement = document.createElement('div');
+                messageElement.textContent = message;
+                messageElement.style.marginBottom = '25px';
+                messageElement.style.color = 'var(--gray)';
+                messageElement.style.whiteSpace = 'pre-line';
+                messageElement.style.lineHeight = '1.6';
+                
+                // Adicionar botão de fechar
+                const closeButton = document.createElement('button');
+                closeButton.textContent = 'Fechar';
+                closeButton.className = 'btn-primary';
+                closeButton.style.width = '100%';
+                closeButton.addEventListener('click', function() {
+                    document.body.removeChild(overlay);
+                });
+                
+                // Montar modal
+                modal.appendChild(titleElement);
+                modal.appendChild(messageElement);
+                modal.appendChild(closeButton);
+                overlay.appendChild(modal);
+                
+                // Adicionar ao body
+                document.body.appendChild(overlay);
+                
+                // Fechar ao clicar fora do modal
+                overlay.addEventListener('click', function(e) {
+                    if (e.target === overlay) {
+                        document.body.removeChild(overlay);
+                    }
+                });
+            }
+            
+            // Simular atualização periódica de dados
+            setInterval(() => {
+                const now = new Date();
+                console.log(`Sistema atualizado em: ${now.toLocaleTimeString()}`);
+                
+                // Verificar vencimentos do dia
+                const today = new Date();
+                if (today.getDate() === 3 || today.getDate() === 5 || today.getDate() === 8 || 
+                    today.getDate() === 10 || today.getDate() === 15 || today.getDate() === 20) {
+                    console.log("Lembrete: Você tem contas vencendo hoje!");
+                }
+            }, 60000); // A cada minuto
+        });
+    </script>
 </body>
 </html>
