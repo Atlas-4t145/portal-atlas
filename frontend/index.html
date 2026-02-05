@@ -522,11 +522,17 @@
             font-weight: 600;
             font-size: 16px;
             color: var(--warning);
+            min-width: 70px;
+            text-align: right;
+            margin-left: 10px;
         }
 
         .recurring-amount {
             font-weight: 700;
             font-size: 18px;
+            min-width: 110px;
+            text-align: right;
+            margin-left: 10px;
         }
 
         .recurring-amount.expense {
@@ -554,6 +560,9 @@
 
         .calendar-day.empty {
             background-color: transparent;
+            height: 30px;
+            font-size: 12px;
+            color: var(--gray);
         }
 
         .calendar-day.normal {
@@ -689,7 +698,7 @@
                         <div class="card-amount income-amount">R$ 4.850,00</div>
                     </div>
                 </div>
-                <div class="card-change positive">
+                <div class="card-change positive" id="income-change">
                     <i class="fas fa-arrow-up"></i>
                     <span>R$ 300 a mais que mês passado</span>
                 </div>
@@ -705,7 +714,7 @@
                         <div class="card-amount expense-amount">R$ 3.210,00</div>
                     </div>
                 </div>
-                <div class="card-change negative">
+                <div class="card-change negative" id="expense-change">
                     <i class="fas fa-arrow-down"></i>
                     <span>R$ 150 a menos que mês passado</span>
                 </div>
@@ -721,7 +730,7 @@
                         <div class="card-amount balance-amount">R$ 1.640,00</div>
                     </div>
                 </div>
-                <div class="card-change positive">
+                <div class="card-change positive" id="balance-change">
                     <i class="fas fa-arrow-up"></i>
                     <span>20% da sua renda</span>
                 </div>
@@ -737,7 +746,7 @@
                         <div class="card-amount savings-amount">R$ 12.580,00</div>
                     </div>
                 </div>
-                <div class="card-change positive">
+                <div class="card-change positive" id="savings-change">
                     <i class="fas fa-arrow-up"></i>
                     <span>R$ 1.640 este mês</span>
                 </div>
@@ -749,13 +758,14 @@
             <!-- Coluna Principal -->
             <div>
                 <!-- Contas Ofensoras -->
-                <div class="section">
+                <div class="section" id="offenders-section">
                     <h3 class="section-title">
                         <span><i class="fas fa-exclamation-triangle"></i> Contas Ofensoras</span>
                         <span style="font-size: 14px; color: var(--danger);">Maiores impactos no orçamento</span>
                     </h3>
                     
                     <div class="section-subtitle">Categorias que mais consomem seu dinheiro:</div>
+
                     <div class="offender-card">
                         <div class="offender-header">
                             <div class="offender-name">Lazer e Entretenimento</div>
@@ -785,6 +795,7 @@
                     </div>
                     
                     <div class="section-subtitle" style="margin-top: 25px;">Contas individuais mais caras:</div>
+
                     <div class="offender-card">
                         <div class="offender-header">
                             <div class="offender-name">Faculdade Particular</div>
@@ -816,24 +827,24 @@
                     </h3>
                     
                     <div class="health-indicator">
-                        <div class="health-circle health-good">72%</div>
+                        <div class="health-circle health-good" id="health-circle">72%</div>
                         <div class="health-details">
-                            <div class="health-title">Boa Saúde Financeira</div>
-                            <div class="health-description">Você está no caminho certo! Economiza 20% da renda e tem 3 meses de reserva de emergência.</div>
+                            <div class="health-title" id="health-title">Boa Saúde Financeira</div>
+                            <div class="health-description" id="health-description">Você está no caminho certo! Economiza 20% da renda e tem 3 meses de reserva de emergência.</div>
                         </div>
                     </div>
                     
                     <div class="section-subtitle">Comparativo com o mês anterior:</div>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px;">
                         <div style="background-color: var(--light); padding: 15px; border-radius: 12px;">
-                            <div style="font-size: 14px; color: var(--gray);">Maio 2023</div>
-                            <div style="font-size: 20px; font-weight: 700; color: var(--dark);">65%</div>
+                            <div style="font-size: 14px; color: var(--gray);" id="health-prev-label">Maio 2023</div>
+                            <div style="font-size: 20px; font-weight: 700; color: var(--dark);" id="health-prev-score">65%</div>
                             <div style="font-size: 12px; color: var(--gray);">Índice de saúde</div>
                         </div>
                         <div style="background-color: var(--light); padding: 15px; border-radius: 12px;">
-                            <div style="font-size: 14px; color: var(--gray);">Junho 2023</div>
-                            <div style="font-size: 20px; font-weight: 700; color: var(--primary);">72%</div>
-                            <div style="font-size: 12px; color: var(--gray);">+7% de melhoria</div>
+                            <div style="font-size: 14px; color: var(--gray);" id="health-cur-label">Junho 2023</div>
+                            <div style="font-size: 20px; font-weight: 700; color: var(--primary);" id="health-cur-score">72%</div>
+                            <div style="font-size: 12px; color: var(--gray);" id="health-delta">+7% de melhoria</div>
                         </div>
                     </div>
                     
@@ -855,14 +866,14 @@
                         <span style="font-size: 14px; color: var(--gray);">Metrificação por tipo</span>
                     </h3>
                     
-                    <div class="account-types">
+                    <div class="account-types" id="account-types">
                         <div class="account-type-card">
                             <div class="account-type-icon account-type-essential">
                                 <i class="fas fa-home"></i>
                             </div>
                             <div class="account-type-name">Essenciais</div>
                             <div class="account-type-value">R$ 1.980</div>
-                            <div style="font-size: 12px; color: var(--gray);">62% das despesas</div>
+                            <div class="account-type-meta" style="font-size: 12px; color: var(--gray);">62% das despesas</div>
                         </div>
                         
                         <div class="account-type-card">
@@ -871,7 +882,7 @@
                             </div>
                             <div class="account-type-name">Investimentos</div>
                             <div class="account-type-value">R$ 1.200</div>
-                            <div style="font-size: 12px; color: var(--gray);">25% da renda</div>
+                            <div class="account-type-meta" style="font-size: 12px; color: var(--gray);">25% da renda</div>
                         </div>
                         
                         <div class="account-type-card">
@@ -880,7 +891,7 @@
                             </div>
                             <div class="account-type-name">Recorrentes</div>
                             <div class="account-type-value">R$ 1.450</div>
-                            <div style="font-size: 12px; color: var(--gray);">45% das despesas</div>
+                            <div class="account-type-meta" style="font-size: 12px; color: var(--gray);">45% das despesas</div>
                         </div>
                         
                         <div class="account-type-card">
@@ -889,7 +900,7 @@
                             </div>
                             <div class="account-type-name">Lazer</div>
                             <div class="account-type-value">R$ 760</div>
-                            <div style="font-size: 12px; color: var(--gray);">24% das despesas</div>
+                            <div class="account-type-meta" style="font-size: 12px; color: var(--gray);">24% das despesas</div>
                         </div>
                     </div>
                 </div>
@@ -904,7 +915,7 @@
                         <span style="font-size: 14px; color: var(--secondary);">PIX e Parcelamentos</span>
                     </h3>
                     
-                    <div class="recurring-list">
+                    <div class="recurring-list" id="recurring-list">
                         <div class="recurring-item">
                             <div class="recurring-icon fixed">
                                 <i class="fas fa-wifi"></i>
@@ -971,144 +982,21 @@
                 <div class="section">
                     <h3 class="section-title">
                         <span><i class="fas fa-calendar-alt"></i> Vencimentos</span>
-                        <span style="font-size: 14px; color: var(--gray);">Junho 2023</span>
+                        <span style="font-size: 14px; color: var(--gray);" id="calendar-label">Junho 2023</span>
                     </h3>
                     
-                    <div class="calendar-grid">
-                        <!-- Dias da semana -->
-                        <div class="calendar-day empty">Dom</div>
-                        <div class="calendar-day empty">Seg</div>
-                        <div class="calendar-day empty">Ter</div>
-                        <div class="calendar-day empty">Qua</div>
-                        <div class="calendar-day empty">Qui</div>
-                        <div class="calendar-day empty">Sex</div>
-                        <div class="calendar-day empty">Sáb</div>
-                        
-                        <!-- Dias do mês -->
-                        <div class="calendar-day empty"></div>
-                        <div class="calendar-day empty"></div>
-                        <div class="calendar-day empty"></div>
-                        <div class="calendar-day due-soon">
-                            <div class="calendar-day-number">1</div>
-                            <div class="calendar-day-amount">R$ 240</div>
-                        </div>
-                        <div class="calendar-day due-soon">
-                            <div class="calendar-day-number">2</div>
-                        </div>
-                        <div class="calendar-day due-today">
-                            <div class="calendar-day-number">3</div>
-                            <div class="calendar-day-amount">R$ 90</div>
-                            <div class="calendar-due-dot"></div>
-                        </div>
-                        <div class="calendar-day normal">
-                            <div class="calendar-day-number">4</div>
-                        </div>
-                        
-                        <div class="calendar-day due-today">
-                            <div class="calendar-day-number">5</div>
-                            <div class="calendar-day-amount">R$ 480</div>
-                            <div class="calendar-due-dot"></div>
-                        </div>
-                        <div class="calendar-day normal">
-                            <div class="calendar-day-number">6</div>
-                        </div>
-                        <div class="calendar-day due-soon">
-                            <div class="calendar-day-number">7</div>
-                        </div>
-                        <div class="calendar-day due-today">
-                            <div class="calendar-day-number">8</div>
-                            <div class="calendar-day-amount">R$ 95</div>
-                            <div class="calendar-due-dot"></div>
-                        </div>
-                        <div class="calendar-day due-soon">
-                            <div class="calendar-day-number">9</div>
-                        </div>
-                        <div class="calendar-day due-today">
-                            <div class="calendar-day-number">10</div>
-                            <div class="calendar-day-amount">R$ 850</div>
-                            <div class="calendar-due-dot"></div>
-                        </div>
-                        <div class="calendar-day normal">
-                            <div class="calendar-day-number">11</div>
-                        </div>
-                        
-                        <div class="calendar-day normal">
-                            <div class="calendar-day-number">12</div>
-                        </div>
-                        <div class="calendar-day normal">
-                            <div class="calendar-day-number">13</div>
-                        </div>
-                        <div class="calendar-day normal">
-                            <div class="calendar-day-number">14</div>
-                        </div>
-                        <div class="calendar-day due-today">
-                            <div class="calendar-day-number">15</div>
-                            <div class="calendar-day-amount">R$ 185</div>
-                            <div class="calendar-due-dot"></div>
-                        </div>
-                        <div class="calendar-day normal">
-                            <div class="calendar-day-number">16</div>
-                        </div>
-                        <div class="calendar-day normal">
-                            <div class="calendar-day-number">17</div>
-                        </div>
-                        <div class="calendar-day normal">
-                            <div class="calendar-day-number">18</div>
-                        </div>
-                        
-                        <div class="calendar-day normal">
-                            <div class="calendar-day-number">19</div>
-                        </div>
-                        <div class="calendar-day due-today">
-                            <div class="calendar-day-number">20</div>
-                            <div class="calendar-day-amount">R$ 210</div>
-                            <div class="calendar-due-dot"></div>
-                        </div>
-                        <div class="calendar-day normal">
-                            <div class="calendar-day-number">21</div>
-                        </div>
-                        <div class="calendar-day normal">
-                            <div class="calendar-day-number">22</div>
-                        </div>
-                        <div class="calendar-day normal">
-                            <div class="calendar-day-number">23</div>
-                        </div>
-                        <div class="calendar-day normal">
-                            <div class="calendar-day-number">24</div>
-                        </div>
-                        <div class="calendar-day normal">
-                            <div class="calendar-day-number">25</div>
-                        </div>
-                        
-                        <div class="calendar-day normal">
-                            <div class="calendar-day-number">26</div>
-                        </div>
-                        <div class="calendar-day normal">
-                            <div class="calendar-day-number">27</div>
-                        </div>
-                        <div class="calendar-day normal">
-                            <div class="calendar-day-number">28</div>
-                        </div>
-                        <div class="calendar-day normal">
-                            <div class="calendar-day-number">29</div>
-                        </div>
-                        <div class="calendar-day normal">
-                            <div class="calendar-day-number">30</div>
-                        </div>
-                        <div class="calendar-day empty"></div>
-                        <div class="calendar-day empty"></div>
-                    </div>
+                    <div class="calendar-grid" id="calendar-grid"></div>
                     
                     <div style="margin-top: 20px; font-size: 14px; color: var(--gray);">
                         <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
                             <div style="width: 12px; height: 12px; border-radius: 50%; background-color: var(--danger);"></div>
                             <div>Vence hoje • </div>
-                            <div style="font-weight: 600; margin-left: 5px;">Total: R$ 1.815</div>
+                            <div style="font-weight: 600; margin-left: 5px;" id="today-total">Total: R$ 1.815</div>
                         </div>
                         <div style="display: flex; align-items: center; gap: 8px;">
                             <div style="width: 12px; height: 12px; border-radius: 50%; background-color: var(--warning);"></div>
                             <div>Próximos vencimentos • </div>
-                            <div style="font-weight: 600; margin-left: 5px;">Total: R$ 240</div>
+                            <div style="font-weight: 600; margin-left: 5px;" id="soon-total">Total: R$ 240</div>
                         </div>
                     </div>
                 </div>
@@ -1123,7 +1011,7 @@
     </div>
 
     <script>
-        // Dados fictícios para o painel
+        // Dados fictícios para fallback (se API falhar)
         const financialData = {
             currentMonth: "Junho 2023",
             income: 4850.00,
@@ -1162,542 +1050,540 @@
             ]
         };
 
-        // Inicialização do painel
-        document.addEventListener('DOMContentLoaded', function() {
-            // Configurar mês atual
-            document.getElementById('current-month').textContent = financialData.currentMonth;
-            
-            // Adicionar evento ao botão de nova transação
-            document.getElementById('add-transaction').addEventListener('click', function() {
-                showModal("Nova Transação", "Aqui você pode registrar qualquer transação financeira:\n\n1. Receitas (salário, vendas, etc.)\n2. Despesas (compras, contas, etc.)\n3. Transferências\n4. Investimentos\n\nTodos os dados serão categorizados automaticamente.");
-            });
-            
-            // Configurar upload de extrato
-            document.getElementById('upload-extract').addEventListener('click', function() {
-                showModal("Analisar Extrato Bancário", "Faça upload do extrato em PDF do seu banco para:\n\n✓ Identificar automaticamente todas as transações\n✓ Categorizar receitas e despesas\n✓ Detectar padrões de gastos\n✓ Sugerir otimizações financeiras\n✓ Atualizar seu saldo automaticamente");
-            });
-            
-            // Configurar navegação entre meses
-            const monthNames = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", 
-                               "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
-            let currentDate = new Date(2023, 5, 1); // Junho 2023
-            
-            document.getElementById('prev-month').addEventListener('click', function() {
-                currentDate.setMonth(currentDate.getMonth() - 1);
-                updateMonthDisplay();
-            });
-            
-            document.getElementById('next-month').addEventListener('click', function() {
-                currentDate.setMonth(currentDate.getMonth() + 1);
-                updateMonthDisplay();
-            });
-            
-            function updateMonthDisplay() {
-                const monthName = monthNames[currentDate.getMonth()];
-                const year = currentDate.getFullYear();
-                document.getElementById('current-month').textContent = `${monthName} ${year}`;
-                
-                // Em um sistema real, aqui buscaríamos os dados do novo mês
-                console.log(`Carregando dados de ${monthName} ${year}...`);
-                alert(`Dados de ${monthName} ${year} carregados com sucesso!`);
+        // Serviço de API (DINÂMICO)
+        class ApiService {
+            constructor() {
+                this.baseUrl = 'https://atlas-database.onrender.com';
             }
-            
-            // Adicionar eventos de clique nas categorias de contas
-            const accountTypeCards = document.querySelectorAll('.account-type-card');
-            accountTypeCards.forEach(card => {
-                card.addEventListener('click', function() {
-                    const typeName = this.querySelector('.account-type-name').textContent;
-                    showModal(`Detalhes: ${typeName}`, `Aqui você veria todas as transações desta categoria:\n\n• Lista completa de contas\n• Gráficos de evolução\n• Comparativo com meses anteriores\n• Sugestões de economia\n\nTotal atual: ${this.querySelector('.account-type-value').textContent}`);
-                });
+
+            async fetchData(endpoint) {
+                try {
+                    const response = await fetch(`${this.baseUrl}${endpoint}`, { method: 'GET' });
+                    const data = await response.json();
+                    return data;
+                } catch (error) {
+                    console.error(`Erro ao buscar ${endpoint}:`, error);
+                    return { success: false, data: null };
+                }
+            }
+
+            async getOverview(month, year) {
+                const qs = (month != null && year != null) ? `?month=${month}&year=${year}` : '';
+                return await this.fetchData(`/dashboard/overview${qs}`);
+            }
+
+            async getOffenders(month, year) {
+                const qs = (month != null && year != null) ? `?month=${month}&year=${year}` : '';
+                return await this.fetchData(`/dashboard/offenders${qs}`);
+            }
+
+            async getCategories(month, year) {
+                const qs = (month != null && year != null) ? `?month=${month}&year=${year}` : '';
+                return await this.fetchData(`/dashboard/categories${qs}`);
+            }
+
+            async getRecurring(month, year) {
+                const qs = (month != null && year != null) ? `?month=${month}&year=${year}` : '';
+                return await this.fetchData(`/dashboard/recurring${qs}`);
+            }
+
+            async getCalendar(month, year) {
+                const qs = (month != null && year != null) ? `?month=${month}&year=${year}` : '';
+                return await this.fetchData(`/dashboard/calendar${qs}`);
+            }
+        }
+
+        function formatCurrency(value) {
+            return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Number(value || 0));
+        }
+
+        const monthNames = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+        let currentDate = new Date(2023, 5, 1); // default
+
+        function getCurrentMonthLabel(dateObj) {
+            const m = monthNames[dateObj.getMonth()];
+            const y = dateObj.getFullYear();
+            return `${m} ${y}`;
+        }
+
+        function setHealthUI(score) {
+            const healthCircle = document.getElementById('health-circle');
+            const healthTitle = document.getElementById('health-title');
+
+            const s = Number(score || 0);
+            healthCircle.textContent = `${s}%`;
+            healthCircle.className = 'health-circle ' +
+                (s >= 80 ? 'health-excellent' :
+                 s >= 60 ? 'health-good' :
+                 s >= 40 ? 'health-warning' : 'health-danger');
+
+            healthTitle.textContent =
+                s >= 70 ? 'Boa Saúde Financeira' :
+                s >= 50 ? 'Saúde Financeira Regular' : 'Saúde Financeira Baixa';
+        }
+
+        function renderOverviewFromObject(obj) {
+            document.querySelector('.income-amount').textContent = formatCurrency(obj.income);
+            document.querySelector('.expense-amount').textContent = formatCurrency(obj.expenses);
+            document.querySelector('.balance-amount').textContent = formatCurrency(obj.balance);
+            document.querySelector('.savings-amount').textContent = formatCurrency(obj.savings);
+
+            const label = obj.currentMonth || getCurrentMonthLabel(currentDate);
+            document.getElementById('current-month').textContent = label;
+            document.getElementById('calendar-label').textContent = label;
+
+            setHealthUI(obj.healthScore);
+
+            const prevScore = Number(obj.healthPreviousScore || 0);
+            const curScore = Number(obj.healthScore || 0);
+            const delta = curScore - prevScore;
+
+            const prevMonthDate = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1);
+            document.getElementById('health-prev-label').textContent = `${monthNames[prevMonthDate.getMonth()]} ${prevMonthDate.getFullYear()}`;
+            document.getElementById('health-cur-label').textContent = `${monthNames[currentDate.getMonth()]} ${currentDate.getFullYear()}`;
+
+            document.getElementById('health-prev-score').textContent = `${prevScore}%`;
+            document.getElementById('health-cur-score').textContent = `${curScore}%`;
+            document.getElementById('health-delta').textContent = `${delta >= 0 ? '+' : ''}${delta}% de ${delta >= 0 ? 'melhoria' : 'queda'}`;
+        }
+
+        function rebuildOffenders(offendersArr) {
+            const section = document.getElementById('offenders-section');
+
+            const title = section.querySelector('h3.section-title');
+            section.innerHTML = '';
+            section.appendChild(title);
+
+            const subtitle1 = document.createElement('div');
+            subtitle1.className = 'section-subtitle';
+            subtitle1.textContent = 'Categorias que mais consomem seu dinheiro:';
+            section.appendChild(subtitle1);
+
+            const offenders = Array.isArray(offendersArr) ? offendersArr : [];
+
+            const topCats = offenders.filter(x => x && (x.overBudget != null || x.percentage != null)).slice(0, 2);
+            const topBills = offenders.filter(x => x && (x.installments != null || x.dueDay != null)).slice(0, 2);
+
+            const makeCard = (o, withProgress) => {
+                const card = document.createElement('div');
+                card.className = 'offender-card';
+
+                const header = document.createElement('div');
+                header.className = 'offender-header';
+
+                const name = document.createElement('div');
+                name.className = 'offender-name';
+                name.textContent = o.name || '—';
+
+                const amount = document.createElement('div');
+                amount.className = 'offender-amount';
+                amount.textContent = formatCurrency(o.amount);
+
+                header.appendChild(name);
+                header.appendChild(amount);
+
+                const details = document.createElement('div');
+                details.className = 'offender-details';
+
+                const d1 = document.createElement('div');
+                const d2 = document.createElement('div');
+
+                if (o.overBudget != null) {
+                    d1.textContent = `${o.overBudget}% acima do orçamento`;
+                    d2.textContent = `${o.percentage != null ? o.percentage : 0}% das despesas totais`;
+                } else if (o.installments != null) {
+                    d1.textContent = `Parcela ${o.installments}`;
+                    d2.textContent = `Vence dia ${o.dueDay != null ? o.dueDay : '--'} de cada mês`;
+                } else if (o.dueDay != null) {
+                    d1.textContent = `Conta recorrente`;
+                    d2.textContent = `Vence dia ${o.dueDay} de cada mês`;
+                } else {
+                    d1.textContent = '—';
+                    d2.textContent = '—';
+                }
+
+                details.appendChild(d1);
+                details.appendChild(d2);
+
+                card.appendChild(header);
+                card.appendChild(details);
+
+                if (withProgress) {
+                    const progress = document.createElement('div');
+                    progress.className = 'offender-progress';
+
+                    const bar = document.createElement('div');
+                    bar.className = 'offender-progress-bar';
+
+                    const p = Math.max(0, Math.min(100, Number(o.progressPercent != null ? o.progressPercent : (o.percentage != null ? o.percentage : 60))));
+                    bar.style.width = `${p}%`;
+
+                    progress.appendChild(bar);
+                    card.appendChild(progress);
+                }
+
+                return card;
+            };
+
+            topCats.forEach(o => section.appendChild(makeCard(o, true)));
+
+            const subtitle2 = document.createElement('div');
+            subtitle2.className = 'section-subtitle';
+            subtitle2.style.marginTop = '25px';
+            subtitle2.textContent = 'Contas individuais mais caras:';
+            section.appendChild(subtitle2);
+
+            topBills.forEach(o => section.appendChild(makeCard(o, false)));
+        }
+
+        function rebuildCategories(categoriesArr) {
+            const container = document.getElementById('account-types');
+            const categories = Array.isArray(categoriesArr) ? categoriesArr : [];
+
+            const cards = container.querySelectorAll('.account-type-card');
+            categories.slice(0, cards.length).forEach((c, idx) => {
+                const card = cards[idx];
+                card.querySelector('.account-type-name').textContent = c.name || '—';
+                card.querySelector('.account-type-value').textContent = formatCurrency(c.amount);
+
+                const meta = card.querySelector('.account-type-meta');
+                if (meta) {
+                    const pct = c.percentage != null ? c.percentage : 0;
+                    meta.textContent = `${pct}% ${String(c.name || '').toLowerCase() === 'investimentos' ? 'da renda' : 'das despesas'}`;
+                }
+
+                const iconWrap = card.querySelector('.account-type-icon');
+                if (iconWrap) {
+                    const t = (c.type || '').toLowerCase();
+                    iconWrap.className = 'account-type-icon ' +
+                        (t === 'essential' ? 'account-type-essential' :
+                         t === 'investment' ? 'account-type-investment' :
+                         t === 'recurring' ? 'account-type-recurring' :
+                         t === 'leisure' ? 'account-type-leisure' :
+                         'account-type-essential');
+
+                    const icon = c.icon ? c.icon : 'tag';
+                    iconWrap.innerHTML = `<i class="fas fa-${icon}"></i>`;
+                }
             });
-            
-            // Adicionar eventos de clique nas contas recorrentes
-            const recurringItems = document.querySelectorAll('.recurring-item');
-            recurringItems.forEach(item => {
-                item.addEventListener('click', function() {
-                    const title = this.querySelector('.recurring-title').textContent;
-                    const details = this.querySelector('.recurring-info').textContent;
-                    const amount = this.querySelector('.recurring-amount').textContent;
-                    const dueDate = this.querySelector('.recurring-due-date').textContent;
-                    
-                    showModal(`Detalhes: ${title}`, 
-                        `${details}\n\n` +
-                        `Valor: ${amount}\n` +
-                        `Vencimento: ${dueDate}\n\n` +
+        }
+
+        function rebuildRecurring(recurringArr) {
+            const list = document.getElementById('recurring-list');
+            const items = Array.isArray(recurringArr) ? recurringArr : [];
+
+            list.innerHTML = '';
+
+            items.forEach(item => {
+                const row = document.createElement('div');
+                row.className = 'recurring-item';
+
+                const icon = document.createElement('div');
+                icon.className = `recurring-icon ${(item.type === 'parceled') ? 'parceled' : 'fixed'}`;
+                icon.innerHTML = `<i class="fas fa-${item.icon ? item.icon : 'file-invoice-dollar'}"></i>`;
+
+                const details = document.createElement('div');
+                details.className = 'recurring-details';
+
+                const title = document.createElement('div');
+                title.className = 'recurring-title';
+                title.textContent = item.name || '—';
+
+                const info = document.createElement('div');
+                info.className = 'recurring-info';
+                info.textContent = item.description || '—';
+
+                details.appendChild(title);
+                details.appendChild(info);
+
+                const due = document.createElement('div');
+                due.className = 'recurring-due-date';
+                due.textContent = `Dia ${item.dueDay != null ? String(item.dueDay).padStart(2, '0') : '--'}`;
+
+                const amount = document.createElement('div');
+                amount.className = 'recurring-amount expense';
+                amount.textContent = `- ${formatCurrency(item.amount)}`;
+
+                row.appendChild(icon);
+                row.appendChild(details);
+                row.appendChild(due);
+                row.appendChild(amount);
+
+                row.addEventListener('click', function() {
+                    const t = title.textContent;
+                    const d = info.textContent;
+                    const a = amount.textContent;
+                    const v = due.textContent;
+
+                    showModal(`Detalhes: ${t}`,
+                        `${d}\n\n` +
+                        `Valor: ${a}\n` +
+                        `Vencimento: ${v}\n\n` +
                         `Opções:\n` +
                         `✓ Marcar como pago\n` +
                         `✓ Alterar data de vencimento\n` +
                         `✓ Editar valor\n` +
                         `✓ Configurar lembretes`);
                 });
+
+                list.appendChild(row);
             });
-            
-            // Função para mostrar modal simples
-            function showModal(title, message) {
-                // Criar overlay
-                const overlay = document.createElement('div');
-                overlay.style.position = 'fixed';
-                overlay.style.top = '0';
-                overlay.style.left = '0';
-                overlay.style.width = '100%';
-                overlay.style.height = '100%';
-                overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
-                overlay.style.display = 'flex';
-                overlay.style.justifyContent = 'center';
-                overlay.style.alignItems = 'center';
-                overlay.style.zIndex = '1000';
-                
-                // Criar modal
-                const modal = document.createElement('div');
-                modal.style.backgroundColor = 'white';
-                modal.style.borderRadius = 'var(--border-radius)';
-                modal.style.padding = '30px';
-                modal.style.maxWidth = '500px';
-                modal.style.width = '90%';
-                modal.style.boxShadow = '0 20px 60px rgba(0, 0, 0, 0.3)';
-                
-                // Adicionar título
-                const titleElement = document.createElement('h3');
-                titleElement.textContent = title;
-                titleElement.style.marginBottom = '15px';
-                titleElement.style.color = 'var(--dark)';
-                titleElement.style.fontSize = '20px';
-                
-                // Adicionar mensagem
-                const messageElement = document.createElement('div');
-                messageElement.textContent = message;
-                messageElement.style.marginBottom = '25px';
-                messageElement.style.color = 'var(--gray)';
-                messageElement.style.whiteSpace = 'pre-line';
-                messageElement.style.lineHeight = '1.6';
-                
-                // Adicionar botão de fechar
-                const closeButton = document.createElement('button');
-                closeButton.textContent = 'Fechar';
-                closeButton.className = 'btn-primary';
-                closeButton.style.width = '100%';
-                closeButton.addEventListener('click', function() {
+        }
+
+        function rebuildCalendar(dueDatesArr, dateObj) {
+            const grid = document.getElementById('calendar-grid');
+            const dueDates = Array.isArray(dueDatesArr) ? dueDatesArr : [];
+
+            grid.innerHTML = '';
+
+            const weekdays = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+            weekdays.forEach(w => {
+                const d = document.createElement('div');
+                d.className = 'calendar-day empty';
+                d.textContent = w;
+                grid.appendChild(d);
+            });
+
+            const year = dateObj.getFullYear();
+            const month = dateObj.getMonth();
+
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+
+            const startWeekday = firstDay.getDay();
+            for (let i = 0; i < startWeekday; i++) {
+                const empty = document.createElement('div');
+                empty.className = 'calendar-day empty';
+                empty.textContent = '';
+                grid.appendChild(empty);
+            }
+
+            const today = new Date();
+            const isSameMonthAsToday = (today.getFullYear() === year && today.getMonth() === month);
+
+            const dueMap = new Map();
+            dueDates.forEach(item => {
+                if (!item || item.day == null) return;
+                dueMap.set(Number(item.day), item);
+            });
+
+            for (let day = 1; day <= lastDay.getDate(); day++) {
+                const cell = document.createElement('div');
+
+                const due = dueMap.get(day);
+                const status = due ? String(due.status || 'normal') : 'normal';
+
+                const isToday = isSameMonthAsToday && today.getDate() === day;
+                const cellClass =
+                    (status === 'today' || isToday) ? 'due-today' :
+                    (status === 'soon') ? 'due-soon' : 'normal';
+
+                cell.className = `calendar-day ${cellClass}`;
+
+                const number = document.createElement('div');
+                number.className = 'calendar-day-number';
+                number.textContent = day;
+
+                cell.appendChild(number);
+
+                if (due && due.amount != null) {
+                    const amt = document.createElement('div');
+                    amt.className = 'calendar-day-amount';
+                    amt.textContent = formatCurrency(due.amount);
+                    cell.appendChild(amt);
+                }
+
+                if (status === 'today' || isToday) {
+                    const dot = document.createElement('div');
+                    dot.className = 'calendar-due-dot';
+                    cell.appendChild(dot);
+                }
+
+                grid.appendChild(cell);
+            }
+
+            const todayTotal = dueDates.filter(x => x && x.status === 'today').reduce((acc, x) => acc + Number(x.amount || 0), 0);
+            const soonTotal = dueDates.filter(x => x && x.status === 'soon').reduce((acc, x) => acc + Number(x.amount || 0), 0);
+
+            document.getElementById('today-total').textContent = `Total: ${formatCurrency(todayTotal)}`;
+            document.getElementById('soon-total').textContent = `Total: ${formatCurrency(soonTotal)}`;
+        }
+
+        function showModal(title, message) {
+            const overlay = document.createElement('div');
+            overlay.style.position = 'fixed';
+            overlay.style.top = '0';
+            overlay.style.left = '0';
+            overlay.style.width = '100%';
+            overlay.style.height = '100%';
+            overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+            overlay.style.display = 'flex';
+            overlay.style.justifyContent = 'center';
+            overlay.style.alignItems = 'center';
+            overlay.style.zIndex = '1000';
+
+            const modal = document.createElement('div');
+            modal.style.backgroundColor = 'white';
+            modal.style.borderRadius = 'var(--border-radius)';
+            modal.style.padding = '30px';
+            modal.style.maxWidth = '500px';
+            modal.style.width = '90%';
+            modal.style.boxShadow = '0 20px 60px rgba(0, 0, 0, 0.3)';
+
+            const titleElement = document.createElement('h3');
+            titleElement.textContent = title;
+            titleElement.style.marginBottom = '15px';
+            titleElement.style.color = 'var(--dark)';
+            titleElement.style.fontSize = '20px';
+
+            const messageElement = document.createElement('div');
+            messageElement.textContent = message;
+            messageElement.style.marginBottom = '25px';
+            messageElement.style.color = 'var(--gray)';
+            messageElement.style.whiteSpace = 'pre-line';
+            messageElement.style.lineHeight = '1.6';
+
+            const closeButton = document.createElement('button');
+            closeButton.textContent = 'Fechar';
+            closeButton.className = 'btn-primary';
+            closeButton.style.width = '100%';
+            closeButton.addEventListener('click', function() {
+                document.body.removeChild(overlay);
+            });
+
+            modal.appendChild(titleElement);
+            modal.appendChild(messageElement);
+            modal.appendChild(closeButton);
+            overlay.appendChild(modal);
+            document.body.appendChild(overlay);
+
+            overlay.addEventListener('click', function(e) {
+                if (e.target === overlay) {
                     document.body.removeChild(overlay);
-                });
-                
-                // Montar modal
-                modal.appendChild(titleElement);
-                modal.appendChild(messageElement);
-                modal.appendChild(closeButton);
-                overlay.appendChild(modal);
-                
-                // Adicionar ao body
-                document.body.appendChild(overlay);
-                
-                // Fechar ao clicar fora do modal
-                overlay.addEventListener('click', function(e) {
-                    if (e.target === overlay) {
-                        document.body.removeChild(overlay);
-                    }
-                });
-            }
-            
-            // Simular atualização periódica de dados
-            setInterval(() => {
-                const now = new Date();
-                console.log(`Sistema atualizado em: ${now.toLocaleTimeString()}`);
-                
-                // Verificar vencimentos do dia
-                const today = new Date();
-                if (today.getDate() === 3 || today.getDate() === 5 || today.getDate() === 8 || 
-                    today.getDate() === 10 || today.getDate() === 15 || today.getDate() === 20) {
-                    console.log("Lembrete: Você tem contas vencendo hoje!");
-                }
-            }, 60000); // A cada minuto
-        });
-    </script>
-
-    <script>
-// API Service
-class ApiService {
-    constructor() {
-        // Usa a URL atual do Render automaticamente
-        this.baseUrl = https://atlas-database.onrender.com;
-    }
-
-    async fetchData(endpoint) {
-        try {
-            const response = await fetch(`${this.baseUrl}${endpoint}`);
-            const data = await response.json();
-            return data;
-        } catch (error) {
-            console.error(`Erro ao buscar ${endpoint}:`, error);
-            return { success: false, data: null };
-        }
-    }
-
-    async getOverview() {
-        return await this.fetchData('/dashboard/overview');
-    }
-
-    async getOffenders() {
-        return await this.fetchData('/dashboard/offenders');
-    }
-
-    async getCategories() {
-        return await this.fetchData('/dashboard/categories');
-    }
-
-    async getRecurring() {
-        return await this.fetchData('/dashboard/recurring');
-    }
-
-    async getCalendar() {
-        return await this.fetchData('/dashboard/calendar');
-    }
-}
-
-// Formatar moeda
-function formatCurrency(value) {
-    return new Intl.NumberFormat('pt-BR', {
-        style: 'currency',
-        currency: 'BRL'
-    }).format(value);
-}
-
-// Atualizar dashboard com dados da API
-async function loadDashboardData() {
-    const api = new ApiService();
-    
-    try {
-        // 1. Carregar Visão Geral
-        const overview = await api.getOverview();
-        if (overview.success) {
-            document.querySelector('.income-amount').textContent = formatCurrency(overview.data.income);
-            document.querySelector('.expense-amount').textContent = formatCurrency(overview.data.expenses);
-            document.querySelector('.balance-amount').textContent = formatCurrency(overview.data.balance);
-            document.querySelector('.savings-amount').textContent = formatCurrency(overview.data.savings);
-            document.getElementById('current-month').textContent = overview.data.currentMonth;
-            
-            // Atualizar saúde financeira
-            const healthCircle = document.querySelector('.health-circle');
-            healthCircle.textContent = `${overview.data.healthScore}%`;
-            healthCircle.className = 'health-circle ' + 
-                (overview.data.healthScore >= 80 ? 'health-excellent' : 
-                 overview.data.healthScore >= 60 ? 'health-good' : 
-                 overview.data.healthScore >= 40 ? 'health-warning' : 'health-danger');
-            
-            // Atualizar comparativo
-            document.querySelector('.health-details .health-title').textContent = 
-                overview.data.healthScore >= 70 ? 'Boa Saúde Financeira' : 
-                overview.data.healthScore >= 50 ? 'Saúde Financeira Regular' : 'Saúde Financeira Baixa';
-        }
-
-        // 2. Carregar Contas Ofensoras
-        const offenders = await api.getOffenders();
-        if (offenders.success) {
-            const offendersContainer = document.querySelector('.section:nth-child(1) .offender-card:first-child').parentNode;
-            // Atualizar dados existentes ou criar dinamicamente
-            const offenderCards = document.querySelectorAll('.offender-card');
-            offenders.data.forEach((offender, index) => {
-                if (offenderCards[index]) {
-                    offenderCards[index].querySelector('.offender-name').textContent = offender.name;
-                    offenderCards[index].querySelector('.offender-amount').textContent = formatCurrency(offender.amount);
-                    
-                    const details = offenderCards[index].querySelector('.offender-details');
-                    if (details) {
-                        if (offender.overBudget) {
-                            details.children[0].textContent = `${offender.overBudget}% acima do orçamento`;
-                            details.children[1].textContent = `${offender.percentage}% das despesas totais`;
-                        } else if (offender.installments) {
-                            details.children[0].textContent = `Parcela ${offender.installments}`;
-                            details.children[1].textContent = `Vence dia ${offender.dueDay} de cada mês`;
-                        }
-                    }
                 }
             });
         }
 
-        // 3. Carregar Categorias
-        const categories = await api.getCategories();
-        if (categories.success) {
-            const categoryCards = document.querySelectorAll('.account-type-card');
-            categories.data.forEach((category, index) => {
-                if (categoryCards[index]) {
-                    categoryCards[index].querySelector('.account-type-name').textContent = category.name;
-                    categoryCards[index].querySelector('.account-type-value').textContent = formatCurrency(category.amount);
-                    categoryCards[index].querySelector('div[style*="font-size: 12px"]').textContent = 
-                        `${category.percentage}% ${category.name === 'Investimentos' ? 'da renda' : 'das despesas'}`;
-                }
-            });
-        }
-
-        // 4. Carregar Contas Recorrentes
-        const recurring = await api.getRecurring();
-        if (recurring.success) {
-            const recurringItems = document.querySelectorAll('.recurring-item');
-            recurring.data.forEach((item, index) => {
-                if (recurringItems[index]) {
-                    recurringItems[index].querySelector('.recurring-title').textContent = item.name;
-                    recurringItems[index].querySelector('.recurring-info').textContent = item.description;
-                    recurringItems[index].querySelector('.recurring-due-date').textContent = `Dia ${item.dueDay}`;
-                    recurringItems[index].querySelector('.recurring-amount').textContent = `- ${formatCurrency(item.amount)}`;
-                    
-                    // Atualizar ícone
-                    const icon = recurringItems[index].querySelector('.recurring-icon');
-                    icon.className = `recurring-icon ${item.type}`;
-                    icon.innerHTML = `<i class="fas fa-${item.icon}"></i>`;
-                }
-            });
-        }
-
-        // 5. Carregar Calendário
-        const calendar = await api.getCalendar();
-        if (calendar.success) {
-            // Atualizar totais
-            let todayTotal = 0;
-            let soonTotal = 0;
-            
-            calendar.data.forEach(item => {
-                if (item.status === 'today') todayTotal += item.amount;
-                if (item.status === 'soon') soonTotal += item.amount;
-            });
-            
-            const todayElement = document.querySelector('.calendar-due-dot').parentNode.parentNode
-                .querySelector('div[style*="margin-top: 20px"] div:nth-child(1)');
-            if (todayElement) {
-                todayElement.querySelector('div:nth-child(4)').textContent = `Total: ${formatCurrency(todayTotal)}`;
-            }
-            
-            const soonElement = document.querySelector('.calendar-due-dot').parentNode.parentNode
-                .querySelector('div[style*="margin-top: 20px"] div:nth-child(2)');
-            if (soonElement) {
-                soonElement.querySelector('div:nth-child(4)').textContent = `Total: ${formatCurrency(soonTotal)}`;
-            }
-        }
-
-        console.log('✅ Dashboard carregado com sucesso da API!');
-
-    } catch (error) {
-        console.error('❌ Erro ao carregar dashboard:', error);
-        // Mostrar alerta
-        showModal('Erro de Conexão', 
-            'Não foi possível conectar com a API.\n\n' +
-            'Verifique se:\n' +
-            '1. O backend está rodando\n' +
-            '2. A URL da API está correta\n' +
-            '3. Não há problemas de CORS\n\n' +
-            'Usando dados locais como fallback.');
-    }
-}
-
-// Função para mostrar modal (já existe no seu código, apenas garantir)
-function showModal(title, message) {
-    // Criar overlay
-    const overlay = document.createElement('div');
-    overlay.style.position = 'fixed';
-    overlay.style.top = '0';
-    overlay.style.left = '0';
-    overlay.style.width = '100%';
-    overlay.style.height = '100%';
-    overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
-    overlay.style.display = 'flex';
-    overlay.style.justifyContent = 'center';
-    overlay.style.alignItems = 'center';
-    overlay.style.zIndex = '1000';
-    
-    // Criar modal
-    const modal = document.createElement('div');
-    modal.style.backgroundColor = 'white';
-    modal.style.borderRadius = 'var(--border-radius)';
-    modal.style.padding = '30px';
-    modal.style.maxWidth = '500px';
-    modal.style.width = '90%';
-    modal.style.boxShadow = '0 20px 60px rgba(0, 0, 0, 0.3)';
-    
-    // Adicionar título
-    const titleElement = document.createElement('h3');
-    titleElement.textContent = title;
-    titleElement.style.marginBottom = '15px';
-    titleElement.style.color = 'var(--dark)';
-    titleElement.style.fontSize = '20px';
-    
-    // Adicionar mensagem
-    const messageElement = document.createElement('div');
-    messageElement.textContent = message;
-    messageElement.style.marginBottom = '25px';
-    messageElement.style.color = 'var(--gray)';
-    messageElement.style.whiteSpace = 'pre-line';
-    messageElement.style.lineHeight = '1.6';
-    
-    // Adicionar botão de fechar
-    const closeButton = document.createElement('button');
-    closeButton.textContent = 'Fechar';
-    closeButton.className = 'btn-primary';
-    closeButton.style.width = '100%';
-    closeButton.addEventListener('click', function() {
-        document.body.removeChild(overlay);
-    });
-    
-    // Montar modal
-    modal.appendChild(titleElement);
-    modal.appendChild(messageElement);
-    modal.appendChild(closeButton);
-    overlay.appendChild(modal);
-    
-    // Adicionar ao body
-    document.body.appendChild(overlay);
-    
-    // Fechar ao clicar fora do modal
-    overlay.addEventListener('click', function(e) {
-        if (e.target === overlay) {
-            document.body.removeChild(overlay);
-        }
-    });
-}
-
-        // Inicialização do painel
-        document.addEventListener('DOMContentLoaded', function() {
-            // Configurar mês atual
-            document.getElementById('current-month').textContent = financialData.currentMonth;
-            
-            // Adicionar evento ao botão de nova transação
+        function attachStaticEvents() {
             document.getElementById('add-transaction').addEventListener('click', function() {
                 showModal("Nova Transação", "Aqui você pode registrar qualquer transação financeira:\n\n1. Receitas (salário, vendas, etc.)\n2. Despesas (compras, contas, etc.)\n3. Transferências\n4. Investimentos\n\nTodos os dados serão categorizados automaticamente.");
             });
-            
-            // Configurar upload de extrato
+
             document.getElementById('upload-extract').addEventListener('click', function() {
                 showModal("Analisar Extrato Bancário", "Faça upload do extrato em PDF do seu banco para:\n\n✓ Identificar automaticamente todas as transações\n✓ Categorizar receitas e despesas\n✓ Detectar padrões de gastos\n✓ Sugerir otimizações financeiras\n✓ Atualizar seu saldo automaticamente");
             });
-            
-            // Configurar navegação entre meses
-            const monthNames = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", 
-                               "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
-            let currentDate = new Date(2023, 5, 1); // Junho 2023
-            
-            document.getElementById('prev-month').addEventListener('click', function() {
+
+            document.querySelectorAll('.account-type-card').forEach(card => {
+                card.addEventListener('click', function() {
+                    const typeName = this.querySelector('.account-type-name').textContent;
+                    showModal(`Detalhes: ${typeName}`,
+                        `Aqui você veria todas as transações desta categoria:\n\n• Lista completa de contas\n• Gráficos de evolução\n• Comparativo com meses anteriores\n• Sugestões de economia\n\nTotal atual: ${this.querySelector('.account-type-value').textContent}`);
+                });
+            });
+        }
+
+        function renderAllFromDataObject(obj) {
+            renderOverviewFromObject(obj);
+
+            if (Array.isArray(obj.offenders)) rebuildOffenders(obj.offenders);
+            if (Array.isArray(obj.accountCategories)) rebuildCategories(obj.accountCategories);
+            if (Array.isArray(obj.recurringAccounts)) rebuildRecurring(obj.recurringAccounts);
+            if (Array.isArray(obj.dueDates)) rebuildCalendar(obj.dueDates, currentDate);
+        }
+
+        async function loadDashboardData() {
+            const api = new ApiService();
+
+            const month = currentDate.getMonth() + 1;
+            const year = currentDate.getFullYear();
+
+            try {
+                const overview = await api.getOverview(month, year);
+                const offenders = await api.getOffenders(month, year);
+                const categories = await api.getCategories(month, year);
+                const recurring = await api.getRecurring(month, year);
+                const calendar = await api.getCalendar(month, year);
+
+                const ok =
+                    overview && overview.success &&
+                    offenders && offenders.success &&
+                    categories && categories.success &&
+                    recurring && recurring.success &&
+                    calendar && calendar.success;
+
+                if (!ok) {
+                    console.warn('API respondeu, mas não validou success em todos os endpoints. Usando fallback local.');
+                    renderAllFromDataObject(financialData);
+                    return;
+                }
+
+                const merged = {
+                    currentMonth: overview.data.currentMonth || getCurrentMonthLabel(currentDate),
+                    income: overview.data.income,
+                    expenses: overview.data.expenses,
+                    balance: overview.data.balance,
+                    savings: overview.data.savings,
+                    healthScore: overview.data.healthScore,
+                    healthPreviousScore: overview.data.healthPreviousScore != null ? overview.data.healthPreviousScore : financialData.healthPreviousScore,
+
+                    offenders: offenders.data,
+                    accountCategories: categories.data,
+                    recurringAccounts: recurring.data,
+                    dueDates: calendar.data
+                };
+
+                renderAllFromDataObject(merged);
+                console.log('✅ Dashboard carregado da API (dinâmico).');
+            } catch (error) {
+                console.error('❌ Erro ao carregar dashboard (API):', error);
+                renderAllFromDataObject(financialData);
+            }
+        }
+
+        function updateMonthDisplay() {
+            const label = getCurrentMonthLabel(currentDate);
+            document.getElementById('current-month').textContent = label;
+            document.getElementById('calendar-label').textContent = label;
+
+            loadDashboardData();
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Iniciando Financeiro (DINÂMICO)...');
+
+            attachStaticEvents();
+
+            const prevBtn = document.getElementById('prev-month');
+            const nextBtn = document.getElementById('next-month');
+
+            prevBtn.addEventListener('click', function() {
                 currentDate.setMonth(currentDate.getMonth() - 1);
                 updateMonthDisplay();
             });
-            
-            document.getElementById('next-month').addEventListener('click', function() {
+
+            nextBtn.addEventListener('click', function() {
                 currentDate.setMonth(currentDate.getMonth() + 1);
                 updateMonthDisplay();
             });
-            
-            function updateMonthDisplay() {
-                const monthName = monthNames[currentDate.getMonth()];
-                const year = currentDate.getFullYear();
-                document.getElementById('current-month').textContent = `${monthName} ${year}`;
-                
-                // Em um sistema real, aqui buscaríamos os dados do novo mês
-                console.log(`Carregando dados de ${monthName} ${year}...`);
-                alert(`Dados de ${monthName} ${year} carregados com sucesso!`);
-            }
-            
-            // Adicionar eventos de clique nas categorias de contas
-            const accountTypeCards = document.querySelectorAll('.account-type-card');
-            accountTypeCards.forEach(card => {
-                card.addEventListener('click', function() {
-                    const typeName = this.querySelector('.account-type-name').textContent;
-                    showModal(`Detalhes: ${typeName}`, `Aqui você veria todas as transações desta categoria:\n\n• Lista completa de contas\n• Gráficos de evolução\n• Comparativo com meses anteriores\n• Sugestões de economia\n\nTotal atual: ${this.querySelector('.account-type-value').textContent}`);
-                });
-            });
-            
-            // Adicionar eventos de clique nas contas recorrentes
-            const recurringItems = document.querySelectorAll('.recurring-item');
-            recurringItems.forEach(item => {
-                item.addEventListener('click', function() {
-                    const title = this.querySelector('.recurring-title').textContent;
-                    const details = this.querySelector('.recurring-info').textContent;
-                    const amount = this.querySelector('.recurring-amount').textContent;
-                    const dueDate = this.querySelector('.recurring-due-date').textContent;
-                    
-                    showModal(`Detalhes: ${title}`, 
-                        `${details}\n\n` +
-                        `Valor: ${amount}\n` +
-                        `Vencimento: ${dueDate}\n\n` +
-                        `Opções:\n` +
-                        `✓ Marcar como pago\n` +
-                        `✓ Alterar data de vencimento\n` +
-                        `✓ Editar valor\n` +
-                        `✓ Configurar lembretes`);
-                });
-            });
-            
-            // Função para mostrar modal simples
-            function showModal(title, message) {
-                // Criar overlay
-                const overlay = document.createElement('div');
-                overlay.style.position = 'fixed';
-                overlay.style.top = '0';
-                overlay.style.left = '0';
-                overlay.style.width = '100%';
-                overlay.style.height = '100%';
-                overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
-                overlay.style.display = 'flex';
-                overlay.style.justifyContent = 'center';
-                overlay.style.alignItems = 'center';
-                overlay.style.zIndex = '1000';
-                
-                // Criar modal
-                const modal = document.createElement('div');
-                modal.style.backgroundColor = 'white';
-                modal.style.borderRadius = 'var(--border-radius)';
-                modal.style.padding = '30px';
-                modal.style.maxWidth = '500px';
-                modal.style.width = '90%';
-                modal.style.boxShadow = '0 20px 60px rgba(0, 0, 0, 0.3)';
-                
-                // Adicionar título
-                const titleElement = document.createElement('h3');
-                titleElement.textContent = title;
-                titleElement.style.marginBottom = '15px';
-                titleElement.style.color = 'var(--dark)';
-                titleElement.style.fontSize = '20px';
-                
-                // Adicionar mensagem
-                const messageElement = document.createElement('div');
-                messageElement.textContent = message;
-                messageElement.style.marginBottom = '25px';
-                messageElement.style.color = 'var(--gray)';
-                messageElement.style.whiteSpace = 'pre-line';
-                messageElement.style.lineHeight = '1.6';
-                
-                // Adicionar botão de fechar
-                const closeButton = document.createElement('button');
-                closeButton.textContent = 'Fechar';
-                closeButton.className = 'btn-primary';
-                closeButton.style.width = '100%';
-                closeButton.addEventListener('click', function() {
-                    document.body.removeChild(overlay);
-                });
-                
-                // Montar modal
-                modal.appendChild(titleElement);
-                modal.appendChild(messageElement);
-                modal.appendChild(closeButton);
-                overlay.appendChild(modal);
-                
-                // Adicionar ao body
-                document.body.appendChild(overlay);
-                
-                // Fechar ao clicar fora do modal
-                overlay.addEventListener('click', function(e) {
-                    if (e.target === overlay) {
-                        document.body.removeChild(overlay);
-                    }
-                });
-            }
-            
-            // Simular atualização periódica de dados
+
+            // Primeira renderização: tenta API; se falhar, usa local.
+            renderAllFromDataObject(financialData);
+            loadDashboardData();
+
+            // Atualiza a cada 30s (dinâmico)
+            setInterval(loadDashboardData, 30000);
+
+            // Logs e lembrete (mantido)
             setInterval(() => {
                 const now = new Date();
                 console.log(`Sistema atualizado em: ${now.toLocaleTimeString()}`);
-                
-                // Verificar vencimentos do dia
+
                 const today = new Date();
-                if (today.getDate() === 3 || today.getDate() === 5 || today.getDate() === 8 || 
+                if (today.getDate() === 3 || today.getDate() === 5 || today.getDate() === 8 ||
                     today.getDate() === 10 || today.getDate() === 15 || today.getDate() === 20) {
                     console.log("Lembrete: Você tem contas vencendo hoje!");
                 }
-            }, 60000); // A cada minuto
+            }, 60000);
         });
     </script>
 </body>
