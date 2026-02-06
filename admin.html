@@ -392,6 +392,24 @@
     </div>
 
     <script type="module">
+
+        // SENHA SECRETA - MUDE PARA ALGO QUE SÓ VOCÊ SABE
+        const ADMIN_PASSWORD = '99100699840940104t1@s';
+
+        // Verificar senha na URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const passwordFromUrl = urlParams.get('admin_key');
+
+        if (passwordFromUrl !== ADMIN_PASSWORD) {
+            // Redireciona sem mostrar nada
+            window.location.href = 'index.html';
+            throw new Error('Acesso negado');
+        }
+
+        // Se passou, continua carregando a página admin
+        console.log('✅ Acesso admin autorizado');
+
+        
         import api from './api.js';
         
         // Verificar autenticação e permissões
