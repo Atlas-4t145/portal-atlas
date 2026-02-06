@@ -9,6 +9,93 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// ==================== CRIAR TABELAS AUTOMATICAMENTE ====================
+
+async function criarTabelasSeNaoExistem() {
+    try {
+        console.log('🔄 Verificando/criando tabelas...');
+        
+        // Criar tabela users se não existir
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS users (
+                id SERIAL PRIMARY KEY,
+                phone VARCHAR(20) UNIQUE NOT NULL,
+                email VARCHAR(100) UNIQUE NOT NULL,
+                name VARCHAR(100) NOT NULL,
+                password VARCHAR(255) NOT NULL,
+                is_admin BOOLEAN DEFAULT FALSE,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
+        
+        // Criar tabela user_settings se não existir
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS user_settings (
+                user_id INTEGER PRIMARY KEY REFERENCES users(id),
+                total_savings DECIMAL(10,2) DEFAULT 0,
+                savings_goal DECIMAL(10,2) DEFAULT 0,
+                monthly_budget DECIMAL(10,2) DEFAULT 0,
+                savings_rate DECIMAL(5,2) DEFAULT 0.3
+            )
+        `);
+        
+        // Criar tabela transactions se não existir
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS transactions (
+                id SERIAL PRIMARY KEY,
+                user_id INTEGER REFERENCES users(id),
+                type VARCHAR(20) NOT NULL,
+                amount DECIMAL(10,2) NOT NULL,
+                name VARCHAR(200) NOT NULL,
+                category VARCHAR(50),
+                date DATE NOT NULL,
+                due_day INTEGER,
+                recurrence_type VARCHAR(20),
+                master_id VARCHAR(100),
+                current_installment INTEGER,
+                total_installments INTEGER,
+                end_date DATE,
+                notes TEXT,
+                auto_debit BOOLEAN DEFAULT FALSE,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
+        
+        // Criar tabela read_notifications se não existir
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS read_notifications (
+                user_id INTEGER REFERENCES users(id),
+                transaction_id INTEGER REFERENCES transactions(id),
+                read_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                PRIMARY KEY (user_id, transaction_id)
+            )
+        `);
+        
+        console.log('✅ Tabelas verificadas/criadas com sucesso!');
+        
+        // Criar usuário admin se não existir
+        const adminCheck = await pool.query(
+            "SELECT id FROM users WHERE phone = '11999999999'"
+        );
+        
+        if (adminCheck.rows.length === 0) {
+            const hashedPassword = await bcrypt.hash('admin123', 10);
+            await pool.query(
+                `INSERT INTO users (phone, email, name, password, is_admin) 
+                 VALUES ($1, $2, $3, $4, $5)`,
+                ['11999999999', 'admin@email.com', 'Administrador', hashedPassword, true]
+            );
+            console.log('✅ Usuário admin criado: 11999999999 / admin123');
+        }
+        
+    } catch (error) {
+        console.error('❌ Erro ao criar tabelas:', error.message);
+    }
+}
+
+// Chamar a função para criar tabelas
+criarTabelasSeNaoExistem();
+
 // Configuração do banco de dados Render
 const pool = new Pool({
     connectionString: process.env.DATABASE_URL,
