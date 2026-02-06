@@ -1,5 +1,5 @@
 // api.js - COLOCA ESSE ARQUIVO NA MESMA PASTA
-const API_URL = 'https://atlas-database.onrender.com';
+const API_URL = 'https://atlas-database.onrender.com/api';
 
 class API {
     constructor() {
