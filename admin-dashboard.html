@@ -135,42 +135,6 @@
             border-bottom: 2px solid var(--light);
         }
 
-        .stats-cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-bottom: 40px;
-        }
-
-        .stat-card {
-            background: var(--light);
-            padding: 25px;
-            border-radius: 12px;
-            text-align: center;
-            transition: all 0.3s;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-        }
-
-        .stat-icon {
-            font-size: 40px;
-            margin-bottom: 15px;
-        }
-
-        .stat-number {
-            font-size: 36px;
-            font-weight: 800;
-            margin-bottom: 5px;
-        }
-
-        .stat-label {
-            color: var(--gray);
-            font-size: 15px;
-        }
-
         .table-container {
             overflow-x: auto;
             border-radius: 10px;
@@ -222,11 +186,6 @@
         .badge-user {
             background: rgba(16, 185, 129, 0.15);
             color: var(--success);
-        }
-
-        .badge-pending {
-            background: rgba(245, 158, 11, 0.15);
-            color: var(--warning);
         }
 
         .actions {
@@ -398,7 +357,7 @@
                     <div style="font-size: 13px; color: var(--gray);" id="admin-email">admin@atlasfinanceiro.com</div>
                 </div>
                 <button class="btn btn-logout" id="logout-btn">
-                    <i class="fas fa-sign-out-alt"></i> Sair
+                    <i class="fas fa-sign-out-alt"></i> Sair do Admin
                 </button>
             </div>
         </div>
@@ -409,43 +368,8 @@
             <span id="success-text"></span>
         </div>
 
-        <!-- Estatísticas -->
+        <!-- Gerenciamento de Usuários -->
         <div class="main-content">
-            <div class="stats-cards">
-                <div class="stat-card">
-                    <div class="stat-icon" style="color: var(--primary);">
-                        <i class="fas fa-users"></i>
-                    </div>
-                    <div class="stat-number" id="total-users">0</div>
-                    <div class="stat-label">Total de Usuários</div>
-                </div>
-                
-                <div class="stat-card">
-                    <div class="stat-icon" style="color: var(--success);">
-                        <i class="fas fa-user-shield"></i>
-                    </div>
-                    <div class="stat-number" id="admin-users">0</div>
-                    <div class="stat-label">Administradores</div>
-                </div>
-                
-                <div class="stat-card">
-                    <div class="stat-icon" style="color: var(--warning);">
-                        <i class="fas fa-exchange-alt"></i>
-                    </div>
-                    <div class="stat-number" id="total-transactions">0</div>
-                    <div class="stat-label">Transações</div>
-                </div>
-                
-                <div class="stat-card">
-                    <div class="stat-icon" style="color: var(--danger);">
-                        <i class="fas fa-calendar-day"></i>
-                    </div>
-                    <div class="stat-number" id="pending-notifications">0</div>
-                    <div class="stat-label">Vencimentos Hoje</div>
-                </div>
-            </div>
-
-            <!-- Gerenciamento de Usuários -->
             <div class="section-title">
                 <span><i class="fas fa-users-cog"></i> GERENCIAMENTO DE USUÁRIOS</span>
                 <button class="btn btn-primary" id="add-user-btn">
@@ -458,13 +382,16 @@
             <div id="loading" class="loading">
                 <i class="fas fa-spinner fa-spin fa-2x" style="margin-bottom: 20px;"></i><br>
                 <div>Carregando lista de usuários...</div>
+                <div style="font-size: 14px; color: var(--gray); margin-top: 10px;" id="loading-status">
+                    Conectando ao servidor...
+                </div>
             </div>
             
             <div id="users-container" style="display: none;">
                 <div style="margin-bottom: 20px; padding: 15px; background: #f0f9ff; border-radius: 10px; border-left: 4px solid var(--primary);">
-                    <i class="fas fa-info-circle" style="color: var(--primary);"></i>
-                    <strong style="color: var(--primary);">Modo Local Ativo:</strong>
-                    <span style="color: var(--dark);"> As alterações são salvas apenas localmente. Para sincronizar com o backend, faça login com um usuário admin real.</span>
+                    <i class="fas fa-database" style="color: var(--primary);"></i>
+                    <strong style="color: var(--primary);">Banco de Dados Real:</strong>
+                    <span style="color: var(--dark);"> Os usuários são gerenciados no banco PostgreSQL real do sistema.</span>
                 </div>
                 
                 <div class="table-container">
@@ -500,28 +427,22 @@
             
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
                 <div style="background: var(--light); padding: 20px; border-radius: 10px;">
-                    <h3 style="margin-bottom: 15px; color: var(--dark);"><i class="fas fa-server"></i> Status do Sistema</h3>
-                    <div id="system-status" style="color: var(--success); font-weight: 700;">
-                        <i class="fas fa-check-circle"></i> Sistema Admin Local Ativo
+                    <h3 style="margin-bottom: 15px; color: var(--dark);"><i class="fas fa-server"></i> Status da API</h3>
+                    <div id="api-status" style="color: var(--success); font-weight: 700;">
+                        <i class="fas fa-spinner fa-spin"></i> Verificando...
                     </div>
                     <div style="font-size: 14px; color: var(--gray); margin-top: 10px;">
-                        Modo: <strong>Local Storage</strong><br>
-                        Dados salvos no navegador
+                        URL: <code>https://atlas-database.onrender.com</code>
                     </div>
                 </div>
                 
                 <div style="background: var(--light); padding: 20px; border-radius: 10px;">
-                    <h3 style="margin-bottom: 15px; color: var(--dark);"><i class="fas fa-database"></i> Ações Rápidas</h3>
-                    <div style="display: flex; flex-direction: column; gap: 10px;">
-                        <button class="btn btn-primary" onclick="exportUsers()" style="justify-content: start;">
-                            <i class="fas fa-file-export"></i> Exportar Usuários (JSON)
-                        </button>
-                        <button class="btn btn-success" onclick="importUsers()" style="justify-content: start;">
-                            <i class="fas fa-file-import"></i> Importar Usuários
-                        </button>
-                        <button class="btn btn-warning" onclick="resetDemoData()" style="justify-content: start;">
-                            <i class="fas fa-redo"></i> Restaurar Dados Demo
-                        </button>
+                    <h3 style="margin-bottom: 15px; color: var(--dark);"><i class="fas fa-user-shield"></i> Seu Acesso</h3>
+                    <div id="access-status" style="color: var(--warning); font-weight: 700;">
+                        <i class="fas fa-spinner fa-spin"></i> Verificando permissões...
+                    </div>
+                    <div style="font-size: 14px; color: var(--gray); margin-top: 10px;">
+                        Token: <span id="token-status">Não verificado</span>
                     </div>
                 </div>
             </div>
@@ -578,7 +499,7 @@
                 
                 <div class="btn-group">
                     <button type="submit" class="btn btn-primary" style="flex: 1;">
-                        <i class="fas fa-save"></i> SALVAR USUÁRIO
+                        <i class="fas fa-save"></i> SALVAR NO BANCO DE DADOS
                     </button>
                     <button type="button" class="btn" onclick="hideModal()" 
                             style="flex: 1; background: var(--light); color: var(--dark);">
@@ -589,148 +510,114 @@
         </div>
     </div>
 
-    <!-- Input oculto para importar arquivo -->
-    <input type="file" id="import-file" accept=".json" style="display: none;">
-
     <script>
-        // ==================== BANCO DE DADOS LOCAL ====================
+        // ==================== CONFIGURAÇÕES ====================
+        const API_URL = 'https://atlas-database.onrender.com/api';
+        let token = localStorage.getItem('token');
+        let currentUser = null;
         let users = [];
         let currentPage = 1;
         const usersPerPage = 10;
-        let adminUser = null;
         
-        // ==================== FUNÇÕES DO LOCAL STORAGE ====================
-        function loadUsersFromStorage() {
+        // ==================== VERIFICAÇÃO DE ACESSO ====================
+        async function checkAdminAccess() {
             try {
-                const savedUsers = localStorage.getItem('admin_users');
-                if (savedUsers) {
-                    users = JSON.parse(savedUsers);
-                } else {
-                    // Dados de demonstração iniciais
-                    users = getDemoUsers();
-                    saveUsersToStorage();
+                console.log('🔍 Verificando token...', token ? 'Token existe' : 'Sem token');
+                
+                if (!token) {
+                    showError('❌ Você precisa fazer login primeiro como administrador.');
+                    document.getElementById('loading-status').textContent = 'Redirecionando para login...';
+                    setTimeout(() => {
+                        alert('Faça login primeiro no sistema como administrador (11999999999 / admin123)');
+                        window.location.href = 'index.html';
+                    }, 2000);
+                    return false;
                 }
                 
-                // Carregar admin user
-                const adminData = localStorage.getItem('admin_user');
-                if (adminData) {
-                    adminUser = JSON.parse(adminData);
+                // Verificar se o token é válido
+                const response = await fetch(`${API_URL}/verify`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (!response.ok) {
+                    if (response.status === 401 || response.status === 403) {
+                        showError('❌ Token inválido ou expirado. Faça login novamente.');
+                        localStorage.removeItem('token');
+                        setTimeout(() => window.location.href = 'index.html', 3000);
+                        return false;
+                    }
+                    throw new Error('Erro na verificação');
                 }
                 
-                return users;
-            } catch (error) {
-                console.error('Erro ao carregar do storage:', error);
-                return getDemoUsers();
-            }
-        }
-        
-        function saveUsersToStorage() {
-            try {
-                localStorage.setItem('admin_users', JSON.stringify(users));
-            } catch (error) {
-                console.error('Erro ao salvar no storage:', error);
-            }
-        }
-        
-        function getDemoUsers() {
-            return [
-                {
-                    id: 1,
-                    name: 'Administrador Master',
-                    phone: '11999999999',
-                    email: 'admin@atlasfinanceiro.com',
-                    password: 'admin123',
-                    is_admin: true,
-                    created_at: new Date().toISOString()
-                },
-                {
-                    id: 2,
-                    name: 'João Silva',
-                    phone: '11988888888',
-                    email: 'joao@email.com',
-                    password: 'senha123',
-                    is_admin: false,
-                    created_at: new Date('2024-01-15T10:30:00Z').toISOString()
-                },
-                {
-                    id: 3,
-                    name: 'Maria Santos',
-                    phone: '21977777777',
-                    email: 'maria@email.com',
-                    password: 'senha123',
-                    is_admin: false,
-                    created_at: new Date('2024-01-20T14:20:00Z').toISOString()
-                },
-                {
-                    id: 4,
-                    name: 'Pedro Oliveira',
-                    phone: '31966666666',
-                    email: 'pedro@email.com',
-                    password: 'senha123',
-                    is_admin: false,
-                    created_at: new Date('2024-02-05T09:15:00Z').toISOString()
+                const data = await response.json();
+                console.log('✅ Usuário verificado:', data.user);
+                
+                if (!data.user.is_admin) {
+                    showError('❌ Acesso negado. Você não é administrador.');
+                    setTimeout(() => window.location.href = 'dashboard.html', 3000);
+                    return false;
                 }
-            ];
-        }
-        
-        function resetDemoData() {
-            if (confirm('Isso irá restaurar os dados de demonstração. Deseja continuar?')) {
-                users = getDemoUsers();
-                saveUsersToStorage();
-                displayUsers();
-                updateStats();
-                showSuccess('Dados de demonstração restaurados com sucesso!');
-            }
-        }
-        
-        // ==================== FUNÇÕES PRINCIPAIS ====================
-        function checkAdminLogin() {
-            const isLoggedIn = localStorage.getItem('is_admin_logged_in') === 'true';
-            
-            if (!isLoggedIn) {
-                alert('❌ Acesso negado! Faça login como administrador.');
-                window.location.href = 'admin.html';
+                
+                currentUser = data.user;
+                document.getElementById('admin-name').textContent = currentUser.name;
+                document.getElementById('admin-email').textContent = currentUser.email;
+                
+                // Atualizar status de acesso
+                document.getElementById('access-status').innerHTML = 
+                    `<i class="fas fa-check-circle"></i> Admin: ${currentUser.name}`;
+                document.getElementById('access-status').style.color = 'var(--success)';
+                document.getElementById('token-status').textContent = 'Válido';
+                
+                return true;
+                
+            } catch (error) {
+                console.error('Erro na verificação:', error);
+                showError('❌ Erro de conexão: ' + error.message);
                 return false;
             }
-            
-            // Atualizar informações do admin
-            if (adminUser) {
-                document.getElementById('admin-name').textContent = adminUser.name;
-                document.getElementById('admin-email').textContent = adminUser.email;
-            }
-            
-            return true;
         }
         
-        function loadUsers() {
-            if (!checkAdminLogin()) return;
-            
-            showLoading();
-            
-            // Carregar usuários do localStorage
-            users = loadUsersFromStorage();
-            
-            // Pequeno delay para visualização
-            setTimeout(() => {
-                updateStats();
+        // ==================== CARREGAR USUÁRIOS DO BANCO REAL ====================
+        async function loadUsersFromDatabase() {
+            try {
+                document.getElementById('loading-status').textContent = 'Carregando usuários do banco de dados...';
+                
+                const response = await fetch(`${API_URL}/admin/users`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (!response.ok) {
+                    if (response.status === 401 || response.status === 403) {
+                        throw new Error('Sem permissão para acessar usuários');
+                    }
+                    throw new Error(`Erro ${response.status}: ${response.statusText}`);
+                }
+                
+                users = await response.json();
+                console.log(`✅ ${users.length} usuários carregados do banco`);
+                
                 displayUsers();
                 showUsersContainer();
                 hideLoading();
-            }, 500);
+                
+                return users;
+                
+            } catch (error) {
+                console.error('Erro ao carregar usuários:', error);
+                showError('❌ Erro ao carregar usuários: ' + error.message + 
+                    '<br><small>Verifique se você está logado como administrador.</small>');
+                document.getElementById('loading-status').textContent = 'Falha ao carregar usuários';
+                return [];
+            }
         }
         
-        function updateStats() {
-            const totalUsers = users.length;
-            const adminUsers = users.filter(u => u.is_admin).length;
-            
-            document.getElementById('total-users').textContent = totalUsers;
-            document.getElementById('admin-users').textContent = adminUsers;
-            
-            // Gerar números aleatórios para as outras estatísticas
-            document.getElementById('total-transactions').textContent = Math.floor(Math.random() * 500) + 100;
-            document.getElementById('pending-notifications').textContent = Math.floor(Math.random() * 20) + 1;
-        }
-        
+        // ==================== GERENCIAR USUÁRIOS ====================
         function displayUsers() {
             const tbody = document.getElementById('users-table-body');
             const pagination = document.getElementById('pagination');
@@ -746,14 +633,14 @@
             
             // Preencher com usuários
             currentUsers.forEach(user => {
-                const row = document.createElement('tr');
-                const isCurrentAdmin = adminUser && user.id === adminUser.id;
+                const isCurrentUser = currentUser && user.id === currentUser.id;
                 
+                const row = document.createElement('tr');
                 row.innerHTML = `
                     <td><strong>#${user.id}</strong></td>
                     <td>
                         <div style="font-weight: 700;">${user.name}</div>
-                        ${isCurrentAdmin ? 
+                        ${isCurrentUser ? 
                             '<div style="font-size: 12px; color: var(--primary);"><i class="fas fa-crown"></i> Você</div>' : ''}
                     </td>
                     <td>${user.phone}</td>
@@ -774,7 +661,7 @@
                             <button class="btn btn-success" onclick="editUser(${user.id})">
                                 <i class="fas fa-edit"></i> Editar
                             </button>
-                            ${!isCurrentAdmin ? `
+                            ${!isCurrentUser ? `
                                 <button class="btn btn-danger" onclick="deleteUser(${user.id}, '${user.name.replace(/'/g, "\\'")}')">
                                     <i class="fas fa-trash"></i> Excluir
                                 </button>
@@ -802,6 +689,7 @@
             }
         }
         
+        // ==================== MODAL DE USUÁRIO ====================
         function showModal() {
             document.getElementById('user-modal').style.display = 'flex';
             document.getElementById('user-form').reset();
@@ -826,7 +714,8 @@
             return password;
         }
         
-        function saveUser(e) {
+        // ==================== SALVAR USUÁRIO NO BANCO ====================
+        async function saveUser(e) {
             e.preventDefault();
             
             const userId = document.getElementById('user-id').value;
@@ -843,7 +732,7 @@
             }
             
             if (phone.length < 10) {
-                showError('Telefone inválido. Digite com DDD.');
+                showError('Telefone inválido. Digite com DDD (ex: 11999999999).');
                 return;
             }
             
@@ -852,85 +741,107 @@
                 phone,
                 email,
                 password,
-                is_admin: isAdmin,
-                created_at: new Date().toISOString()
+                is_admin: isAdmin
             };
             
-            if (userId) {
-                // Atualizar usuário existente
-                const index = users.findIndex(u => u.id == userId);
-                if (index !== -1) {
-                    userData.id = parseInt(userId);
-                    users[index] = userData;
-                    showSuccess(`Usuário "${name}" atualizado com sucesso!`);
+            try {
+                let response;
+                
+                if (userId) {
+                    // Atualizar usuário existente
+                    response = await fetch(`${API_URL}/admin/users/${userId}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(userData)
+                    });
+                } else {
+                    // Criar novo usuário
+                    response = await fetch(`${API_URL}/admin/users`, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(userData)
+                    });
                 }
-            } else {
-                // Criar novo usuário
-                const newId = users.length > 0 ? Math.max(...users.map(u => u.id)) + 1 : 1;
-                userData.id = newId;
-                users.push(userData);
-                showSuccess(`Usuário "${name}" criado com sucesso!`);
+                
+                if (response.ok) {
+                    const savedUser = await response.json();
+                    showSuccess(`✅ Usuário "${savedUser.name}" salvo no banco de dados!`);
+                    
+                    // Recarregar lista de usuários
+                    hideModal();
+                    await loadUsersFromDatabase();
+                    
+                } else {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Erro ao salvar usuário');
+                }
+                
+            } catch (error) {
+                console.error('Erro ao salvar usuário:', error);
+                showError(`❌ Erro: ${error.message}`);
             }
-            
-            // Salvar no localStorage
-            saveUsersToStorage();
-            
-            // Atualizar interface
-            hideModal();
-            displayUsers();
-            updateStats();
         }
         
-        function editUser(userId) {
-            const user = users.find(u => u.id === userId);
-            if (!user) {
-                showError('Usuário não encontrado');
+        // ==================== EDITAR USUÁRIO ====================
+        async function editUser(userId) {
+            try {
+                const user = users.find(u => u.id === userId);
+                if (!user) {
+                    showError('Usuário não encontrado');
+                    return;
+                }
+                
+                showModal();
+                document.getElementById('user-id').value = user.id;
+                document.getElementById('user-name').value = user.name;
+                document.getElementById('user-phone').value = user.phone;
+                document.getElementById('user-email').value = user.email;
+                document.getElementById('user-password').value = '';
+                document.getElementById('user-password').required = false;
+                document.getElementById('user-is-admin').checked = user.is_admin;
+                document.getElementById('modal-title').innerHTML = '<i class="fas fa-user-edit"></i> EDITAR USUÁRIO';
+                
+            } catch (error) {
+                showError('Erro ao carregar usuário: ' + error.message);
+            }
+        }
+        
+        // ==================== EXCLUIR USUÁRIO DO BANCO ====================
+        async function deleteUser(userId, userName) {
+            if (!confirm(`⚠️ TEM CERTEZA QUE DESEJA EXCLUIR O USUÁRIO DO BANCO DE DADOS?\n\n"${userName}"\n\nEsta ação NÃO pode ser desfeita!`)) {
                 return;
             }
             
-            showModal();
-            document.getElementById('user-id').value = user.id;
-            document.getElementById('user-name').value = user.name;
-            document.getElementById('user-phone').value = user.phone;
-            document.getElementById('user-email').value = user.email;
-            document.getElementById('user-password').value = user.password;
-            document.getElementById('user-is-admin').checked = user.is_admin;
-            document.getElementById('modal-title').innerHTML = '<i class="fas fa-user-edit"></i> EDITAR USUÁRIO';
-        }
-        
-        function deleteUser(userId, userName) {
-            if (!confirm(`⚠️ TEM CERTEZA QUE DESEJA EXCLUIR O USUÁRIO?\n\n"${userName}"\n\nEsta ação NÃO pode ser desfeita!`)) {
-                return;
+            try {
+                const response = await fetch(`${API_URL}/admin/users/${userId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (response.ok) {
+                    showSuccess(`✅ Usuário "${userName}" excluído do banco de dados!`);
+                    
+                    // Recarregar lista de usuários
+                    await loadUsersFromDatabase();
+                    
+                } else {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Erro ao excluir usuário');
+                }
+                
+            } catch (error) {
+                console.error('Erro ao excluir usuário:', error);
+                showError(`❌ Erro: ${error.message}`);
             }
-            
-            // Remover da lista
-            users = users.filter(u => u.id !== userId);
-            
-            // Salvar no localStorage
-            saveUsersToStorage();
-            
-            // Atualizar interface
-            displayUsers();
-            updateStats();
-            showSuccess(`Usuário "${userName}" excluído com sucesso!`);
-        }
-        
-        function exportUsers() {
-            const dataStr = JSON.stringify(users, null, 2);
-            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
-            
-            const exportFileDefaultName = `usuarios-atlas-${new Date().toISOString().split('T')[0]}.json`;
-            
-            const linkElement = document.createElement('a');
-            linkElement.setAttribute('href', dataUri);
-            linkElement.setAttribute('download', exportFileDefaultName);
-            linkElement.click();
-            
-            showSuccess('Usuários exportados com sucesso!');
-        }
-        
-        function importUsers() {
-            document.getElementById('import-file').click();
         }
         
         // ==================== FUNÇÕES AUXILIARES ====================
@@ -975,15 +886,42 @@
             }, 3000);
         }
         
+        async function checkAPIStatus() {
+            try {
+                const response = await fetch(`${API_URL}/verify`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (response.ok) {
+                    document.getElementById('api-status').innerHTML = 
+                        '<i class="fas fa-check-circle"></i> API Online e Funcionando';
+                    document.getElementById('api-status').style.color = 'var(--success)';
+                    return true;
+                }
+            } catch (error) {
+                document.getElementById('api-status').innerHTML = 
+                    '<i class="fas fa-times-circle"></i> API Offline';
+                document.getElementById('api-status').style.color = 'var(--danger)';
+                return false;
+            }
+        }
+        
         // ==================== INICIALIZAÇÃO ====================
-        function init() {
-            // Verificar login
-            if (!checkAdminLogin()) return;
+        async function init() {
+            console.log('🚀 Inicializando painel admin...');
+            
+            // Verificar acesso admin
+            const hasAccess = await checkAdminAccess();
+            if (!hasAccess) return;
             
             // Configurar eventos
             document.getElementById('logout-btn').addEventListener('click', () => {
+                // Remove apenas o flag de admin, mantém o token para o sistema normal
                 localStorage.removeItem('is_admin_logged_in');
-                window.location.href = 'index.html';
+                window.location.href = 'dashboard.html';
             });
             
             document.getElementById('add-user-btn').addEventListener('click', showModal);
@@ -997,44 +935,11 @@
                 e.target.value = value;
             });
             
-            // Configurar importação de arquivo
-            document.getElementById('import-file').addEventListener('change', function(e) {
-                const file = e.target.files[0];
-                if (!file) return;
-                
-                const reader = new FileReader();
-                reader.onload = function(event) {
-                    try {
-                        const importedUsers = JSON.parse(event.target.result);
-                        
-                        if (Array.isArray(importedUsers)) {
-                            // Adicionar novos IDs aos usuários importados
-                            let nextId = users.length > 0 ? Math.max(...users.map(u => u.id)) + 1 : 1;
-                            importedUsers.forEach(user => {
-                                user.id = nextId++;
-                                user.created_at = user.created_at || new Date().toISOString();
-                            });
-                            
-                            users = [...users, ...importedUsers];
-                            saveUsersToStorage();
-                            displayUsers();
-                            updateStats();
-                            showSuccess(`${importedUsers.length} usuários importados com sucesso!`);
-                        } else {
-                            showError('Arquivo inválido. Deve conter um array de usuários.');
-                        }
-                    } catch (error) {
-                        showError('Erro ao importar arquivo: ' + error.message);
-                    }
-                    
-                    // Limpar input
-                    e.target.value = '';
-                };
-                reader.readAsText(file);
-            });
+            // Verificar status da API
+            await checkAPIStatus();
             
-            // Carregar usuários
-            loadUsers();
+            // Carregar usuários do banco de dados
+            await loadUsersFromDatabase();
         }
         
         // Iniciar quando a página carregar
