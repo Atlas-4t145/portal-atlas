@@ -279,11 +279,7 @@
                 
                 // Pequeno delay para mostrar mensagem
                 setTimeout(() => {
-                    if (data.user.is_admin) {
-                        window.location.href = 'admin.html';
-                    } else {
-                        window.location.href = 'dashboard.html';
-                    }
+                    window.location.href = 'dashboard.html';  // ✅ SEMPRE VAI PRO DASHBOARD!
                 }, 1000);
                 
             } catch (error) {
