@@ -592,9 +592,26 @@ app.post('/api/notifications/read-all', authenticateToken, async (req, res) => {
     }
 });
 
+// ==================== TESTE DE CONEXÃO ====================
+
+// Teste de conexão com o banco
+app.get('/api/test', async (req, res) => {
+    try {
+        const result = await pool.query('SELECT COUNT(*) as user_count FROM users');
+        res.json({ 
+            status: 'online', 
+            users: result.rows[0].user_count,
+            port: process.env.PORT || 10000,
+            timestamp: new Date().toISOString()
+        });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
 // ==================== INICIAR SERVIDOR ====================
 
-const PORT = process.env.PORT || 10000;
+const PORT = process.env.PORT || 10000;  // MUDE 3000 PARA 10000
 app.listen(PORT, () => {
     console.log(`Servidor rodando na porta ${PORT}`);
 });
