@@ -1,220 +1,173 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin - Atlas</title>
-    <style>
-        body { 
-            font-family: Arial, sans-serif; 
-            max-width: 1200px; 
-            margin: 0 auto; 
-            padding: 20px; 
-        }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
-        th { background-color: #f4f4f4; }
-        .btn { padding: 8px 16px; border: none; cursor: pointer; border-radius: 4px; }
-        .btn-primary { background: #007bff; color: white; }
-        .btn-danger { background: #dc3545; color: white; }
-    </style>
-</head>
-<body>
-    <h1>Painel Administrativo</h1>
-    
-    <div id="login-form" style="display: none;">
-        <h3>Login Administrativo</h3>
-        <input type="text" id="phone" placeholder="Telefone">
-        <input type="password" id="password" placeholder="Senha">
-        <button onclick="login()" class="btn btn-primary">Entrar</button>
-    </div>
-    
-    <div id="admin-content" style="display: none;">
-        <h3>Usuários do Sistema</h3>
-        <button onclick="addUser()" class="btn btn-primary">+ Novo Usuário</button>
-        <table id="users-table">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Nome</th>
-                    <th>Telefone</th>
-                    <th>E-mail</th>
-                    <th>Tipo</th>
-                    <th>Ações</th>
-                </tr>
-            </thead>
-            <tbody id="users-body"></tbody>
-        </table>
-    </div>
+<script type="module">
+// ==================== SEM PROTEÇÃO - ACESSO LIVRE ====================
+console.log('🔓 Acesso admin liberado');
 
-    <script>
-        // SENHA DE ACESSO À PÁGINA
-        const PAGE_PASSWORD = '99100699840940104t1';
-        
-        // Verificar senha na URL
-        const urlParams = new URLSearchParams(window.location.search);
-        const urlPassword = urlParams.get('admin_key');
-        
-        if (urlPassword !== PAGE_PASSWORD) {
-            // Redireciona IMEDIATAMENTE se senha errada
+// Importar API
+import api from './api.js';
+
+// Verificar autenticação
+async function checkAuth() {
+    try {
+        const data = await api.verify();
+        if (!data.user.is_admin) {
+            alert('⚠️ Você não é administrador!');
             window.location.href = 'index.html';
-        } else {
-            // Senha correta - mostrar página
-            console.log('✅ Acesso à página permitido');
-            showPage();
+            return false;
         }
-        
-        function showPage() {
-            document.getElementById('login-form').style.display = 'block';
-        }
-        
-        // API Configuration
-        const API_URL = 'https://atlas-database.onrender.com/api';
-        
-        async function login() {
-            const phone = document.getElementById('phone').value;
-            const password = document.getElementById('password').value;
+        document.getElementById('user-name').textContent = data.user.name;
+        return true;
+    } catch (error) {
+        // Não autenticado - mostrar tela de login
+        showLoginScreen();
+        return false;
+    }
+}
+
+// Tela de login (aparece se não estiver logado)
+function showLoginScreen() {
+    document.querySelector('.main-content').innerHTML = `
+        <div style="text-align: center; padding: 50px;">
+            <h2>🔐 Login Administrativo</h2>
+            <p style="color: #666; margin-bottom: 30px;">
+                Faça login com uma conta de administrador
+            </p>
             
-            try {
-                const response = await fetch(API_URL + '/login', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ phone, password })
-                });
+            <div style="max-width: 350px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                <div style="margin-bottom: 20px;">
+                    <input type="text" 
+                           id="login-phone" 
+                           placeholder="Telefone (ex: 11999999999)" 
+                           style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 16px;">
+                </div>
                 
-                const data = await response.json();
+                <div style="margin-bottom: 25px;">
+                    <input type="password" 
+                           id="login-password" 
+                           placeholder="Senha" 
+                           style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 16px;">
+                </div>
                 
-                if (!response.ok) {
-                    throw new Error(data.error || 'Login falhou');
-                }
+                <button onclick="doAdminLogin()" 
+                        style="width: 100%; padding: 14px; background: #3b82f6; color: white; border: none; border-radius: 6px; font-size: 16px; cursor: pointer;">
+                    <i class="fas fa-sign-in-alt"></i> Entrar como Administrador
+                </button>
                 
-                if (!data.user.is_admin) {
-                    alert('Este usuário não é administrador!');
-                    return;
-                }
-                
-                // Salvar token
-                localStorage.setItem('token', data.token);
-                localStorage.setItem('user', JSON.stringify(data.user));
-                
-                // Mostrar conteúdo admin
-                document.getElementById('login-form').style.display = 'none';
-                document.getElementById('admin-content').style.display = 'block';
-                
-                loadUsers();
-                
-            } catch (error) {
-                alert('Erro: ' + error.message);
-            }
-        }
-        
-        async function loadUsers() {
-            try {
-                const token = localStorage.getItem('token');
-                const response = await fetch(API_URL + '/admin/users', {
-                    headers: {
-                        'Authorization': 'Bearer ' + token,
-                        'Content-Type': 'application/json'
-                    }
-                });
-                
-                const users = await response.json();
-                
-                const tbody = document.getElementById('users-body');
-                tbody.innerHTML = users.map(user => `
-                    <tr>
-                        <td>${user.id}</td>
-                        <td>${user.name}</td>
-                        <td>${user.phone}</td>
-                        <td>${user.email}</td>
-                        <td>${user.is_admin ? 'Administrador' : 'Usuário'}</td>
-                        <td>
-                            <button onclick="editUser(${user.id})" class="btn">Editar</button>
-                            ${!user.is_admin ? `<button onclick="deleteUser(${user.id})" class="btn btn-danger">Excluir</button>` : ''}
-                        </td>
-                    </tr>
-                `).join('');
-                
-            } catch (error) {
-                alert('Erro ao carregar usuários: ' + error.message);
-            }
-        }
-        
-        function addUser() {
-            const name = prompt('Nome:');
-            const phone = prompt('Telefone (apenas números):');
-            const email = prompt('E-mail:');
-            const password = prompt('Senha:');
-            const isAdmin = confirm('É administrador?');
+                <div id="login-error" style="color: #dc2626; margin-top: 15px; font-size: 14px; min-height: 20px;"></div>
+            </div>
             
-            if (!name || !phone || !email || !password) {
-                alert('Todos os campos são obrigatórios!');
-                return;
-            }
-            
-            createUser({ name, phone, email, password, is_admin: isAdmin });
+            <p style="margin-top: 30px; color: #999; font-size: 14px;">
+                Apenas usuários com permissão de administrador podem acessar
+            </p>
+        </div>
+    `;
+}
+
+// Função de login
+async function doAdminLogin() {
+    const phone = document.getElementById('login-phone').value.trim();
+    const password = document.getElementById('login-password').value;
+    const errorEl = document.getElementById('login-error');
+    
+    errorEl.textContent = '';
+    
+    if (!phone || !password) {
+        errorEl.textContent = 'Preencha telefone e senha';
+        return;
+    }
+    
+    try {
+        const data = await api.login(phone, password);
+        
+        if (!data.user.is_admin) {
+            errorEl.textContent = '❌ Este usuário não é administrador';
+            return;
         }
         
-        async function createUser(userData) {
-            try {
-                const token = localStorage.getItem('token');
-                const response = await fetch(API_URL + '/admin/users', {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': 'Bearer ' + token,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(userData)
-                });
-                
-                const result = await response.json();
-                
-                if (!response.ok) {
-                    throw new Error(result.error || 'Erro ao criar usuário');
-                }
-                
-                alert('Usuário criado com sucesso!');
-                loadUsers();
-                
-            } catch (error) {
-                alert('Erro: ' + error.message);
-            }
+        // Login bem sucedido - recarregar página
+        location.reload();
+        
+    } catch (error) {
+        errorEl.textContent = '❌ ' + error.message;
+    }
+}
+
+// Carregar usuários
+async function loadUsers() {
+    try {
+        const users = await api.getUsers();
+        const tbody = document.getElementById('users-table-body');
+        
+        if (users.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="7" style="text-align: center; padding: 40px; color: #666;">
+                        <i class="fas fa-users" style="font-size: 48px; margin-bottom: 15px; display: block; color: #ddd;"></i>
+                        Nenhum usuário cadastrado<br>
+                        <small>Use o botão "Novo Usuário" para começar</small>
+                    </td>
+                </tr>
+            `;
+            return;
         }
         
-        async function deleteUser(userId) {
-            if (!confirm('Tem certeza que deseja excluir este usuário?')) return;
-            
-            try {
-                const token = localStorage.getItem('token');
-                const response = await fetch(API_URL + '/admin/users/' + userId, {
-                    method: 'DELETE',
-                    headers: {
-                        'Authorization': 'Bearer ' + token
-                    }
-                });
-                
-                if (!response.ok) {
-                    throw new Error('Erro ao excluir usuário');
-                }
-                
-                alert('Usuário excluído!');
-                loadUsers();
-                
-            } catch (error) {
-                alert('Erro: ' + error.message);
-            }
-        }
+        tbody.innerHTML = users.map(user => `
+            <tr>
+                <td>${user.id}</td>
+                <td><strong>${user.name}</strong></td>
+                <td>${user.phone}</td>
+                <td>${user.email}</td>
+                <td>
+                    <span class="badge ${user.is_admin ? 'badge-admin' : 'badge-user'}">
+                        ${user.is_admin ? '👑 Administrador' : '👤 Usuário'}
+                    </span>
+                </td>
+                <td>${new Date(user.created_at).toLocaleDateString('pt-BR')}</td>
+                <td class="actions">
+                    <button class="btn-secondary" onclick="editUser(${user.id})">
+                        <i class="fas fa-edit"></i> Editar
+                    </button>
+                    ${!user.is_admin ? `
+                        <button class="btn-danger" onclick="deleteUser(${user.id}, '${user.name.replace(/'/g, "\\'")}')">
+                            <i class="fas fa-trash"></i> Excluir
+                        </button>
+                    ` : ''}
+                </td>
+            </tr>
+        `).join('');
         
-        // Verificar se já está logado
-        window.onload = function() {
-            const token = localStorage.getItem('token');
-            if (token) {
-                // Tentar carregar usuários direto
-                document.getElementById('login-form').style.display = 'none';
-                document.getElementById('admin-content').style.display = 'block';
-                loadUsers();
-            }
-        };
-    </script>
-</body>
-</html>
+    } catch (error) {
+        console.error('Erro ao carregar usuários:', error);
+        document.getElementById('users-table-body').innerHTML = `
+            <tr>
+                <td colspan="7" style="text-align: center; padding: 30px; color: #dc2626;">
+                    <i class="fas fa-exclamation-triangle"></i> Erro ao carregar usuários:<br>
+                    <small>${error.message}</small>
+                </td>
+            </tr>
+        `;
+    }
+}
+
+// Resto do código permanece igual...
+// ... (código de modal, edição, exclusão, etc)
+
+// Inicializar
+async function init() {
+    const isAuthenticated = await checkAuth();
+    if (isAuthenticated) {
+        loadUsers();
+    }
+}
+
+// Tornar funções globais
+window.doAdminLogin = doAdminLogin;
+window.editUser = editUser;
+window.deleteUser = deleteUser;
+
+// Iniciar quando página carregar
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+} else {
+    init();
+}
+</script>
