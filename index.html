@@ -92,10 +92,19 @@
             font-weight: 600;
             cursor: pointer;
             transition: background-color 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
         }
 
         .btn-primary:hover {
             background-color: #2563eb;
+        }
+
+        .btn-primary:disabled {
+            background-color: #94a3b8;
+            cursor: not-allowed;
         }
 
         .error-message {
@@ -104,6 +113,25 @@
             padding: 12px;
             border-radius: 8px;
             margin-bottom: 20px;
+            display: none;
+        }
+
+        .success-message {
+            background-color: #d1fae5;
+            color: #065f46;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .debug-info {
+            margin-top: 20px;
+            padding: 10px;
+            background: #f8fafc;
+            border-radius: 8px;
+            font-size: 12px;
+            color: #64748b;
             display: none;
         }
 
@@ -136,6 +164,7 @@
         </div>
         
         <div class="error-message" id="error-message"></div>
+        <div class="success-message" id="success-message"></div>
         
         <form id="login-form">
             <div class="form-group">
@@ -144,7 +173,8 @@
                        id="phone" 
                        class="form-input" 
                        placeholder="(11) 99999-9999"
-                       required>
+                       required
+                       value="11999999999">
             </div>
             
             <div class="form-group">
@@ -153,46 +183,139 @@
                        id="password" 
                        class="form-input" 
                        placeholder="Sua senha"
-                       required>
+                       required
+                       value="admin123">
             </div>
             
-            <button type="submit" class="btn-primary">
-                <i class="fas fa-sign-in-alt"></i> Entrar
+            <button type="submit" class="btn-primary" id="login-btn">
+                <i class="fas fa-sign-in-alt"></i> 
+                <span id="btn-text">Entrar</span>
+                <span id="btn-loading" style="display: none;">
+                    <i class="fas fa-spinner fa-spin"></i> Conectando...
+                </span>
             </button>
         </form>
+
+        <div class="debug-info" id="debug-info">
+            <div><strong>API URL:</strong> <span id="api-url"></span></div>
+            <div><strong>Status:</strong> <span id="status">Não testado</span></div>
+        </div>
         
-        
+        <div class="admin-link">
+            <a href="javascript:void(0)" onclick="testAPI()">🔍 Testar conexão com a API</a>
+        </div>
     </div>
 
     <script type="module">
         import api from './api.js';
         
+        // Mostrar URL da API no debug
+        document.getElementById('api-url').textContent = api.constructor.API_URL || 'https://atlas-database.onrender.com/api';
+        
+        async function testAPI() {
+            const debugEl = document.getElementById('debug-info');
+            const statusEl = document.getElementById('status');
+            
+            debugEl.style.display = 'block';
+            statusEl.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Testando...';
+            
+            try {
+                const response = await fetch('https://atlas-database.onrender.com/api/test');
+                const data = await response.json();
+                
+                if (data.status === 'online') {
+                    statusEl.innerHTML = `<span style="color: #10b981;">✅ Online (${data.users} usuários)</span>`;
+                    showSuccess('API conectada com sucesso!');
+                } else {
+                    statusEl.innerHTML = `<span style="color: #ef4444;">❌ ${data.error || 'Erro'}</span>`;
+                }
+            } catch (error) {
+                statusEl.innerHTML = `<span style="color: #ef4444;">❌ ${error.message}</span>`;
+            }
+        }
+        
+        function showSuccess(message) {
+            const successEl = document.getElementById('success-message');
+            successEl.textContent = message;
+            successEl.style.display = 'block';
+            setTimeout(() => successEl.style.display = 'none', 3000);
+        }
+        
         document.getElementById('login-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            const phone = document.getElementById('phone').value;
+            // REMOVER FORMATAÇÃO DO TELEFONE ANTES DE ENVIAR
+            const rawPhone = document.getElementById('phone').value.replace(/\D/g, '');
             const password = document.getElementById('password').value;
             const errorEl = document.getElementById('error-message');
+            const loginBtn = document.getElementById('login-btn');
+            const btnText = document.getElementById('btn-text');
+            const btnLoading = document.getElementById('btn-loading');
+            
+            console.log('📱 Telefone (formatado):', document.getElementById('phone').value);
+            console.log('📱 Telefone (raw):', rawPhone);
+            console.log('🔑 Senha:', password);
+            
+            errorEl.style.display = 'none';
+            
+            // Validar telefone
+            if (rawPhone.length < 10 || rawPhone.length > 11) {
+                errorEl.textContent = 'Telefone inválido. Use DDD + número (ex: 11999999999)';
+                errorEl.style.display = 'block';
+                return;
+            }
+            
+            // Mostrar loading
+            loginBtn.disabled = true;
+            btnText.style.display = 'none';
+            btnLoading.style.display = 'inline';
             
             try {
-                const data = await api.login(phone, password);
+                console.log('📡 Enviando para API...');
+                const data = await api.login(rawPhone, password);
+                console.log('✅ Login bem sucedido:', data);
                 
-                if (data.user.is_admin) {
-                    window.location.href = 'admin.html';
-                } else {
-                    window.location.href = 'dashboard.html';
-                }
+                showSuccess('Login realizado com sucesso! Redirecionando...');
+                
+                // Pequeno delay para mostrar mensagem
+                setTimeout(() => {
+                    if (data.user.is_admin) {
+                        window.location.href = 'admin.html';
+                    } else {
+                        window.location.href = 'dashboard.html';
+                    }
+                }, 1000);
+                
             } catch (error) {
-                errorEl.textContent = error.message;
+                console.error('❌ Erro no login:', error);
+                
+                // Restaurar botão
+                loginBtn.disabled = false;
+                btnText.style.display = 'inline';
+                btnLoading.style.display = 'none';
+                
+                // Mostrar erro específico
+                if (error.message.includes('fetch') || error.message.includes('Network')) {
+                    errorEl.innerHTML = '❌ Erro de conexão com o servidor.<br><small>Verifique sua internet ou a API pode estar offline.</small>';
+                } else if (error.message.includes('Telefone ou senha incorretos')) {
+                    errorEl.innerHTML = '❌ Telefone ou senha incorretos.<br><small>Use: 11999999999 / admin123</small>';
+                } else {
+                    errorEl.textContent = `❌ ${error.message}`;
+                }
+                
                 errorEl.style.display = 'block';
             }
         });
 
-        // Mascarar telefone
+        // Mascarar telefone (APENAS PARA EXIBIÇÃO)
         document.getElementById('phone').addEventListener('input', function(e) {
             let value = e.target.value.replace(/\D/g, '');
             if (value.length > 11) value = value.substring(0, 11);
             
+            // Salvar valor raw em data attribute
+            this.dataset.raw = value;
+            
+            // Formatar para exibição
             if (value.length > 10) {
                 value = value.replace(/^(\d{2})(\d{5})(\d{4}).*/, '($1) $2-$3');
             } else if (value.length > 6) {
@@ -205,6 +328,11 @@
             
             e.target.value = value;
         });
+        
+        // Auto-teste da API
+        setTimeout(() => {
+            testAPI();
+        }, 1000);
     </script>
 </body>
 </html>
