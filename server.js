@@ -1,701 +1,600 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Atlas Financeiro - Admin</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', system-ui, sans-serif;
-        }
+// server.js - Backend completo para o Render
+const express = require('express');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const { Pool } = require('pg');
+const cors = require('cors');
 
-        :root {
-            --primary: #3b82f6;
-            --primary-light: #60a5fa;
-            --secondary: #8b5cf6;
-            --income: #10b981;
-            --expense: #ef4444;
-            --warning: #f59e0b;
-            --danger: #dc2626;
-            --light: #f8fafc;
-            --dark: #1e293b;
-            --gray: #64748b;
-            --gray-light: #e2e8f0;
-            --border-radius: 12px;
-        }
+const app = express();
+app.use(cors());
+app.use(express.json());
 
-        body {
-            background-color: #f1f5f9;
-            color: var(--dark);
-        }
+// Configuração do banco de dados Render
+const pool = new Pool({
+    connectionString: process.env.DATABASE_URL,
+    ssl: {
+        rejectUnauthorized: false
+    }
+});
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
+// Configurações
+const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
 
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 20px 0;
-            margin-bottom: 20px;
-            border-bottom: 1px solid var(--gray-light);
-        }
+// ==================== CRIAR TABELAS AUTOMATICAMENTE ====================
 
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 20px;
-            font-weight: 700;
-            color: var(--dark);
+async function criarTabelasSeNaoExistem() {
+    try {
+        console.log('🔄 Verificando/criando tabelas...');
+        
+        // Criar tabela users se não existir
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS users (
+                id SERIAL PRIMARY KEY,
+                phone VARCHAR(20) UNIQUE NOT NULL,
+                email VARCHAR(100) UNIQUE NOT NULL,
+                name VARCHAR(100) NOT NULL,
+                password VARCHAR(255) NOT NULL,
+                is_admin BOOLEAN DEFAULT FALSE,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
+        
+        // Criar tabela user_settings se não existir
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS user_settings (
+                user_id INTEGER PRIMARY KEY REFERENCES users(id),
+                total_savings DECIMAL(10,2) DEFAULT 0,
+                savings_goal DECIMAL(10,2) DEFAULT 0,
+                monthly_budget DECIMAL(10,2) DEFAULT 0,
+                savings_rate DECIMAL(5,2) DEFAULT 0.3
+            )
+        `);
+        
+        // Criar tabela transactions se não existir
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS transactions (
+                id SERIAL PRIMARY KEY,
+                user_id INTEGER REFERENCES users(id),
+                type VARCHAR(20) NOT NULL,
+                amount DECIMAL(10,2) NOT NULL,
+                name VARCHAR(200) NOT NULL,
+                category VARCHAR(50),
+                date DATE NOT NULL,
+                due_day INTEGER,
+                recurrence_type VARCHAR(20),
+                master_id VARCHAR(100),
+                current_installment INTEGER,
+                total_installments INTEGER,
+                end_date DATE,
+                notes TEXT,
+                auto_debit BOOLEAN DEFAULT FALSE,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
+        
+        // Criar tabela read_notifications se não existir
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS read_notifications (
+                user_id INTEGER REFERENCES users(id),
+                transaction_id INTEGER REFERENCES transactions(id),
+                read_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                PRIMARY KEY (user_id, transaction_id)
+            )
+        `);
+        
+        console.log('✅ Tabelas verificadas/criadas com sucesso!');
+        
+        // Criar usuário admin se não existir
+        const adminCheck = await pool.query(
+            "SELECT id FROM users WHERE phone = '11999999999'"
+        );
+        
+        if (adminCheck.rows.length === 0) {
+            const hashedPassword = await bcrypt.hash('admin123', 10);
+            await pool.query(
+                `INSERT INTO users (phone, email, name, password, is_admin) 
+                 VALUES ($1, $2, $3, $4, $5)`,
+                ['11999999999', 'admin@email.com', 'Administrador', hashedPassword, true]
+            );
+            console.log('✅ Usuário admin criado: 11999999999 / admin123');
         }
+        
+    } catch (error) {
+        console.error('❌ Erro ao criar tabelas:', error.message);
+    }
+}
 
-        .logo i {
-            color: var(--primary);
-        }
+// Chamar a função para criar tabelas
+criarTabelasSeNaoExistem();
 
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
+// Middleware de autenticação
+const authenticateToken = (req, res, next) => {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+    
+    if (!token) return res.status(401).json({ error: 'Token não fornecido' });
+    
+    jwt.verify(token, JWT_SECRET, (err, user) => {
+        if (err) return res.status(403).json({ error: 'Token inválido' });
+        req.user = user;
+        next();
+    });
+};
 
-        .btn-primary {
-            background-color: var(--primary);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: var(--border-radius);
-            font-weight: 600;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: background-color 0.3s;
-        }
+// Middleware de admin
+const isAdmin = (req, res, next) => {
+    if (!req.user.is_admin) {
+        return res.status(403).json({ error: 'Acesso negado. Apenas administradores' });
+    }
+    next();
+};
 
-        .btn-primary:hover {
-            background-color: var(--secondary);
-        }
+// ==================== ROTAS DE AUTENTICAÇÃO ====================
 
-        .btn-danger {
-            background-color: var(--danger);
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: var(--border-radius);
-            font-weight: 600;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            font-size: 14px;
+// Login
+app.post('/api/login', async (req, res) => {
+    try {
+        const { phone, password } = req.body;
+        
+        const result = await pool.query(
+            'SELECT * FROM users WHERE phone = $1',
+            [phone]
+        );
+        
+        if (result.rows.length === 0) {
+            return res.status(401).json({ error: 'Telefone ou senha incorretos' });
         }
+        
+        const user = result.rows[0];
+        const validPassword = await bcrypt.compare(password, user.password);
+        
+        if (!validPassword) {
+            return res.status(401).json({ error: 'Telefone ou senha incorretos' });
+        }
+        
+        const token = jwt.sign(
+            { 
+                id: user.id, 
+                phone: user.phone,
+                email: user.email,
+                name: user.name,
+                is_admin: user.is_admin 
+            },
+            JWT_SECRET,
+            { expiresIn: '24h' }
+        );
+        
+        res.json({ 
+            token,
+            user: {
+                id: user.id,
+                phone: user.phone,
+                email: user.email,
+                name: user.name,
+                is_admin: user.is_admin
+            }
+        });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
 
-        .btn-secondary {
-            background-color: var(--gray-light);
-            color: var(--dark);
-            border: none;
-            padding: 8px 16px;
-            border-radius: var(--border-radius);
-            font-weight: 600;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            font-size: 14px;
-        }
+// Verificar token
+app.get('/api/verify', authenticateToken, (req, res) => {
+    res.json({ valid: true, user: req.user });
+});
 
-        .main-content {
-            background-color: white;
-            border-radius: var(--border-radius);
-            padding: 30px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-        }
+// ==================== ROTAS DE USUÁRIOS (ADMIN) ====================
 
-        .section-title {
-            font-size: 24px;
-            font-weight: 700;
-            margin-bottom: 25px;
-            color: var(--dark);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
+// Listar todos os usuários (apenas admin)
+app.get('/api/admin/users', authenticateToken, isAdmin, async (req, res) => {
+    try {
+        const result = await pool.query(
+            'SELECT id, phone, email, name, is_admin, created_at FROM users ORDER BY created_at DESC'
+        );
+        res.json(result.rows);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
 
-        .table-container {
-            overflow-x: auto;
-            border-radius: var(--border-radius);
-            border: 1px solid var(--gray-light);
+// Criar novo usuário (apenas admin)
+app.post('/api/admin/users', authenticateToken, isAdmin, async (req, res) => {
+    try {
+        const { phone, email, name, password, is_admin } = req.body;
+        
+        // Verificar se telefone já existe
+        const phoneCheck = await pool.query(
+            'SELECT id FROM users WHERE phone = $1',
+            [phone]
+        );
+        
+        if (phoneCheck.rows.length > 0) {
+            return res.status(400).json({ error: 'Telefone já cadastrado' });
         }
+        
+        // Verificar se email já existe
+        const emailCheck = await pool.query(
+            'SELECT id FROM users WHERE email = $1',
+            [email]
+        );
+        
+        if (emailCheck.rows.length > 0) {
+            return res.status(400).json({ error: 'E-mail já cadastrado' });
+        }
+        
+        // Criptografar senha
+        const hashedPassword = await bcrypt.hash(password, 10);
+        
+        // Inserir usuário
+        const result = await pool.query(
+            `INSERT INTO users (phone, email, name, password, is_admin) 
+             VALUES ($1, $2, $3, $4, $5) 
+             RETURNING id, phone, email, name, is_admin, created_at`,
+            [phone, email, name, hashedPassword, is_admin || false]
+        );
+        
+        // Criar configurações padrão
+        await pool.query(
+            'INSERT INTO user_settings (user_id) VALUES ($1)',
+            [result.rows[0].id]
+        );
+        
+        res.json(result.rows[0]);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        th {
-            background-color: var(--light);
-            padding: 15px;
-            text-align: left;
-            font-weight: 600;
-            color: var(--dark);
-            border-bottom: 1px solid var(--gray-light);
-        }
-
-        td {
-            padding: 15px;
-            border-bottom: 1px solid var(--gray-light);
-            color: var(--dark);
-        }
-
-        tr:hover {
-            background-color: var(--light);
-        }
-
-        .badge {
-            display: inline-block;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-
-        .badge-admin {
-            background-color: rgba(59, 130, 246, 0.1);
-            color: var(--primary);
-        }
-
-        .badge-user {
-            background-color: rgba(16, 185, 129, 0.1);
-            color: var(--income);
-        }
-
-        .actions {
-            display: flex;
-            gap: 8px;
-        }
-
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: rgba(0,0,0,0.5);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            padding: 20px;
-            display: none;
-        }
-
-        .modal {
-            background-color: white;
-            border-radius: var(--border-radius);
-            padding: 30px;
-            width: 100%;
-            max-width: 500px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-        }
-
-        .modal-title {
-            font-size: 20px;
-            font-weight: 700;
-            margin-bottom: 20px;
-            color: var(--dark);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .modal-close {
-            background: none;
-            border: none;
-            font-size: 24px;
-            cursor: pointer;
-            color: var(--gray);
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: var(--dark);
-        }
-
-        .form-input {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid var(--gray-light);
-            border-radius: 8px;
-            font-size: 16px;
-        }
-
-        .form-input:focus {
-            outline: none;
-            border-color: var(--primary);
-        }
-
-        .form-checkbox {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-
-        .btn-group {
-            display: flex;
-            gap: 10px;
-            margin-top: 25px;
-        }
-
-        .toast {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            background-color: var(--income);
-            color: white;
-            padding: 16px 24px;
-            border-radius: var(--border-radius);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            z-index: 1001;
-            transform: translateY(100px);
-            opacity: 0;
-            transition: transform 0.3s, opacity 0.3s;
-            display: none;
-        }
-
-        .toast.show {
-            transform: translateY(0);
-            opacity: 1;
-            display: flex;
-        }
-
-        .toast.error {
-            background-color: var(--danger);
-        }
-    </style>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-</head>
-<body>
-    <div class="container">
-        <div class="header">
-            <div class="logo">
-                <i class="fas fa-wallet"></i>
-                <span>Atlas Financeiro - Admin</span>
-            </div>
+// Atualizar usuário (apenas admin)
+app.put('/api/admin/users/:id', authenticateToken, isAdmin, async (req, res) => {
+    try {
+        const { phone, email, name, password, is_admin } = req.body;
+        const userId = req.params.id;
+        
+        // Verificar se telefone já existe (excluindo o usuário atual)
+        if (phone) {
+            const phoneCheck = await pool.query(
+                'SELECT id FROM users WHERE phone = $1 AND id != $2',
+                [phone, userId]
+            );
             
-            <div class="user-info">
-                <span id="user-name">Admin</span>
-                <button class="btn-primary" id="logout-btn">
-                    <i class="fas fa-sign-out-alt"></i> Sair
-                </button>
-            </div>
-        </div>
-        
-        <div class="main-content">
-            <div class="section-title">
-                <span><i class="fas fa-users"></i> Gerenciamento de Usuários</span>
-                <button class="btn-primary" id="add-user-btn">
-                    <i class="fas fa-plus"></i> Novo Usuário
-                </button>
-            </div>
-            
-            <div class="table-container">
-                <table id="users-table">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Nome</th>
-                            <th>Telefone</th>
-                            <th>E-mail</th>
-                            <th>Tipo</th>
-                            <th>Cadastrado em</th>
-                            <th>Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody id="users-table-body">
-                        <!-- Usuários serão carregados aqui -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal para Novo/Editar Usuário -->
-    <div class="modal-overlay" id="user-modal">
-        <div class="modal">
-            <div class="modal-title">
-                <span id="modal-title">Novo Usuário</span>
-                <button class="modal-close" id="modal-close">&times;</button>
-            </div>
-            
-            <form id="user-form">
-                <input type="hidden" id="user-id">
-                
-                <div class="form-group">
-                    <label class="form-label" for="user-name">Nome *</label>
-                    <input type="text" class="form-input" id="user-name" required>
-                </div>
-                
-                <div class="form-group">
-                    <label class="form-label" for="user-phone">Telefone (com DDD) *</label>
-                    <input type="text" class="form-input" id="user-phone" placeholder="(11) 99999-9999" required>
-                </div>
-                
-                <div class="form-group">
-                    <label class="form-label" for="user-email">E-mail *</label>
-                    <input type="email" class="form-input" id="user-email" required>
-                </div>
-                
-                <div class="form-group">
-                    <label class="form-label" for="user-password">Senha *</label>
-                    <input type="text" class="form-input" id="user-password" required>
-                    <small style="color: var(--gray); font-size: 12px;">A senha será visível apenas agora</small>
-                </div>
-                
-                <div class="form-checkbox">
-                    <input type="checkbox" id="user-is-admin">
-                    <label for="user-is-admin">Administrador</label>
-                </div>
-                
-                <div class="btn-group">
-                    <button type="submit" class="btn-primary">Salvar</button>
-                    <button type="button" class="btn-secondary" id="cancel-btn">Cancelar</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Toast -->
-    <div class="toast" id="toast">
-        <i class="fas fa-check-circle"></i>
-        <span id="toast-message">Operação realizada com sucesso!</span>
-    </div>
-
-    <script type="module">
-        // ==================== PROTEÇÃO ADMIN ====================
-        const ADMIN_PASSWORD = '99100699840940104t1s';
-        const urlParams = new URLSearchParams(window.location.search);
-        const passwordFromUrl = urlParams.get('admin_key');
-        
-        console.log('URL completa:', window.location.href);
-        console.log('Senha esperada:', ADMIN_PASSWORD);
-        console.log('Senha recebida:', passwordFromUrl);
-        console.log('São iguais?', passwordFromUrl === ADMIN_PASSWORD);
-        
-        if (passwordFromUrl !== ADMIN_PASSWORD) {
-            console.log('❌ ACESSO NEGADO');
-            window.location.href = 'index.html';
-            throw new Error('Acesso negado');
-        }
-        
-        console.log('✅ ACESSO PERMITIDO');
-        // ==================== FIM DA PROTEÇÃO ====================
-        
-        // Importar API
-        const API_URL = 'https://atlas-database.onrender.com/api';
-        
-        class API {
-            constructor() {
-                this.token = localStorage.getItem('token');
-                this.user = JSON.parse(localStorage.getItem('user') || '{}');
-            }
-
-            setAuth(token, user) {
-                this.token = token;
-                this.user = user;
-                localStorage.setItem('token', token);
-                localStorage.setItem('user', JSON.stringify(user));
-            }
-
-            clearAuth() {
-                this.token = null;
-                this.user = {};
-                localStorage.removeItem('token');
-                localStorage.removeItem('user');
-            }
-
-            async request(endpoint, options = {}) {
-                const headers = {
-                    'Content-Type': 'application/json',
-                    ...options.headers
-                };
-
-                if (this.token) {
-                    headers['Authorization'] = `Bearer ${this.token}`;
-                }
-
-                const response = await fetch(`${API_URL}${endpoint}`, {
-                    ...options,
-                    headers
-                });
-
-                if (!response.ok) {
-                    if (response.status === 401) {
-                        this.clearAuth();
-                        window.location.href = 'index.html';
-                        return null;
-                    }
-                    
-                    const error = await response.json();
-                    throw new Error(error.error || 'Erro na requisição');
-                }
-
-                return response.json();
-            }
-
-            async login(phone, password) {
-                const data = await this.request('/login', {
-                    method: 'POST',
-                    body: JSON.stringify({ phone, password })
-                });
-                
-                if (data) {
-                    this.setAuth(data.token, data.user);
-                }
-                
-                return data;
-            }
-
-            async verify() {
-                return this.request('/verify');
-            }
-
-            async getUsers() {
-                return this.request('/admin/users');
-            }
-
-            async createUser(user) {
-                return this.request('/admin/users', {
-                    method: 'POST',
-                    body: JSON.stringify(user)
-                });
-            }
-
-            async updateUser(id, user) {
-                return this.request(`/admin/users/${id}`, {
-                    method: 'PUT',
-                    body: JSON.stringify(user)
-                });
-            }
-
-            async deleteUser(id) {
-                return this.request(`/admin/users/${id}`, {
-                    method: 'DELETE'
-                });
-            }
-        }
-
-        const api = new API();
-        
-        // Verificar autenticação e permissões
-        async function checkAuth() {
-            try {
-                const data = await api.verify();
-                if (!data.user.is_admin) {
-                    window.location.href = 'index.html';
-                }
-                document.getElementById('user-name').textContent = data.user.name;
-                loadUsers();
-            } catch (error) {
-                window.location.href = 'index.html';
+            if (phoneCheck.rows.length > 0) {
+                return res.status(400).json({ error: 'Telefone já cadastrado' });
             }
         }
         
-        // Carregar usuários
-        async function loadUsers() {
-            try {
-                const users = await api.getUsers();
-                const tbody = document.getElementById('users-table-body');
-                
-                tbody.innerHTML = users.map(user => `
-                    <tr>
-                        <td>${user.id}</td>
-                        <td>${user.name}</td>
-                        <td>${user.phone}</td>
-                        <td>${user.email}</td>
-                        <td>
-                            <span class="badge ${user.is_admin ? 'badge-admin' : 'badge-user'}">
-                                ${user.is_admin ? 'Administrador' : 'Usuário'}
-                            </span>
-                        </td>
-                        <td>${new Date(user.created_at).toLocaleDateString('pt-BR')}</td>
-                        <td class="actions">
-                            <button class="btn-secondary" onclick="editUser(${user.id})">
-                                <i class="fas fa-edit"></i> Editar
-                            </button>
-                            ${!user.is_admin ? `
-                                <button class="btn-danger" onclick="deleteUser(${user.id}, '${user.name}')">
-                                    <i class="fas fa-trash"></i> Excluir
-                                </button>
-                            ` : ''}
-                        </td>
-                    </tr>
-                `).join('');
-            } catch (error) {
-                showToast(error.message, 'error');
+        // Verificar se email já existe (excluindo o usuário atual)
+        if (email) {
+            const emailCheck = await pool.query(
+                'SELECT id FROM users WHERE email = $1 AND id != $2',
+                [email, userId]
+            );
+            
+            if (emailCheck.rows.length > 0) {
+                return res.status(400).json({ error: 'E-mail já cadastrado' });
             }
         }
         
-        // Mostrar modal de usuário
-        let editingUserId = null;
+        // Montar query dinâmica
+        const updateFields = [];
+        const values = [];
+        let valueIndex = 1;
         
-        function showUserModal(user = null) {
-            const modal = document.getElementById('user-modal');
-            const form = document.getElementById('user-form');
-            const title = document.getElementById('modal-title');
-            
-            form.reset();
-            editingUserId = null;
-            
-            if (user) {
-                title.textContent = 'Editar Usuário';
-                editingUserId = user.id;
-                document.getElementById('user-id').value = user.id;
-                document.getElementById('user-name').value = user.name;
-                document.getElementById('user-phone').value = user.phone;
-                document.getElementById('user-email').value = user.email;
-                document.getElementById('user-password').value = '';
-                document.getElementById('user-password').required = false;
-                document.getElementById('user-is-admin').checked = user.is_admin;
-            } else {
-                title.textContent = 'Novo Usuário';
-                document.getElementById('user-password').required = true;
-            }
-            
-            modal.style.display = 'flex';
+        if (phone) {
+            updateFields.push(`phone = $${valueIndex}`);
+            values.push(phone);
+            valueIndex++;
         }
         
-        // Salvar usuário
-        async function saveUser(e) {
-            e.preventDefault();
-            
-            const user = {
-                name: document.getElementById('user-name').value,
-                phone: document.getElementById('user-phone').value.replace(/\D/g, ''),
-                email: document.getElementById('user-email').value,
-                is_admin: document.getElementById('user-is-admin').checked
-            };
-            
-            const password = document.getElementById('user-password').value;
-            if (password) {
-                user.password = password;
-            }
-            
-            try {
-                if (editingUserId) {
-                    await api.updateUser(editingUserId, user);
-                    showToast('Usuário atualizado com sucesso!');
-                } else {
-                    await api.createUser(user);
-                    showToast('Usuário criado com sucesso!');
-                }
-                
-                hideUserModal();
-                loadUsers();
-            } catch (error) {
-                showToast(error.message, 'error');
+        if (email) {
+            updateFields.push(`email = $${valueIndex}`);
+            values.push(email);
+            valueIndex++;
+        }
+        
+        if (name) {
+            updateFields.push(`name = $${valueIndex}`);
+            values.push(name);
+            valueIndex++;
+        }
+        
+        if (password) {
+            const hashedPassword = await bcrypt.hash(password, 10);
+            updateFields.push(`password = $${valueIndex}`);
+            values.push(hashedPassword);
+            valueIndex++;
+        }
+        
+        if (is_admin !== undefined) {
+            updateFields.push(`is_admin = $${valueIndex}`);
+            values.push(is_admin);
+            valueIndex++;
+        }
+        
+        if (updateFields.length === 0) {
+            return res.status(400).json({ error: 'Nenhum campo para atualizar' });
+        }
+        
+        values.push(userId);
+        
+        const result = await pool.query(
+            `UPDATE users 
+             SET ${updateFields.join(', ')} 
+             WHERE id = $${valueIndex}
+             RETURNING id, phone, email, name, is_admin, created_at`,
+            values
+        );
+        
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: 'Usuário não encontrado' });
+        }
+        
+        res.json(result.rows[0]);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Excluir usuário (apenas admin)
+app.delete('/api/admin/users/:id', authenticateToken, isAdmin, async (req, res) => {
+    try {
+        const userId = req.params.id;
+        
+        // Verificar se é o último admin
+        const user = await pool.query('SELECT is_admin FROM users WHERE id = $1', [userId]);
+        if (user.rows[0].is_admin) {
+            const adminCount = await pool.query('SELECT COUNT(*) FROM users WHERE is_admin = true');
+            if (adminCount.rows[0].count <= 1) {
+                return res.status(400).json({ error: 'Não é possível excluir o único administrador' });
             }
         }
         
-        // Editar usuário
-        async function editUser(userId) {
-            try {
-                const users = await api.getUsers();
-                const user = users.find(u => u.id === userId);
-                
-                if (user) {
-                    // Não mostrar senha (por segurança)
-                    user.password = '';
-                    showUserModal(user);
-                }
-            } catch (error) {
-                showToast(error.message, 'error');
-            }
-        }
+        // Excluir dependências
+        await pool.query('DELETE FROM read_notifications WHERE user_id = $1', [userId]);
+        await pool.query('DELETE FROM user_settings WHERE user_id = $1', [userId]);
+        await pool.query('DELETE FROM transactions WHERE user_id = $1', [userId]);
         
         // Excluir usuário
-        async function deleteUser(userId, userName) {
-            if (confirm(`Tem certeza que deseja excluir o usuário "${userName}"?\n\nEsta ação não pode ser desfeita.`)) {
-                try {
-                    await api.deleteUser(userId);
-                    showToast('Usuário excluído com sucesso!');
-                    loadUsers();
-                } catch (error) {
-                    showToast(error.message, 'error');
-                }
-            }
+        const result = await pool.query('DELETE FROM users WHERE id = $1 RETURNING id', [userId]);
+        
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: 'Usuário não encontrado' });
         }
         
-        // Ocultar modal
-        function hideUserModal() {
-            document.getElementById('user-modal').style.display = 'none';
+        res.json({ message: 'Usuário excluído com sucesso' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ==================== ROTAS DE TRANSAÇÕES ====================
+
+// Obter todas as transações do usuário
+app.get('/api/transactions', authenticateToken, async (req, res) => {
+    try {
+        const result = await pool.query(
+            'SELECT * FROM transactions WHERE user_id = $1 ORDER BY date DESC',
+            [req.user.id]
+        );
+        res.json(result.rows);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Obter transações por mês
+app.get('/api/transactions/:year/:month', authenticateToken, async (req, res) => {
+    try {
+        const { year, month } = req.params;
+        
+        const result = await pool.query(
+            `SELECT * FROM transactions 
+             WHERE user_id = $1 
+             AND EXTRACT(YEAR FROM date) = $2 
+             AND EXTRACT(MONTH FROM date) = $3
+             ORDER BY date DESC`,
+            [req.user.id, year, month]
+        );
+        
+        res.json(result.rows);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Criar transação
+app.post('/api/transactions', authenticateToken, async (req, res) => {
+    try {
+        const { 
+            type, amount, name, category, date, due_day, 
+            recurrence_type, master_id, current_installment, 
+            total_installments, end_date, notes, auto_debit 
+        } = req.body;
+        
+        const result = await pool.query(
+            `INSERT INTO transactions 
+             (user_id, type, amount, name, category, date, due_day, 
+              recurrence_type, master_id, current_installment, 
+              total_installments, end_date, notes, auto_debit)
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
+             RETURNING *`,
+            [
+                req.user.id, type, amount, name, category, date, due_day,
+                recurrence_type, master_id, current_installment,
+                total_installments, end_date, notes, auto_debit || false
+            ]
+        );
+        
+        res.status(201).json(result.rows[0]);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Atualizar transação
+app.put('/api/transactions/:id', authenticateToken, async (req, res) => {
+    try {
+        const transactionId = req.params.id;
+        const { 
+            type, amount, name, category, date, due_day, 
+            recurrence_type, master_id, current_installment, 
+            total_installments, end_date, notes, auto_debit 
+        } = req.body;
+        
+        // Verificar se a transação pertence ao usuário
+        const check = await pool.query(
+            'SELECT id FROM transactions WHERE id = $1 AND user_id = $2',
+            [transactionId, req.user.id]
+        );
+        
+        if (check.rows.length === 0) {
+            return res.status(404).json({ error: 'Transação não encontrada' });
         }
         
-        // Mostrar toast
-        function showToast(message, type = 'success') {
-            const toast = document.getElementById('toast');
-            const toastMessage = document.getElementById('toast-message');
-            
-            toastMessage.textContent = message;
-            toast.className = 'toast';
-            if (type === 'error') toast.classList.add('error');
-            toast.classList.add('show');
-            
-            setTimeout(() => {
-                toast.classList.remove('show');
-            }, 3000);
+        const result = await pool.query(
+            `UPDATE transactions SET
+             type = $1, amount = $2, name = $3, category = $4, 
+             date = $5, due_day = $6, recurrence_type = $7, 
+             master_id = $8, current_installment = $9, 
+             total_installments = $10, end_date = $11, 
+             notes = $12, auto_debit = $13
+             WHERE id = $14 AND user_id = $15
+             RETURNING *`,
+            [
+                type, amount, name, category, date, due_day,
+                recurrence_type, master_id, current_installment,
+                total_installments, end_date, notes, auto_debit || false,
+                transactionId, req.user.id
+            ]
+        );
+        
+        res.json(result.rows[0]);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Excluir transação
+app.delete('/api/transactions/:id', authenticateToken, async (req, res) => {
+    try {
+        const transactionId = req.params.id;
+        
+        const result = await pool.query(
+            'DELETE FROM transactions WHERE id = $1 AND user_id = $2 RETURNING id',
+            [transactionId, req.user.id]
+        );
+        
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: 'Transação não encontrada' });
         }
         
-        // Event Listeners
-        document.addEventListener('DOMContentLoaded', checkAuth);
+        // Excluir das notificações lidas
+        await pool.query(
+            'DELETE FROM read_notifications WHERE transaction_id = $1 AND user_id = $2',
+            [transactionId, req.user.id]
+        );
         
-        document.getElementById('add-user-btn').addEventListener('click', () => showUserModal());
-        document.getElementById('modal-close').addEventListener('click', hideUserModal);
-        document.getElementById('cancel-btn').addEventListener('click', hideUserModal);
-        document.getElementById('user-form').addEventListener('submit', saveUser);
-        document.getElementById('logout-btn').addEventListener('click', () => {
-            api.clearAuth();
-            window.location.href = 'index.html';
-        });
+        res.json({ message: 'Transação excluída com sucesso' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ==================== ROTAS DE CONFIGURAÇÕES ====================
+
+// Obter configurações do usuário
+app.get('/api/settings', authenticateToken, async (req, res) => {
+    try {
+        const result = await pool.query(
+            'SELECT * FROM user_settings WHERE user_id = $1',
+            [req.user.id]
+        );
         
-        // Mascarar telefone
-        document.getElementById('user-phone').addEventListener('input', function(e) {
-            let value = e.target.value.replace(/\D/g, '');
-            if (value.length > 11) value = value.substring(0, 11);
-            
-            if (value.length > 10) {
-                value = value.replace(/^(\d{2})(\d{5})(\d{4}).*/, '($1) $2-$3');
-            } else if (value.length > 6) {
-                value = value.replace(/^(\d{2})(\d{4})(\d{0,4}).*/, '($1) $2-$3');
-            } else if (value.length > 2) {
-                value = value.replace(/^(\d{2})(\d{0,5})/, '($1) $2');
-            } else if (value.length > 0) {
-                value = value.replace(/^(\d*)/, '($1');
-            }
-            
-            e.target.value = value;
-        });
+        res.json(result.rows[0] || {});
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Atualizar configurações do usuário
+app.put('/api/settings', authenticateToken, async (req, res) => {
+    try {
+        const { total_savings, savings_goal, monthly_budget, savings_rate } = req.body;
         
-        // Tornar funções globais para onclick
-        window.editUser = editUser;
-        window.deleteUser = deleteUser;
-    </script>
-</body>
-</html>
+        const result = await pool.query(
+            `INSERT INTO user_settings (user_id, total_savings, savings_goal, monthly_budget, savings_rate)
+             VALUES ($1, $2, $3, $4, $5)
+             ON CONFLICT (user_id) 
+             DO UPDATE SET 
+                total_savings = EXCLUDED.total_savings,
+                savings_goal = EXCLUDED.savings_goal,
+                monthly_budget = EXCLUDED.monthly_budget,
+                savings_rate = EXCLUDED.savings_rate
+             RETURNING *`,
+            [req.user.id, total_savings, savings_goal, monthly_budget, savings_rate]
+        );
+        
+        res.json(result.rows[0]);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ==================== ROTAS DE NOTIFICAÇÕES ====================
+
+// Marcar notificação como lida
+app.post('/api/notifications/read', authenticateToken, async (req, res) => {
+    try {
+        const { transaction_id } = req.body;
+        
+        await pool.query(
+            `INSERT INTO read_notifications (user_id, transaction_id)
+             VALUES ($1, $2)
+             ON CONFLICT (user_id, transaction_id) DO NOTHING`,
+            [req.user.id, transaction_id]
+        );
+        
+        res.json({ message: 'Notificação marcada como lida' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Marcar todas as notificações como lidas
+app.post('/api/notifications/read-all', authenticateToken, async (req, res) => {
+    try {
+        const upcomingResult = await pool.query(
+            `SELECT t.id FROM transactions t
+             WHERE t.user_id = $1 
+             AND t.type = 'expense'
+             AND t.date BETWEEN CURRENT_DATE AND CURRENT_DATE + INTERVAL '10 days'
+             AND t.auto_debit = false
+             AND NOT EXISTS (
+                 SELECT 1 FROM read_notifications rn 
+                 WHERE rn.transaction_id = t.id AND rn.user_id = $1
+             )`,
+            [req.user.id]
+        );
+        
+        for (const row of upcomingResult.rows) {
+            await pool.query(
+                `INSERT INTO read_notifications (user_id, transaction_id)
+                 VALUES ($1, $2)
+                 ON CONFLICT (user_id, transaction_id) DO NOTHING`,
+                [req.user.id, row.id]
+            );
+        }
+        
+        res.json({ message: 'Todas as notificações marcadas como lidas' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ==================== INICIAR SERVIDOR ====================
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`Servidor rodando na porta ${PORT}`);
+});
