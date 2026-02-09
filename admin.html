@@ -3,679 +3,218 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Atlas Financeiro - Admin</title>
+    <title>Admin - Atlas</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', system-ui, sans-serif;
+        body { 
+            font-family: Arial, sans-serif; 
+            max-width: 1200px; 
+            margin: 0 auto; 
+            padding: 20px; 
         }
-
-        :root {
-            --primary: #3b82f6;
-            --primary-light: #60a5fa;
-            --secondary: #8b5cf6;
-            --income: #10b981;
-            --expense: #ef4444;
-            --warning: #f59e0b;
-            --danger: #dc2626;
-            --light: #f8fafc;
-            --dark: #1e293b;
-            --gray: #64748b;
-            --gray-light: #e2e8f0;
-            --border-radius: 12px;
-        }
-
-        body {
-            background-color: #f1f5f9;
-            color: var(--dark);
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
-        /* Header */
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 20px 0;
-            margin-bottom: 20px;
-            border-bottom: 1px solid var(--gray-light);
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 20px;
-            font-weight: 700;
-            color: var(--dark);
-        }
-
-        .logo i {
-            color: var(--primary);
-        }
-
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .btn-primary {
-            background-color: var(--primary);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: var(--border-radius);
-            font-weight: 600;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: background-color 0.3s;
-        }
-
-        .btn-primary:hover {
-            background-color: var(--secondary);
-        }
-
-        .btn-danger {
-            background-color: var(--danger);
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: var(--border-radius);
-            font-weight: 600;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            font-size: 14px;
-        }
-
-        .btn-secondary {
-            background-color: var(--gray-light);
-            color: var(--dark);
-            border: none;
-            padding: 8px 16px;
-            border-radius: var(--border-radius);
-            font-weight: 600;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            font-size: 14px;
-        }
-
-        /* Main Content */
-        .main-content {
-            background-color: white;
-            border-radius: var(--border-radius);
-            padding: 30px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-        }
-
-        .section-title {
-            font-size: 24px;
-            font-weight: 700;
-            margin-bottom: 25px;
-            color: var(--dark);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        /* Table */
-        .table-container {
-            overflow-x: auto;
-            border-radius: var(--border-radius);
-            border: 1px solid var(--gray-light);
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        th {
-            background-color: var(--light);
-            padding: 15px;
-            text-align: left;
-            font-weight: 600;
-            color: var(--dark);
-            border-bottom: 1px solid var(--gray-light);
-        }
-
-        td {
-            padding: 15px;
-            border-bottom: 1px solid var(--gray-light);
-            color: var(--dark);
-        }
-
-        tr:hover {
-            background-color: var(--light);
-        }
-
-        .badge {
-            display: inline-block;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-
-        .badge-admin {
-            background-color: rgba(59, 130, 246, 0.1);
-            color: var(--primary);
-        }
-
-        .badge-user {
-            background-color: rgba(16, 185, 129, 0.1);
-            color: var(--income);
-        }
-
-        .actions {
-            display: flex;
-            gap: 8px;
-        }
-
-        /* Modal */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: rgba(0,0,0,0.5);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            padding: 20px;
-            display: none;
-        }
-
-        .modal {
-            background-color: white;
-            border-radius: var(--border-radius);
-            padding: 30px;
-            width: 100%;
-            max-width: 500px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-        }
-
-        .modal-title {
-            font-size: 20px;
-            font-weight: 700;
-            margin-bottom: 20px;
-            color: var(--dark);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .modal-close {
-            background: none;
-            border: none;
-            font-size: 24px;
-            cursor: pointer;
-            color: var(--gray);
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: var(--dark);
-        }
-
-        .form-input {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid var(--gray-light);
-            border-radius: 8px;
-            font-size: 16px;
-        }
-
-        .form-input:focus {
-            outline: none;
-            border-color: var(--primary);
-        }
-
-        .form-checkbox {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-
-        .btn-group {
-            display: flex;
-            gap: 10px;
-            margin-top: 25px;
-        }
-
-        /* Toast */
-        .toast {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            background-color: var(--income);
-            color: white;
-            padding: 16px 24px;
-            border-radius: var(--border-radius);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            z-index: 1001;
-            transform: translateY(100px);
-            opacity: 0;
-            transition: transform 0.3s, opacity 0.3s;
-        }
-
-        .toast.show {
-            transform: translateY(0);
-            opacity: 1;
-        }
-
-        .toast.error {
-            background-color: var(--danger);
-        }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background-color: #f4f4f4; }
+        .btn { padding: 8px 16px; border: none; cursor: pointer; border-radius: 4px; }
+        .btn-primary { background: #007bff; color: white; }
+        .btn-danger { background: #dc3545; color: white; }
     </style>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <div class="logo">
-                <i class="fas fa-wallet"></i>
-                <span>Atlas Financeiro - Admin</span>
-            </div>
-            
-            <div class="user-info">
-                <span id="user-name">Admin</span>
-                <button class="btn-primary" id="logout-btn">
-                    <i class="fas fa-sign-out-alt"></i> Sair
-                </button>
-            </div>
-        </div>
+    <h1>Painel Administrativo</h1>
+    
+    <div id="login-form" style="display: none;">
+        <h3>Login Administrativo</h3>
+        <input type="text" id="phone" placeholder="Telefone">
+        <input type="password" id="password" placeholder="Senha">
+        <button onclick="login()" class="btn btn-primary">Entrar</button>
+    </div>
+    
+    <div id="admin-content" style="display: none;">
+        <h3>Usuários do Sistema</h3>
+        <button onclick="addUser()" class="btn btn-primary">+ Novo Usuário</button>
+        <table id="users-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nome</th>
+                    <th>Telefone</th>
+                    <th>E-mail</th>
+                    <th>Tipo</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody id="users-body"></tbody>
+        </table>
+    </div>
+
+    <script>
+        // SENHA DE ACESSO À PÁGINA
+        const PAGE_PASSWORD = '99100699840940104t1';
         
-        <div class="main-content">
-            <div class="section-title">
-                <span><i class="fas fa-users"></i> Gerenciamento de Usuários</span>
-                <button class="btn-primary" id="add-user-btn">
-                    <i class="fas fa-plus"></i> Novo Usuário
-                </button>
-            </div>
-            
-            <div class="table-container">
-                <table id="users-table">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Nome</th>
-                            <th>Telefone</th>
-                            <th>E-mail</th>
-                            <th>Tipo</th>
-                            <th>Cadastrado em</th>
-                            <th>Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody id="users-table-body">
-                        <!-- Usuários serão carregados aqui -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal para Novo/Editar Usuário -->
-    <div class="modal-overlay" id="user-modal">
-        <div class="modal">
-            <div class="modal-title">
-                <span id="modal-title">Novo Usuário</span>
-                <button class="modal-close" id="modal-close">&times;</button>
-            </div>
-            
-            <form id="user-form">
-                <input type="hidden" id="user-id">
-                
-                <div class="form-group">
-                    <label class="form-label" for="user-name">Nome *</label>
-                    <input type="text" class="form-input" id="user-name" required>
-                </div>
-                
-                <div class="form-group">
-                    <label class="form-label" for="user-phone">Telefone (com DDD) *</label>
-                    <input type="text" class="form-input" id="user-phone" placeholder="(11) 99999-9999" required>
-                </div>
-                
-                <div class="form-group">
-                    <label class="form-label" for="user-email">E-mail *</label>
-                    <input type="email" class="form-input" id="user-email" required>
-                </div>
-                
-                <div class="form-group">
-                    <label class="form-label" for="user-password">Senha *</label>
-                    <input type="text" class="form-input" id="user-password" required>
-                    <small style="color: var(--gray); font-size: 12px;">A senha será visível apenas agora</small>
-                </div>
-                
-                <div class="form-checkbox">
-                    <input type="checkbox" id="user-is-admin">
-                    <label for="user-is-admin">Administrador</label>
-                </div>
-                
-                <div class="btn-group">
-                    <button type="submit" class="btn-primary">Salvar</button>
-                    <button type="button" class="btn-secondary" id="cancel-btn">Cancelar</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Toast -->
-    <div class="toast" id="toast">
-        <i class="fas fa-check-circle"></i>
-        <span id="toast-message">Operação realizada com sucesso!</span>
-    </div>
-
-    <script type="module">
-
-        // SENHA SECRETA - MUDE PARA ALGO QUE SÓ VOCÊ SABE
-        const ADMIN_PASSWORD = '99100699840940104t1as';
-
         // Verificar senha na URL
         const urlParams = new URLSearchParams(window.location.search);
-        const passwordFromUrl = urlParams.get('admin_key');
-
-        if (passwordFromUrl !== ADMIN_PASSWORD) {
-            // Redireciona sem mostrar nada
-            window.location.href = 'index.html';
-            throw new Error('Acesso negado');
-        }
-
-        // Se passou, continua carregando a página admin
-        console.log('✅ Acesso admin autorizado');
-
+        const urlPassword = urlParams.get('admin_key');
         
-        import api from './api.js';
-
-        // Verificar autenticação
-async function checkAuth() {
-    try {
-        const data = await api.verify();
-        if (!data.user.is_admin) {
-            alert('Você não é administrador!');
+        if (urlPassword !== PAGE_PASSWORD) {
+            // Redireciona IMEDIATAMENTE se senha errada
             window.location.href = 'index.html';
-            return;
+        } else {
+            // Senha correta - mostrar página
+            console.log('✅ Acesso à página permitido');
+            showPage();
         }
-        document.getElementById('user-name').textContent = data.user.name;
-        loadUsers();
-    } catch (error) {
-        // SE NÃO ESTIVER AUTENTICADO, MOSTRA TELA DE LOGIN DENTRO DA PÁGINA
-        showLoginForm();
-    }
-}
-
-// Mostrar formulário de login dentro da página admin
-function showLoginForm() {
-    const mainContent = document.querySelector('.main-content');
-    mainContent.innerHTML = `
-        <div style="text-align: center; padding: 50px;">
-            <h2><i class="fas fa-lock"></i> Acesso Administrativo</h2>
-            <p style="color: var(--gray); margin-bottom: 30px;">
-                Faça login para acessar o painel de administração
-            </p>
+        
+        function showPage() {
+            document.getElementById('login-form').style.display = 'block';
+        }
+        
+        // API Configuration
+        const API_URL = 'https://atlas-database.onrender.com/api';
+        
+        async function login() {
+            const phone = document.getElementById('phone').value;
+            const password = document.getElementById('password').value;
             
-            <div style="max-width: 400px; margin: 0 auto;">
-                <div class="form-group">
-                    <input type="text" id="login-phone" class="form-input" 
-                           placeholder="Telefone (com DDD)" style="margin-bottom: 15px;">
-                </div>
-                <div class="form-group">
-                    <input type="password" id="login-password" class="form-input" 
-                           placeholder="Senha" style="margin-bottom: 20px;">
-                </div>
-                <button class="btn-primary" onclick="adminLogin()" 
-                        style="width: 100%; padding: 14px;">
-                    <i class="fas fa-sign-in-alt"></i> Entrar como Admin
-                </button>
-            </div>
-        </div>
-    `;
-}
-
-// Login específico para admin
-async function adminLogin() {
-    const phone = document.getElementById('login-phone').value;
-    const password = document.getElementById('login-password').value;
-    
-    try {
-        const data = await api.login(phone, password);
-        
-        if (!data.user.is_admin) {
-            alert('Este usuário não é administrador!');
-            return;
+            try {
+                const response = await fetch(API_URL + '/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phone, password })
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error || 'Login falhou');
+                }
+                
+                if (!data.user.is_admin) {
+                    alert('Este usuário não é administrador!');
+                    return;
+                }
+                
+                // Salvar token
+                localStorage.setItem('token', data.token);
+                localStorage.setItem('user', JSON.stringify(data.user));
+                
+                // Mostrar conteúdo admin
+                document.getElementById('login-form').style.display = 'none';
+                document.getElementById('admin-content').style.display = 'block';
+                
+                loadUsers();
+                
+            } catch (error) {
+                alert('Erro: ' + error.message);
+            }
         }
         
-        // Recarregar a página com autenticação
-        location.reload();
-    } catch (error) {
-        alert('Login falhou: ' + error.message);
-    }
-}
-        
-        // Verificar autenticação e permissões
-     //   async function checkAuth() {
-    //        try {
-    //            const data = await api.verify();
-    //            if (!data.user.is_admin) {
-    //                window.location.href = 'index.html';
-    //            }
-    //            document.getElementById('user-name').textContent = data.user.name;
-    //            loadUsers();
-   //         } catch (error) {
-    //            window.location.href = 'index.html';
-    //        }
-    //    }
-        
-        // Carregar usuários
         async function loadUsers() {
             try {
-                const users = await api.getUsers();
-                const tbody = document.getElementById('users-table-body');
+                const token = localStorage.getItem('token');
+                const response = await fetch(API_URL + '/admin/users', {
+                    headers: {
+                        'Authorization': 'Bearer ' + token,
+                        'Content-Type': 'application/json'
+                    }
+                });
                 
+                const users = await response.json();
+                
+                const tbody = document.getElementById('users-body');
                 tbody.innerHTML = users.map(user => `
                     <tr>
                         <td>${user.id}</td>
                         <td>${user.name}</td>
                         <td>${user.phone}</td>
                         <td>${user.email}</td>
+                        <td>${user.is_admin ? 'Administrador' : 'Usuário'}</td>
                         <td>
-                            <span class="badge ${user.is_admin ? 'badge-admin' : 'badge-user'}">
-                                ${user.is_admin ? 'Administrador' : 'Usuário'}
-                            </span>
-                        </td>
-                        <td>${new Date(user.created_at).toLocaleDateString('pt-BR')}</td>
-                        <td class="actions">
-                            <button class="btn-secondary" onclick="editUser(${user.id})">
-                                <i class="fas fa-edit"></i> Editar
-                            </button>
-                            ${!user.is_admin ? `
-                                <button class="btn-danger" onclick="deleteUser(${user.id}, '${user.name}')">
-                                    <i class="fas fa-trash"></i> Excluir
-                                </button>
-                            ` : ''}
+                            <button onclick="editUser(${user.id})" class="btn">Editar</button>
+                            ${!user.is_admin ? `<button onclick="deleteUser(${user.id})" class="btn btn-danger">Excluir</button>` : ''}
                         </td>
                     </tr>
                 `).join('');
+                
             } catch (error) {
-                showToast(error.message, 'error');
+                alert('Erro ao carregar usuários: ' + error.message);
             }
         }
         
-        // Mostrar modal de usuário
-        let editingUserId = null;
-        
-        function showUserModal(user = null) {
-            const modal = document.getElementById('user-modal');
-            const form = document.getElementById('user-form');
-            const title = document.getElementById('modal-title');
+        function addUser() {
+            const name = prompt('Nome:');
+            const phone = prompt('Telefone (apenas números):');
+            const email = prompt('E-mail:');
+            const password = prompt('Senha:');
+            const isAdmin = confirm('É administrador?');
             
-            form.reset();
-            editingUserId = null;
-            
-            if (user) {
-                title.textContent = 'Editar Usuário';
-                editingUserId = user.id;
-                document.getElementById('user-id').value = user.id;
-                document.getElementById('user-name').value = user.name;
-                document.getElementById('user-phone').value = user.phone;
-                document.getElementById('user-email').value = user.email;
-                document.getElementById('user-password').value = '';
-                document.getElementById('user-password').required = false;
-                document.getElementById('user-is-admin').checked = user.is_admin;
-            } else {
-                title.textContent = 'Novo Usuário';
-                document.getElementById('user-password').required = true;
+            if (!name || !phone || !email || !password) {
+                alert('Todos os campos são obrigatórios!');
+                return;
             }
             
-            modal.style.display = 'flex';
+            createUser({ name, phone, email, password, is_admin: isAdmin });
         }
         
-        // Salvar usuário
-        async function saveUser(e) {
-            e.preventDefault();
-            
-            const user = {
-                name: document.getElementById('user-name').value,
-                phone: document.getElementById('user-phone').value.replace(/\D/g, ''),
-                email: document.getElementById('user-email').value,
-                is_admin: document.getElementById('user-is-admin').checked
-            };
-            
-            const password = document.getElementById('user-password').value;
-            if (password) {
-                user.password = password;
-            }
-            
+        async function createUser(userData) {
             try {
-                if (editingUserId) {
-                    await api.updateUser(editingUserId, user);
-                    showToast('Usuário atualizado com sucesso!');
-                } else {
-                    await api.createUser(user);
-                    showToast('Usuário criado com sucesso!');
+                const token = localStorage.getItem('token');
+                const response = await fetch(API_URL + '/admin/users', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': 'Bearer ' + token,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(userData)
+                });
+                
+                const result = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(result.error || 'Erro ao criar usuário');
                 }
                 
-                hideUserModal();
+                alert('Usuário criado com sucesso!');
                 loadUsers();
-            } catch (error) {
-                showToast(error.message, 'error');
-            }
-        }
-        
-        // Editar usuário
-        async function editUser(userId) {
-            try {
-                const users = await api.getUsers();
-                const user = users.find(u => u.id === userId);
                 
-                if (user) {
-                    // Não mostrar senha (por segurança)
-                    user.password = '';
-                    showUserModal(user);
-                }
             } catch (error) {
-                showToast(error.message, 'error');
+                alert('Erro: ' + error.message);
             }
         }
         
-        // Excluir usuário
-        async function deleteUser(userId, userName) {
-            if (confirm(`Tem certeza que deseja excluir o usuário "${userName}"?\n\nEsta ação não pode ser desfeita.`)) {
-                try {
-                    await api.deleteUser(userId);
-                    showToast('Usuário excluído com sucesso!');
-                    loadUsers();
-                } catch (error) {
-                    showToast(error.message, 'error');
+        async function deleteUser(userId) {
+            if (!confirm('Tem certeza que deseja excluir este usuário?')) return;
+            
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch(API_URL + '/admin/users/' + userId, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': 'Bearer ' + token
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Erro ao excluir usuário');
                 }
+                
+                alert('Usuário excluído!');
+                loadUsers();
+                
+            } catch (error) {
+                alert('Erro: ' + error.message);
             }
         }
         
-        // Ocultar modal
-        function hideUserModal() {
-            document.getElementById('user-modal').style.display = 'none';
-        }
-        
-        // Mostrar toast
-        function showToast(message, type = 'success') {
-            const toast = document.getElementById('toast');
-            const toastMessage = document.getElementById('toast-message');
-            
-            toastMessage.textContent = message;
-            toast.className = 'toast';
-            if (type === 'error') toast.classList.add('error');
-            toast.classList.add('show');
-            
-            setTimeout(() => {
-                toast.classList.remove('show');
-            }, 3000);
-        }
-        
-        // Event Listeners
-        //document.addEventListener('DOMContentLoaded', checkAuth);
-
-        document.addEventListener('DOMContentLoaded', () => {
-            // Pula a verificação de autenticação
-            // Só mostra um aviso
-            document.getElementById('user-name').textContent = 'Admin (Faça login)';
-            loadUsers();
-        });
-        
-        document.getElementById('add-user-btn').addEventListener('click', () => showUserModal());
-        document.getElementById('modal-close').addEventListener('click', hideUserModal);
-        document.getElementById('cancel-btn').addEventListener('click', hideUserModal);
-        document.getElementById('user-form').addEventListener('submit', saveUser);
-        document.getElementById('logout-btn').addEventListener('click', () => {
-            api.clearAuth();
-            window.location.href = 'index.html';
-        });
-        
-        // Mascarar telefone
-        document.getElementById('user-phone').addEventListener('input', function(e) {
-            let value = e.target.value.replace(/\D/g, '');
-            if (value.length > 11) value = value.substring(0, 11);
-            
-            if (value.length > 10) {
-                value = value.replace(/^(\d{2})(\d{5})(\d{4}).*/, '($1) $2-$3');
-            } else if (value.length > 6) {
-                value = value.replace(/^(\d{2})(\d{4})(\d{0,4}).*/, '($1) $2-$3');
-            } else if (value.length > 2) {
-                value = value.replace(/^(\d{2})(\d{0,5})/, '($1) $2');
-            } else if (value.length > 0) {
-                value = value.replace(/^(\d*)/, '($1');
+        // Verificar se já está logado
+        window.onload = function() {
+            const token = localStorage.getItem('token');
+            if (token) {
+                // Tentar carregar usuários direto
+                document.getElementById('login-form').style.display = 'none';
+                document.getElementById('admin-content').style.display = 'block';
+                loadUsers();
             }
-            
-            e.target.value = value;
-        });
-        
-        // Tornar funções globais para onclick
-        window.editUser = editUser;
-        window.deleteUser = deleteUser;
+        };
     </script>
 </body>
 </html>
