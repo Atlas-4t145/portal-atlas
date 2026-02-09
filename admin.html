@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel Admin - Atlas Financeiro</title>
+    <title>Admin Login - Atlas Financeiro</title>
     <style>
         * {
             margin: 0;
@@ -19,351 +19,319 @@
             --light: #f8fafc;
             --dark: #1e293b;
             --gray: #64748b;
-            --border-radius: 12px;
         }
 
         body {
-            background: #f1f5f9;
-            color: var(--dark);
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             padding: 20px;
         }
 
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 20px 0;
-            margin-bottom: 20px;
-            border-bottom: 1px solid #e2e8f0;
+        .login-container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 50px 40px;
+            width: 100%;
+            max-width: 420px;
+            text-align: center;
         }
 
         .logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 20px;
-            font-weight: 700;
-            color: var(--dark);
+            margin-bottom: 40px;
         }
 
         .logo i {
+            font-size: 64px;
             color: var(--primary);
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, var(--primary), #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
-        .btn-primary {
-            background-color: var(--primary);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+        .logo h1 {
+            color: var(--dark);
+            font-size: 28px;
+            font-weight: 800;
+            margin-bottom: 8px;
         }
 
-        .btn-danger {
-            background-color: var(--danger);
-            color: white;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 14px;
+        .logo h2 {
+            color: var(--gray);
+            font-size: 15px;
+            font-weight: 500;
         }
 
-        .btn-secondary {
-            background-color: var(--gray);
-            color: white;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-
-        .main-content {
-            background: white;
-            border-radius: var(--border-radius);
-            padding: 30px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-        }
-
-        .section-title {
-            font-size: 24px;
-            font-weight: 700;
+        .form-group {
             margin-bottom: 25px;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
             color: var(--dark);
+            font-size: 15px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 15px 18px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s;
+            background: var(--light);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: white;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .btn-login {
+            width: 100%;
+            background: linear-gradient(135deg, var(--primary), #8b5cf6);
+            color: white;
+            border: none;
+            padding: 17px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
             display: flex;
             align-items: center;
-            justify-content: space-between;
+            justify-content: center;
+            gap: 10px;
         }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.3);
         }
 
-        th {
-            background-color: var(--light);
-            padding: 12px;
-            text-align: left;
-            font-weight: 600;
-            color: var(--dark);
-            border-bottom: 1px solid #e2e8f0;
-        }
-
-        td {
-            padding: 12px;
-            border-bottom: 1px solid #e2e8f0;
-            color: var(--dark);
-        }
-
-        tr:hover {
-            background-color: var(--light);
-        }
-
-        .badge-admin {
-            background: rgba(59, 130, 246, 0.1);
-            color: var(--primary);
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-
-        .badge-user {
-            background: rgba(16, 185, 129, 0.1);
-            color: var(--success);
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-
-        .error-box {
+        .error-message {
             background: #fee2e2;
             color: var(--danger);
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            text-align: left;
+            display: none;
+            border-left: 4px solid var(--danger);
+            font-size: 14px;
+        }
+
+        .credentials {
+            background: #f0f9ff;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 30px;
+            border: 1px dashed var(--primary);
+            font-size: 13px;
+            color: var(--dark);
+        }
+
+        .credentials strong {
+            color: var(--primary);
         }
 
         .loading {
-            text-align: center;
-            padding: 40px;
+            display: none;
+            margin-top: 20px;
+            color: var(--primary);
+        }
+
+        .loading i {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .back-link {
+            margin-top: 25px;
+            font-size: 14px;
             color: var(--gray);
+        }
+
+        .back-link a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
         }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <div class="logo">
-                <i class="fas fa-shield-alt"></i>
-                <span>Painel Administrativo</span>
-            </div>
-            <div>
-                <span id="user-name" style="margin-right: 15px;">Admin</span>
-                <button class="btn-primary" id="logout-btn">
-                    <i class="fas fa-sign-out-alt"></i> Sair
-                </button>
-            </div>
+    <div class="login-container">
+        <div class="logo">
+            <i class="fas fa-shield-alt"></i>
+            <h1>ÁREA ADMINISTRATIVA</h1>
+            <h2>Acesso restrito aos administradores do sistema</h2>
         </div>
         
-        <div class="main-content">
-            <div class="section-title">
-                <span><i class="fas fa-users"></i> Gerenciamento de Usuários</span>
-                <button class="btn-primary" id="add-user-btn">
-                    <i class="fas fa-plus"></i> Novo Usuário
-                </button>
+        <div class="error-message" id="error-message">
+            <i class="fas fa-exclamation-circle"></i>
+            <span id="error-text"></span>
+        </div>
+        
+        <form id="login-form">
+            <div class="form-group">
+                <label for="username"><i class="fas fa-user-shield"></i> USUÁRIO ADMIN</label>
+                <input type="text" 
+                       id="username" 
+                       class="form-input" 
+                       placeholder="Digite o usuário administrativo"
+                       required
+                       autocomplete="off">
             </div>
             
-            <div id="error-container"></div>
-            <div id="loading" class="loading">
-                <i class="fas fa-spinner fa-spin"></i> Carregando usuários...
+            <div class="form-group">
+                <label for="password"><i class="fas fa-key"></i> SENHA DE ACESSO</label>
+                <input type="password" 
+                       id="password" 
+                       class="form-input" 
+                       placeholder="Digite a senha de administrador"
+                       required
+                       autocomplete="off">
             </div>
             
-            <div id="users-container" style="display: none;">
-                <table id="users-table">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Nome</th>
-                            <th>Telefone</th>
-                            <th>E-mail</th>
-                            <th>Tipo</th>
-                            <th>Cadastrado em</th>
-                            <th>Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody id="users-table-body">
-                        <!-- Usuários carregados aqui -->
-                    </tbody>
-                </table>
+            <button type="submit" class="btn-login">
+                <i class="fas fa-sign-in-alt"></i>
+                <span id="btn-text">ACESSAR PAINEL ADMIN</span>
+                <i class="fas fa-arrow-right" id="btn-icon"></i>
+            </button>
+            
+            <div class="loading" id="loading">
+                <i class="fas fa-spinner"></i> Verificando credenciais...
             </div>
+        </form>
+        
+        <div class="credentials">
+            <i class="fas fa-info-circle"></i> 
+            <strong>Credenciais padrão:</strong><br>
+            Usuário: <code>admin</code> | Senha: <code>Master@2024!</code>
+        </div>
+        
+        <div class="back-link">
+            <a href="index.html"><i class="fas fa-arrow-left"></i> Voltar para login comum</a>
         </div>
     </div>
 
     <script>
-        const API_URL = 'https://atlas-database.onrender.com/api';
-        let token = localStorage.getItem('token');
-        let currentUser = null;
-        
-        async function verifyAdmin() {
-            if (!token) {
-                window.location.href = 'admin.html';
-                return false;
-            }
-            
-            try {
-                const response = await fetch(`${API_URL}/verify`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    }
-                });
-                
-                if (!response.ok) {
-                    localStorage.removeItem('token');
-                    localStorage.removeItem('user');
-                    window.location.href = 'admin.html';
-                    return false;
-                }
-                
-                const data = await response.json();
-                
-                if (!data.user.is_admin) {
-                    showError('Acesso negado. Apenas administradores.');
-                    setTimeout(() => window.location.href = 'dashboard.html', 3000);
-                    return false;
-                }
-                
-                currentUser = data.user;
-                document.getElementById('user-name').textContent = data.user.name;
-                return true;
-                
-            } catch (error) {
-                localStorage.removeItem('token');
-                localStorage.removeItem('user');
-                window.location.href = 'admin.html';
-                return false;
-            }
-        }
-        
-        async function loadUsers() {
-            try {
-                const response = await fetch(`${API_URL}/admin/users`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    }
-                });
-                
-                if (!response.ok) {
-                    throw new Error('Erro ao carregar usuários');
-                }
-                
-                const users = await response.json();
-                
-                const tbody = document.getElementById('users-table-body');
-                tbody.innerHTML = users.map(user => `
-                    <tr>
-                        <td>${user.id}</td>
-                        <td><strong>${user.name}</strong></td>
-                        <td>${user.phone}</td>
-                        <td>${user.email}</td>
-                        <td>
-                            <span class="${user.is_admin ? 'badge-admin' : 'badge-user'}">
-                                ${user.is_admin ? 'Administrador' : 'Usuário'}
-                            </span>
-                        </td>
-                        <td>${new Date(user.created_at).toLocaleDateString('pt-BR')}</td>
-                        <td>
-                            <button class="btn-secondary" onclick="editUser(${user.id})">
-                                <i class="fas fa-edit"></i> Editar
-                            </button>
-                            ${user.id !== currentUser.id ? `
-                                <button class="btn-danger" onclick="deleteUser(${user.id})">
-                                    <i class="fas fa-trash"></i> Excluir
-                                </button>
-                            ` : ''}
-                        </td>
-                    </tr>
-                `).join('');
-                
-                document.getElementById('loading').style.display = 'none';
-                document.getElementById('users-container').style.display = 'block';
-                
-            } catch (error) {
-                showError('Erro ao carregar usuários: ' + error.message);
-                document.getElementById('loading').style.display = 'none';
-            }
-        }
-        
-        function showError(message) {
-            const container = document.getElementById('error-container');
-            container.innerHTML = `
-                <div class="error-box">
-                    <strong><i class="fas fa-exclamation-triangle"></i> Erro:</strong>
-                    <p>${message}</p>
-                </div>
-            `;
-        }
-        
-        async function init() {
-            const isAdmin = await verifyAdmin();
-            if (isAdmin) {
-                loadUsers();
-                
-                document.getElementById('logout-btn').addEventListener('click', () => {
-                    localStorage.clear();
-                    window.location.href = 'index.html';
-                });
-                
-                document.getElementById('add-user-btn').addEventListener('click', () => {
-                    alert('Funcionalidade de adicionar usuário - implementar depois');
-                });
-            }
-        }
-        
-        window.editUser = async (userId) => {
-            alert(`Editar usuário ${userId} - implementar depois`);
+        // CREDENCIAIS FIXAS - PODE ALTERAR AQUI
+        const ADMIN_CREDENTIALS = {
+            username: 'admin',
+            password: 'Master@2024!',
+            name: 'Administrador Master',
+            email: 'admin@atlasfinanceiro.com',
+            is_admin: true,
+            id: 9999
         };
         
-        window.deleteUser = async (userId) => {
-            if (!confirm('Tem certeza que deseja excluir este usuário?')) return;
-            
-            try {
-                const response = await fetch(`${API_URL}/admin/users/${userId}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    }
-                });
-                
-                if (response.ok) {
-                    alert('Usuário excluído com sucesso!');
-                    loadUsers();
-                } else {
-                    const error = await response.json();
-                    alert('Erro: ' + error.error);
-                }
-            } catch (error) {
-                alert('Erro ao excluir usuário: ' + error.message);
-            }
-        };
+        // Chave secreta para gerar token fake (só para frontend)
+        const FRONTEND_SECRET = 'atlas-admin-secret-2024';
         
-        document.addEventListener('DOMContentLoaded', init);
+        document.getElementById('login-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+            const errorEl = document.getElementById('error-message');
+            const errorText = document.getElementById('error-text');
+            const btnText = document.getElementById('btn-text');
+            const btnIcon = document.getElementById('btn-icon');
+            const loading = document.getElementById('loading');
+            
+            // Mostrar loading
+            btnText.textContent = 'VERIFICANDO...';
+            btnIcon.style.display = 'none';
+            loading.style.display = 'block';
+            errorEl.style.display = 'none';
+            
+            // Pequeno delay para visualização
+            await new Promise(resolve => setTimeout(resolve, 800));
+            
+            // Verificar credenciais FIXAS
+            if (username === ADMIN_CREDENTIALS.username && password === ADMIN_CREDENTIALS.password) {
+                // Criar token fake para frontend
+                const fakeToken = btoa(`${FRONTEND_SECRET}:${Date.now()}:${ADMIN_CREDENTIALS.id}`);
+                
+                // Salvar no localStorage
+                localStorage.setItem('admin_token', fakeToken);
+                localStorage.setItem('admin_user', JSON.stringify(ADMIN_CREDENTIALS));
+                localStorage.setItem('admin_logged_in', 'true');
+                
+                console.log('✅ Login admin bem-sucedido!');
+                
+                // Redirecionar para dashboard admin
+                window.location.href = 'admin-dashboard.html';
+                
+            } else {
+                // Credenciais incorretas
+                errorText.textContent = '❌ Credenciais inválidas. Verifique o usuário e senha.';
+                errorEl.style.display = 'block';
+                
+                // Restaurar botão
+                btnText.textContent = 'ACESSAR PAINEL ADMIN';
+                btnIcon.style.display = 'inline-block';
+                loading.style.display = 'none';
+                
+                // Efeito de shake no formulário
+                document.querySelector('.login-container').style.animation = 'shake 0.5s';
+                setTimeout(() => {
+                    document.querySelector('.login-container').style.animation = '';
+                }, 500);
+            }
+        });
+        
+        // Efeito de digitação automática (opcional)
+        window.addEventListener('DOMContentLoaded', function() {
+            const usernameInput = document.getElementById('username');
+            const passwordInput = document.getElementById('password');
+            
+            // Auto-preenchimento para teste
+            setTimeout(() => {
+                if (usernameInput.value === '') {
+                    usernameInput.value = ADMIN_CREDENTIALS.username;
+                }
+            }, 300);
+            
+            // Focar no campo de senha quando usuário for preenchido
+            usernameInput.addEventListener('input', function() {
+                if (this.value === ADMIN_CREDENTIALS.username) {
+                    passwordInput.focus();
+                }
+            });
+        });
+        
+        // Adicionar CSS para animação shake
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes shake {
+                0%, 100% { transform: translateX(0); }
+                10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+                20%, 40%, 60%, 80% { transform: translateX(5px); }
+            }
+            
+            .form-input:invalid {
+                border-color: #fca5a5;
+            }
+        `;
+        document.head.appendChild(style);
     </script>
 </body>
 </html>
