@@ -195,6 +195,7 @@
                        id="username" 
                        class="form-input" 
                        placeholder="Digite o usuário administrativo"
+                       value="admin"
                        required
                        autocomplete="off">
             </div>
@@ -205,6 +206,7 @@
                        id="password" 
                        class="form-input" 
                        placeholder="Digite a senha de administrador"
+                       value="admin123"
                        required
                        autocomplete="off">
             </div>
@@ -223,7 +225,7 @@
         <div class="credentials">
             <i class="fas fa-info-circle"></i> 
             <strong>Credenciais padrão:</strong><br>
-            Usuário: <code>admin</code> | Senha: <code>Master@2024!</code>
+            Usuário: <code>admin</code> | Senha: <code>admin123</code>
         </div>
         
         <div class="back-link">
@@ -235,15 +237,12 @@
         // CREDENCIAIS FIXAS - PODE ALTERAR AQUI
         const ADMIN_CREDENTIALS = {
             username: 'admin',
-            password: 'Master@2024!',
+            password: 'admin123',
             name: 'Administrador Master',
             email: 'admin@atlasfinanceiro.com',
             is_admin: true,
             id: 9999
         };
-        
-        // Chave secreta para gerar token fake (só para frontend)
-        const FRONTEND_SECRET = 'atlas-admin-secret-2024';
         
         document.getElementById('login-form').addEventListener('submit', async function(e) {
             e.preventDefault();
@@ -267,13 +266,9 @@
             
             // Verificar credenciais FIXAS
             if (username === ADMIN_CREDENTIALS.username && password === ADMIN_CREDENTIALS.password) {
-                // Criar token fake para frontend
-                const fakeToken = btoa(`${FRONTEND_SECRET}:${Date.now()}:${ADMIN_CREDENTIALS.id}`);
-                
-                // Salvar no localStorage
-                localStorage.setItem('admin_token', fakeToken);
+                // Salvar no localStorage que está logado como admin
+                localStorage.setItem('is_admin_logged_in', 'true');
                 localStorage.setItem('admin_user', JSON.stringify(ADMIN_CREDENTIALS));
-                localStorage.setItem('admin_logged_in', 'true');
                 
                 console.log('✅ Login admin bem-sucedido!');
                 
@@ -298,24 +293,15 @@
             }
         });
         
-        // Efeito de digitação automática (opcional)
+        // Efeito de digitação automática
         window.addEventListener('DOMContentLoaded', function() {
-            const usernameInput = document.getElementById('username');
             const passwordInput = document.getElementById('password');
             
-            // Auto-preenchimento para teste
+            // Focar no campo de senha
             setTimeout(() => {
-                if (usernameInput.value === '') {
-                    usernameInput.value = ADMIN_CREDENTIALS.username;
-                }
+                passwordInput.focus();
+                passwordInput.select();
             }, 300);
-            
-            // Focar no campo de senha quando usuário for preenchido
-            usernameInput.addEventListener('input', function() {
-                if (this.value === ADMIN_CREDENTIALS.username) {
-                    passwordInput.focus();
-                }
-            });
         });
         
         // Adicionar CSS para animação shake
@@ -325,10 +311,6 @@
                 0%, 100% { transform: translateX(0); }
                 10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
                 20%, 40%, 60%, 80% { transform: translateX(5px); }
-            }
-            
-            .form-input:invalid {
-                border-color: #fca5a5;
             }
         `;
         document.head.appendChild(style);
