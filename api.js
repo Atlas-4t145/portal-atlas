@@ -1,4 +1,4 @@
-// api.js - COLOCA ESSE ARQUIVO NA MESMA PASTA
+// api.js - VERSÃO CORRIGIDA (SEM REDIRECIONAMENTO)
 const API_URL = 'https://atlas-database.onrender.com/api';
 
 class API {
@@ -37,13 +37,7 @@ class API {
         });
 
         if (!response.ok) {
-            if (response.status === 401) {
-                this.clearAuth();
-                window.location.href = 'index.html';
-                return null;
-            }
-            
-            const error = await response.json();
+            const error = await response.json().catch(() => ({ error: 'Erro na requisição' }));
             throw new Error(error.error || 'Erro na requisição');
         }
 
@@ -52,16 +46,25 @@ class API {
 
     // Autenticação
     async login(phone, password) {
-        const data = await this.request('/login', {
-            method: 'POST',
-            body: JSON.stringify({ phone, password })
-        });
-        
-        if (data) {
+        try {
+            const response = await fetch(`${API_URL}/login`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ phone, password })
+            });
+            
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.error || 'Erro no login');
+            }
+            
+            const data = await response.json();
             this.setAuth(data.token, data.user);
+            return data;
+            
+        } catch (error) {
+            throw error;
         }
-        
-        return data;
     }
 
     async verify() {
