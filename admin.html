@@ -411,20 +411,85 @@
 
         
         import api from './api.js';
+
+        // Verificar autenticação
+async function checkAuth() {
+    try {
+        const data = await api.verify();
+        if (!data.user.is_admin) {
+            alert('Você não é administrador!');
+            window.location.href = 'index.html';
+            return;
+        }
+        document.getElementById('user-name').textContent = data.user.name;
+        loadUsers();
+    } catch (error) {
+        // SE NÃO ESTIVER AUTENTICADO, MOSTRA TELA DE LOGIN DENTRO DA PÁGINA
+        showLoginForm();
+    }
+}
+
+// Mostrar formulário de login dentro da página admin
+function showLoginForm() {
+    const mainContent = document.querySelector('.main-content');
+    mainContent.innerHTML = `
+        <div style="text-align: center; padding: 50px;">
+            <h2><i class="fas fa-lock"></i> Acesso Administrativo</h2>
+            <p style="color: var(--gray); margin-bottom: 30px;">
+                Faça login para acessar o painel de administração
+            </p>
+            
+            <div style="max-width: 400px; margin: 0 auto;">
+                <div class="form-group">
+                    <input type="text" id="login-phone" class="form-input" 
+                           placeholder="Telefone (com DDD)" style="margin-bottom: 15px;">
+                </div>
+                <div class="form-group">
+                    <input type="password" id="login-password" class="form-input" 
+                           placeholder="Senha" style="margin-bottom: 20px;">
+                </div>
+                <button class="btn-primary" onclick="adminLogin()" 
+                        style="width: 100%; padding: 14px;">
+                    <i class="fas fa-sign-in-alt"></i> Entrar como Admin
+                </button>
+            </div>
+        </div>
+    `;
+}
+
+// Login específico para admin
+async function adminLogin() {
+    const phone = document.getElementById('login-phone').value;
+    const password = document.getElementById('login-password').value;
+    
+    try {
+        const data = await api.login(phone, password);
+        
+        if (!data.user.is_admin) {
+            alert('Este usuário não é administrador!');
+            return;
+        }
+        
+        // Recarregar a página com autenticação
+        location.reload();
+    } catch (error) {
+        alert('Login falhou: ' + error.message);
+    }
+}
         
         // Verificar autenticação e permissões
-        async function checkAuth() {
-            try {
-                const data = await api.verify();
-                if (!data.user.is_admin) {
-                    window.location.href = 'index.html';
-                }
-                document.getElementById('user-name').textContent = data.user.name;
-                loadUsers();
-            } catch (error) {
-                window.location.href = 'index.html';
-            }
-        }
+     //   async function checkAuth() {
+    //        try {
+    //            const data = await api.verify();
+    //            if (!data.user.is_admin) {
+    //                window.location.href = 'index.html';
+    //            }
+    //            document.getElementById('user-name').textContent = data.user.name;
+    //            loadUsers();
+   //         } catch (error) {
+    //            window.location.href = 'index.html';
+    //        }
+    //    }
         
         // Carregar usuários
         async function loadUsers() {
@@ -572,7 +637,14 @@
         }
         
         // Event Listeners
-        document.addEventListener('DOMContentLoaded', checkAuth);
+        //document.addEventListener('DOMContentLoaded', checkAuth);
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Pula a verificação de autenticação
+            // Só mostra um aviso
+            document.getElementById('user-name').textContent = 'Admin (Faça login)';
+            loadUsers();
+        });
         
         document.getElementById('add-user-btn').addEventListener('click', () => showUserModal());
         document.getElementById('modal-close').addEventListener('click', hideUserModal);
