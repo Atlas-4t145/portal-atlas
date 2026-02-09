@@ -250,6 +250,16 @@
             border-left: 5px solid var(--danger);
         }
 
+        .success-box {
+            background: #d1fae5;
+            color: var(--success);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            border-left: 5px solid var(--success);
+            display: none;
+        }
+
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -393,6 +403,12 @@
             </div>
         </div>
 
+        <!-- Mensagem de Sucesso -->
+        <div class="success-box" id="success-message">
+            <i class="fas fa-check-circle"></i>
+            <span id="success-text"></span>
+        </div>
+
         <!-- Estatísticas -->
         <div class="main-content">
             <div class="stats-cards">
@@ -442,12 +458,15 @@
             <div id="loading" class="loading">
                 <i class="fas fa-spinner fa-spin fa-2x" style="margin-bottom: 20px;"></i><br>
                 <div>Carregando lista de usuários...</div>
-                <div style="font-size: 14px; color: var(--gray); margin-top: 10px;">
-                    Conectando ao servidor...
-                </div>
             </div>
             
             <div id="users-container" style="display: none;">
+                <div style="margin-bottom: 20px; padding: 15px; background: #f0f9ff; border-radius: 10px; border-left: 4px solid var(--primary);">
+                    <i class="fas fa-info-circle" style="color: var(--primary);"></i>
+                    <strong style="color: var(--primary);">Modo Local Ativo:</strong>
+                    <span style="color: var(--dark);"> As alterações são salvas apenas localmente. Para sincronizar com o backend, faça login com um usuário admin real.</span>
+                </div>
+                
                 <div class="table-container">
                     <table id="users-table">
                         <thead>
@@ -481,22 +500,28 @@
             
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
                 <div style="background: var(--light); padding: 20px; border-radius: 10px;">
-                    <h3 style="margin-bottom: 15px; color: var(--dark);"><i class="fas fa-server"></i> Backend Status</h3>
-                    <div id="backend-status" style="color: var(--success); font-weight: 700;">
-                        <i class="fas fa-check-circle"></i> Conectado
+                    <h3 style="margin-bottom: 15px; color: var(--dark);"><i class="fas fa-server"></i> Status do Sistema</h3>
+                    <div id="system-status" style="color: var(--success); font-weight: 700;">
+                        <i class="fas fa-check-circle"></i> Sistema Admin Local Ativo
                     </div>
                     <div style="font-size: 14px; color: var(--gray); margin-top: 10px;">
-                        API: <code id="api-url">https://atlas-database.onrender.com</code>
+                        Modo: <strong>Local Storage</strong><br>
+                        Dados salvos no navegador
                     </div>
                 </div>
                 
                 <div style="background: var(--light); padding: 20px; border-radius: 10px;">
-                    <h3 style="margin-bottom: 15px; color: var(--dark);"><i class="fas fa-database"></i> Banco de Dados</h3>
-                    <div id="db-status" style="color: var(--success); font-weight: 700;">
-                        <i class="fas fa-check-circle"></i> Online
-                    </div>
-                    <div style="font-size: 14px; color: var(--gray); margin-top: 10px;">
-                        Tabelas: <span id="table-count">4</span> | Usuários: <span id="live-user-count">0</span>
+                    <h3 style="margin-bottom: 15px; color: var(--dark);"><i class="fas fa-database"></i> Ações Rápidas</h3>
+                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                        <button class="btn btn-primary" onclick="exportUsers()" style="justify-content: start;">
+                            <i class="fas fa-file-export"></i> Exportar Usuários (JSON)
+                        </button>
+                        <button class="btn btn-success" onclick="importUsers()" style="justify-content: start;">
+                            <i class="fas fa-file-import"></i> Importar Usuários
+                        </button>
+                        <button class="btn btn-warning" onclick="resetDemoData()" style="justify-content: start;">
+                            <i class="fas fa-redo"></i> Restaurar Dados Demo
+                        </button>
                     </div>
                 </div>
             </div>
@@ -533,7 +558,9 @@
                     <label class="form-label" for="user-password"><i class="fas fa-key"></i> Senha *</label>
                     <input type="text" class="form-input" id="user-password" required>
                     <div style="font-size: 13px; color: var(--gray); margin-top: 8px;">
-                        A senha será gerada automaticamente se deixar em branco
+                        <button type="button" onclick="generatePassword()" style="background: none; border: none; color: var(--primary); cursor: pointer;">
+                            <i class="fas fa-random"></i> Gerar senha aleatória
+                        </button>
                     </div>
                 </div>
                 
@@ -562,134 +589,142 @@
         </div>
     </div>
 
+    <!-- Input oculto para importar arquivo -->
+    <input type="file" id="import-file" accept=".json" style="display: none;">
+
     <script>
-        // ==================== CONFIGURAÇÕES ====================
-        const API_URL = 'https://atlas-database.onrender.com/api';
-        let token = localStorage.getItem('token');
-        let adminUser = JSON.parse(localStorage.getItem('admin_user') || 'null');
+        // ==================== BANCO DE DADOS LOCAL ====================
         let users = [];
         let currentPage = 1;
         const usersPerPage = 10;
+        let adminUser = null;
         
-        // ==================== VERIFICAÇÃO DE LOGIN ====================
+        // ==================== FUNÇÕES DO LOCAL STORAGE ====================
+        function loadUsersFromStorage() {
+            try {
+                const savedUsers = localStorage.getItem('admin_users');
+                if (savedUsers) {
+                    users = JSON.parse(savedUsers);
+                } else {
+                    // Dados de demonstração iniciais
+                    users = getDemoUsers();
+                    saveUsersToStorage();
+                }
+                
+                // Carregar admin user
+                const adminData = localStorage.getItem('admin_user');
+                if (adminData) {
+                    adminUser = JSON.parse(adminData);
+                }
+                
+                return users;
+            } catch (error) {
+                console.error('Erro ao carregar do storage:', error);
+                return getDemoUsers();
+            }
+        }
+        
+        function saveUsersToStorage() {
+            try {
+                localStorage.setItem('admin_users', JSON.stringify(users));
+            } catch (error) {
+                console.error('Erro ao salvar no storage:', error);
+            }
+        }
+        
+        function getDemoUsers() {
+            return [
+                {
+                    id: 1,
+                    name: 'Administrador Master',
+                    phone: '11999999999',
+                    email: 'admin@atlasfinanceiro.com',
+                    password: 'admin123',
+                    is_admin: true,
+                    created_at: new Date().toISOString()
+                },
+                {
+                    id: 2,
+                    name: 'João Silva',
+                    phone: '11988888888',
+                    email: 'joao@email.com',
+                    password: 'senha123',
+                    is_admin: false,
+                    created_at: new Date('2024-01-15T10:30:00Z').toISOString()
+                },
+                {
+                    id: 3,
+                    name: 'Maria Santos',
+                    phone: '21977777777',
+                    email: 'maria@email.com',
+                    password: 'senha123',
+                    is_admin: false,
+                    created_at: new Date('2024-01-20T14:20:00Z').toISOString()
+                },
+                {
+                    id: 4,
+                    name: 'Pedro Oliveira',
+                    phone: '31966666666',
+                    email: 'pedro@email.com',
+                    password: 'senha123',
+                    is_admin: false,
+                    created_at: new Date('2024-02-05T09:15:00Z').toISOString()
+                }
+            ];
+        }
+        
+        function resetDemoData() {
+            if (confirm('Isso irá restaurar os dados de demonstração. Deseja continuar?')) {
+                users = getDemoUsers();
+                saveUsersToStorage();
+                displayUsers();
+                updateStats();
+                showSuccess('Dados de demonstração restaurados com sucesso!');
+            }
+        }
+        
+        // ==================== FUNÇÕES PRINCIPAIS ====================
         function checkAdminLogin() {
-            const isLoggedIn = localStorage.getItem('admin_logged_in') === 'true';
+            const isLoggedIn = localStorage.getItem('is_admin_logged_in') === 'true';
             
-            if (!isLoggedIn || !adminUser) {
+            if (!isLoggedIn) {
                 alert('❌ Acesso negado! Faça login como administrador.');
                 window.location.href = 'admin.html';
                 return false;
             }
             
             // Atualizar informações do admin
-            document.getElementById('admin-name').textContent = adminUser.name;
-            document.getElementById('admin-email').textContent = adminUser.email;
+            if (adminUser) {
+                document.getElementById('admin-name').textContent = adminUser.name;
+                document.getElementById('admin-email').textContent = adminUser.email;
+            }
             
             return true;
         }
         
-        // ==================== FUNÇÕES PRINCIPAIS ====================
-        async function loadUsers() {
+        function loadUsers() {
             if (!checkAdminLogin()) return;
             
             showLoading();
             
-            try {
-                // Usar token do usuário admin real (do banco)
-                const realToken = localStorage.getItem('token');
-                const effectiveToken = realToken || token;
-                
-                const response = await fetch(`${API_URL}/admin/users`, {
-                    headers: {
-                        'Authorization': `Bearer ${effectiveToken}`,
-                        'Content-Type': 'application/json'
-                    }
-                });
-                
-                if (!response.ok) {
-                    if (response.status === 401 || response.status === 403) {
-                        throw new Error('Sem permissão para acessar usuários');
-                    }
-                    throw new Error('Erro ao carregar usuários');
-                }
-                
-                users = await response.json();
-                
-                // Atualizar estatísticas
-                updateStats(users);
-                
-                // Mostrar tabela
+            // Carregar usuários do localStorage
+            users = loadUsersFromStorage();
+            
+            // Pequeno delay para visualização
+            setTimeout(() => {
+                updateStats();
                 displayUsers();
                 showUsersContainer();
-                
-            } catch (error) {
-                console.error('Erro:', error);
-                showError('⚠️ ' + error.message + 
-                    '<br><small>Tentando carregar dados de demonstração...</small>');
-                
-                // Carregar dados de demonstração
-                loadDemoData();
-            }
+                hideLoading();
+            }, 500);
         }
         
-        function loadDemoData() {
-            // Dados de demonstração
-            users = [
-                {
-                    id: 1,
-                    name: 'João Silva',
-                    phone: '11999999999',
-                    email: 'joao@email.com',
-                    is_admin: true,
-                    created_at: '2024-01-15T10:30:00Z'
-                },
-                {
-                    id: 2,
-                    name: 'Maria Santos',
-                    phone: '21988888888',
-                    email: 'maria@email.com',
-                    is_admin: false,
-                    created_at: '2024-01-20T14:20:00Z'
-                },
-                {
-                    id: 3,
-                    name: 'Pedro Oliveira',
-                    phone: '31977777777',
-                    email: 'pedro@email.com',
-                    is_admin: false,
-                    created_at: '2024-02-05T09:15:00Z'
-                },
-                {
-                    id: 4,
-                    name: 'Ana Costa',
-                    phone: '41966666666',
-                    email: 'ana@email.com',
-                    is_admin: false,
-                    created_at: '2024-02-10T16:45:00Z'
-                },
-                {
-                    id: 5,
-                    name: 'Carlos Souza',
-                    phone: '51955555555',
-                    email: 'carlos@email.com',
-                    is_admin: false,
-                    created_at: '2024-02-12T11:30:00Z'
-                }
-            ];
-            
-            updateStats(users);
-            displayUsers();
-            showUsersContainer();
-            showError('⚠️ Usando dados de demonstração.<br><small>O sistema está funcionando, mas conecte-se com um admin real para dados reais.</small>');
-        }
-        
-        function updateStats(userList) {
-            const totalUsers = userList.length;
-            const adminUsers = userList.filter(u => u.is_admin).length;
+        function updateStats() {
+            const totalUsers = users.length;
+            const adminUsers = users.filter(u => u.is_admin).length;
             
             document.getElementById('total-users').textContent = totalUsers;
             document.getElementById('admin-users').textContent = adminUsers;
-            document.getElementById('live-user-count').textContent = totalUsers;
             
             // Gerar números aleatórios para as outras estatísticas
             document.getElementById('total-transactions').textContent = Math.floor(Math.random() * 500) + 100;
@@ -712,12 +747,13 @@
             // Preencher com usuários
             currentUsers.forEach(user => {
                 const row = document.createElement('tr');
+                const isCurrentAdmin = adminUser && user.id === adminUser.id;
                 
                 row.innerHTML = `
                     <td><strong>#${user.id}</strong></td>
                     <td>
                         <div style="font-weight: 700;">${user.name}</div>
-                        ${user.id === adminUser.id ? 
+                        ${isCurrentAdmin ? 
                             '<div style="font-size: 12px; color: var(--primary);"><i class="fas fa-crown"></i> Você</div>' : ''}
                     </td>
                     <td>${user.phone}</td>
@@ -738,7 +774,7 @@
                             <button class="btn btn-success" onclick="editUser(${user.id})">
                                 <i class="fas fa-edit"></i> Editar
                             </button>
-                            ${user.id !== adminUser.id ? `
+                            ${!isCurrentAdmin ? `
                                 <button class="btn btn-danger" onclick="deleteUser(${user.id}, '${user.name.replace(/'/g, "\\'")}')">
                                     <i class="fas fa-trash"></i> Excluir
                                 </button>
@@ -773,15 +809,24 @@
             document.getElementById('modal-title').innerHTML = '<i class="fas fa-user-plus"></i> ADICIONAR NOVO USUÁRIO';
             
             // Gerar senha aleatória
-            const password = generatePassword();
-            document.getElementById('user-password').value = password;
+            generatePassword();
         }
         
         function hideModal() {
             document.getElementById('user-modal').style.display = 'none';
         }
         
-        async function saveUser(e) {
+        function generatePassword() {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%';
+            let password = '';
+            for (let i = 0; i < 10; i++) {
+                password += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            document.getElementById('user-password').value = password;
+            return password;
+        }
+        
+        function saveUser(e) {
             e.preventDefault();
             
             const userId = document.getElementById('user-id').value;
@@ -791,60 +836,55 @@
             const password = document.getElementById('user-password').value;
             const isAdmin = document.getElementById('user-is-admin').checked;
             
+            // Validar dados
+            if (!name || !phone || !email || !password) {
+                showError('Preencha todos os campos obrigatórios.');
+                return;
+            }
+            
+            if (phone.length < 10) {
+                showError('Telefone inválido. Digite com DDD.');
+                return;
+            }
+            
             const userData = {
                 name,
                 phone,
                 email,
-                password: password || generatePassword(),
-                is_admin: isAdmin
+                password,
+                is_admin: isAdmin,
+                created_at: new Date().toISOString()
             };
             
-            try {
-                const realToken = localStorage.getItem('token');
-                const effectiveToken = realToken || token;
-                
-                let response;
-                
-                if (userId) {
-                    // Atualizar usuário existente
-                    response = await fetch(`${API_URL}/admin/users/${userId}`, {
-                        method: 'PUT',
-                        headers: {
-                            'Authorization': `Bearer ${effectiveToken}`,
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify(userData)
-                    });
-                } else {
-                    // Criar novo usuário
-                    response = await fetch(`${API_URL}/admin/users`, {
-                        method: 'POST',
-                        headers: {
-                            'Authorization': `Bearer ${effectiveToken}`,
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify(userData)
-                    });
+            if (userId) {
+                // Atualizar usuário existente
+                const index = users.findIndex(u => u.id == userId);
+                if (index !== -1) {
+                    userData.id = parseInt(userId);
+                    users[index] = userData;
+                    showSuccess(`Usuário "${name}" atualizado com sucesso!`);
                 }
-                
-                if (response.ok) {
-                    alert(`✅ Usuário ${userId ? 'atualizado' : 'criado'} com sucesso!`);
-                    hideModal();
-                    loadUsers();
-                } else {
-                    const error = await response.json();
-                    throw new Error(error.error || 'Erro ao salvar usuário');
-                }
-                
-            } catch (error) {
-                alert(`❌ Erro: ${error.message}\n\nDados do usuário:\nNome: ${name}\nTelefone: ${phone}\nE-mail: ${email}\nSenha: ${userData.password}\nAdmin: ${isAdmin ? 'Sim' : 'Não'}`);
+            } else {
+                // Criar novo usuário
+                const newId = users.length > 0 ? Math.max(...users.map(u => u.id)) + 1 : 1;
+                userData.id = newId;
+                users.push(userData);
+                showSuccess(`Usuário "${name}" criado com sucesso!`);
             }
+            
+            // Salvar no localStorage
+            saveUsersToStorage();
+            
+            // Atualizar interface
+            hideModal();
+            displayUsers();
+            updateStats();
         }
         
-        async function editUser(userId) {
+        function editUser(userId) {
             const user = users.find(u => u.id === userId);
             if (!user) {
-                alert('Usuário não encontrado');
+                showError('Usuário não encontrado');
                 return;
             }
             
@@ -853,63 +893,57 @@
             document.getElementById('user-name').value = user.name;
             document.getElementById('user-phone').value = user.phone;
             document.getElementById('user-email').value = user.email;
-            document.getElementById('user-password').value = '';
+            document.getElementById('user-password').value = user.password;
             document.getElementById('user-is-admin').checked = user.is_admin;
             document.getElementById('modal-title').innerHTML = '<i class="fas fa-user-edit"></i> EDITAR USUÁRIO';
         }
         
-        async function deleteUser(userId, userName) {
+        function deleteUser(userId, userName) {
             if (!confirm(`⚠️ TEM CERTEZA QUE DESEJA EXCLUIR O USUÁRIO?\n\n"${userName}"\n\nEsta ação NÃO pode ser desfeita!`)) {
                 return;
             }
             
-            try {
-                const realToken = localStorage.getItem('token');
-                const effectiveToken = realToken || token;
-                
-                const response = await fetch(`${API_URL}/admin/users/${userId}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'Authorization': `Bearer ${effectiveToken}`,
-                        'Content-Type': 'application/json'
-                    }
-                });
-                
-                if (response.ok) {
-                    alert('✅ Usuário excluído com sucesso!');
-                    loadUsers();
-                } else {
-                    const error = await response.json();
-                    alert('❌ Erro: ' + error.error);
-                }
-                
-            } catch (error) {
-                alert('❌ Erro ao excluir usuário: ' + error.message);
-                
-                // Remover da lista local
-                users = users.filter(u => u.id !== userId);
-                updateStats(users);
-                displayUsers();
-            }
+            // Remover da lista
+            users = users.filter(u => u.id !== userId);
+            
+            // Salvar no localStorage
+            saveUsersToStorage();
+            
+            // Atualizar interface
+            displayUsers();
+            updateStats();
+            showSuccess(`Usuário "${userName}" excluído com sucesso!`);
+        }
+        
+        function exportUsers() {
+            const dataStr = JSON.stringify(users, null, 2);
+            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+            
+            const exportFileDefaultName = `usuarios-atlas-${new Date().toISOString().split('T')[0]}.json`;
+            
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', exportFileDefaultName);
+            linkElement.click();
+            
+            showSuccess('Usuários exportados com sucesso!');
+        }
+        
+        function importUsers() {
+            document.getElementById('import-file').click();
         }
         
         // ==================== FUNÇÕES AUXILIARES ====================
-        function generatePassword() {
-            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*';
-            let password = '';
-            for (let i = 0; i < 10; i++) {
-                password += chars.charAt(Math.floor(Math.random() * chars.length));
-            }
-            return password;
-        }
-        
         function showLoading() {
             document.getElementById('loading').style.display = 'block';
             document.getElementById('users-container').style.display = 'none';
         }
         
-        function showUsersContainer() {
+        function hideLoading() {
             document.getElementById('loading').style.display = 'none';
+        }
+        
+        function showUsersContainer() {
             document.getElementById('users-container').style.display = 'block';
         }
         
@@ -921,16 +955,34 @@
                     <div>${message}</div>
                 </div>
             `;
+            
+            // Auto-remover após 5 segundos
+            setTimeout(() => {
+                container.innerHTML = '';
+            }, 5000);
+        }
+        
+        function showSuccess(message) {
+            const container = document.getElementById('success-message');
+            const text = document.getElementById('success-text');
+            
+            text.textContent = message;
+            container.style.display = 'block';
+            
+            // Auto-remover após 3 segundos
+            setTimeout(() => {
+                container.style.display = 'none';
+            }, 3000);
         }
         
         // ==================== INICIALIZAÇÃO ====================
-        async function init() {
+        function init() {
             // Verificar login
             if (!checkAdminLogin()) return;
             
             // Configurar eventos
             document.getElementById('logout-btn').addEventListener('click', () => {
-                localStorage.clear();
+                localStorage.removeItem('is_admin_logged_in');
                 window.location.href = 'index.html';
             });
             
@@ -945,27 +997,44 @@
                 e.target.value = value;
             });
             
-            // Carregar usuários
-            await loadUsers();
-            
-            // Atualizar status do backend
-            try {
-                const response = await fetch(`${API_URL}/verify`, {
-                    headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`,
-                        'Content-Type': 'application/json'
-                    }
-                });
+            // Configurar importação de arquivo
+            document.getElementById('import-file').addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
                 
-                if (response.ok) {
-                    document.getElementById('backend-status').innerHTML = 
-                        '<i class="fas fa-check-circle"></i> Conectado ao Backend Real';
-                }
-            } catch (error) {
-                document.getElementById('backend-status').innerHTML = 
-                    '<i class="fas fa-exclamation-triangle"></i> Modo Demonstração';
-                document.getElementById('backend-status').style.color = 'var(--warning)';
-            }
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    try {
+                        const importedUsers = JSON.parse(event.target.result);
+                        
+                        if (Array.isArray(importedUsers)) {
+                            // Adicionar novos IDs aos usuários importados
+                            let nextId = users.length > 0 ? Math.max(...users.map(u => u.id)) + 1 : 1;
+                            importedUsers.forEach(user => {
+                                user.id = nextId++;
+                                user.created_at = user.created_at || new Date().toISOString();
+                            });
+                            
+                            users = [...users, ...importedUsers];
+                            saveUsersToStorage();
+                            displayUsers();
+                            updateStats();
+                            showSuccess(`${importedUsers.length} usuários importados com sucesso!`);
+                        } else {
+                            showError('Arquivo inválido. Deve conter um array de usuários.');
+                        }
+                    } catch (error) {
+                        showError('Erro ao importar arquivo: ' + error.message);
+                    }
+                    
+                    // Limpar input
+                    e.target.value = '';
+                };
+                reader.readAsText(file);
+            });
+            
+            // Carregar usuários
+            loadUsers();
         }
         
         // Iniciar quando a página carregar
