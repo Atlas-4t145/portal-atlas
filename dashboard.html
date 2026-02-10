@@ -1285,19 +1285,20 @@
                 </div>
             </div>
             
-            <div class="overview-card">
+            <!-- Substitua o card de economias por este: -->
+            <div class="overview-card" id="savings-card" onclick="showSavingsGoalsModal()">
                 <div class="card-category">
                     <div class="card-category-icon savings-icon">
-                        <i class="fas fa-piggy-bank"></i>
+                        <i class="fas fa-bullseye"></i>
                     </div>
                     <div>
-                        <div class="card-category-title">Economias</div>
+                        <div class="card-category-title">Metas de Economia</div>
                         <div class="card-amount savings-amount" id="total-savings">R$ 0,00</div>
                     </div>
                 </div>
                 <div class="card-change positive" id="savings-change">
-                    <i class="fas fa-arrow-up"></i>
-                    <span>Comece a economizar</span>
+                    <i class="fas fa-chart-line"></i>
+                    <span id="savings-progress">0/0 metas</span>
                 </div>
             </div>
         </div>
@@ -1656,6 +1657,83 @@
     <div class="toast" id="toast">
         <i class="fas fa-check-circle"></i>
         <span id="toast-message">Transação salva com sucesso!</span>
+    </div>
+
+    <!-- Modal para Metas de Economia -->
+    <div class="modal-overlay" id="savings-goals-modal">
+        <div class="modal">
+            <div class="modal-title">
+                <span>🎯 Metas de Economia</span>
+                <button class="modal-close" id="savings-modal-close">&times;</button>
+            </div>
+        
+            <div style="margin-bottom: 20px;">
+                <button class="btn-primary" onclick="showNewGoalModal()">
+                    <i class="fas fa-plus"></i> Nova Meta
+                </button>
+            </div>
+        
+            <div id="savings-goals-list">
+                <!-- Lista de metas será carregada aqui -->
+                <p style="text-align: center; color: var(--gray); padding: 40px 20px;">
+                    Nenhuma meta de economia cadastrada<br>
+                    <small>Clique em "Nova Meta" para começar</small>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Nova/Editar Meta -->
+    <div class="modal-overlay" id="goal-modal">
+        <div class="modal">
+            <div class="modal-title">
+                <span id="goal-modal-title">🎯 Nova Meta de Economia</span>
+                <button class="modal-close" id="goal-modal-close">&times;</button>
+            </div>
+        
+            <form id="goal-form">
+                <input type="hidden" id="goal-id">
+            
+                <div class="form-group">
+                    <label class="form-label" for="goal-name">Nome da Meta *</label>
+                    <input type="text" class="form-input" id="goal-name" 
+                       placeholder="Ex: Reserva de emergência, Férias, Carro novo" required>
+                </div>
+            
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label" for="goal-target">Valor Alvo (R$) *</label>
+                        <input type="number" class="form-input" id="goal-target" 
+                               step="0.01" min="0.01" required>
+                    </div>
+                
+                    <div class="form-group">
+                        <label class="form-label" for="goal-type">Tipo de Meta *</label>
+                        <select class="form-select" id="goal-type" required>
+                            <option value="">Selecione</option>
+                            <option value="monthly">Mensal</option>
+                            <option value="annual">Anual</option>
+                        </select>
+                    </div>
+                </div>
+            
+                <div class="form-row" id="goal-dates-container">
+                    <!-- Datas serão preenchidas dinamicamente -->
+                </div>
+            
+                <div class="form-group" id="current-amount-group" style="display: none;">
+                    <label class="form-label" for="goal-current">Valor Atual (R$)</label>
+                    <input type="number" class="form-input" id="goal-current" 
+                           step="0.01" min="0" placeholder="Opcional">
+                </div>
+            
+                <div class="btn-group">
+                    <button type="submit" class="btn-primary" id="save-goal">Salvar Meta</button>
+                    <button type="button" class="btn-secondary" id="cancel-goal">Cancelar</button>
+                    <button type="button" class="btn-danger" id="delete-goal" style="display: none;">Excluir Meta</button>
+                </div>
+            </form>
+        </div>
     </div>
 
     <script type="module">
@@ -2864,6 +2942,281 @@
             }
             updateNotificationBell();
         }
+
+        // Variáveis globais
+let savingsGoals = [];
+
+// Funções para metas de economia
+async function loadSavingsGoals() {
+    try {
+        savingsGoals = await api.getSavingsGoals();
+        updateSavingsCard();
+        updateSavingsGoalsList();
+    } catch (error) {
+        console.error('Erro ao carregar metas:', error);
+    }
+}
+
+function updateSavingsCard() {
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const currentMonth = now.getMonth() + 1;
+    
+    let totalTarget = 0;
+    let totalCurrent = 0;
+    let activeGoals = 0;
+    
+    savingsGoals.forEach(goal => {
+        if (goal.status !== 'active') return;
+        
+        // Verificar se a meta está ativa para o período atual
+        if (goal.type === 'monthly') {
+            if (goal.target_year === currentYear && goal.target_month === currentMonth) {
+                totalTarget += parseFloat(goal.target_amount);
+                totalCurrent += parseFloat(goal.current_amount || 0);
+                activeGoals++;
+            }
+        } else if (goal.type === 'annual') {
+            if (goal.target_year === currentYear) {
+                totalTarget += parseFloat(goal.target_amount);
+                totalCurrent += parseFloat(goal.current_amount || 0);
+                activeGoals++;
+            }
+        }
+    });
+    
+    document.getElementById('total-savings').textContent = formatCurrency(totalCurrent);
+    
+    const progressElement = document.getElementById('savings-change');
+    if (activeGoals > 0) {
+        const percentage = totalTarget > 0 ? Math.round((totalCurrent / totalTarget) * 100) : 0;
+        progressElement.innerHTML = `<i class="fas fa-chart-line"></i><span>${percentage}% concluído</span>`;
+        progressElement.className = totalCurrent >= totalTarget ? 
+            'card-change positive' : 'card-change negative';
+    } else {
+        progressElement.innerHTML = `<i class="fas fa-plus"></i><span>${savingsGoals.length} metas</span>`;
+        progressElement.className = 'card-change';
+    }
+}
+
+function updateSavingsGoalsList() {
+    const container = document.getElementById('savings-goals-list');
+    
+    if (savingsGoals.length === 0) {
+        container.innerHTML = `
+            <p style="text-align: center; color: var(--gray); padding: 40px 20px;">
+                Nenhuma meta de economia cadastrada<br>
+                <small>Clique em "Nova Meta" para começar</small>
+            </p>
+        `;
+        return;
+    }
+    
+    let html = '';
+    savingsGoals.forEach(goal => {
+        const progress = parseFloat(goal.target_amount) > 0 ? 
+            Math.round((parseFloat(goal.current_amount || 0) / parseFloat(goal.target_amount)) * 100) : 0;
+        const progressColor = progress >= 100 ? 'var(--income)' : 
+                              progress >= 70 ? 'var(--savings)' : 
+                              progress >= 40 ? 'var(--warning)' : 'var(--danger)';
+        
+        html += `
+            <div class="offender-card" onclick="editSavingsGoal(${goal.id})">
+                <div class="offender-header">
+                    <div class="offender-name">${goal.name}</div>
+                    <div class="offender-amount" style="color: ${progressColor}">
+                        ${formatCurrency(goal.current_amount || 0)} / ${formatCurrency(goal.target_amount)}
+                    </div>
+                </div>
+                <div class="offender-details">
+                    <span>${goal.type === 'monthly' ? 'Mensal' : 'Anual'}</span>
+                    <span>${progress}% concluído</span>
+                </div>
+                <div class="offender-progress">
+                    <div class="offender-progress-bar" style="width: ${Math.min(progress, 100)}%; background-color: ${progressColor}"></div>
+                </div>
+            </div>
+        `;
+    });
+    
+    container.innerHTML = html;
+}
+
+function showSavingsGoalsModal() {
+    document.getElementById('savings-goals-modal').style.display = 'flex';
+}
+
+function hideSavingsGoalsModal() {
+    document.getElementById('savings-goals-modal').style.display = 'none';
+}
+
+function showNewGoalModal() {
+    document.getElementById('goal-modal').style.display = 'flex';
+    document.getElementById('goal-modal-title').textContent = '🎯 Nova Meta de Economia';
+    document.getElementById('goal-id').value = '';
+    document.getElementById('goal-form').reset();
+    document.getElementById('current-amount-group').style.display = 'none';
+    document.getElementById('delete-goal').style.display = 'none';
+    
+    updateGoalDates();
+}
+
+function updateGoalDates() {
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const currentMonth = now.getMonth() + 1;
+    const type = document.getElementById('goal-type').value;
+    const container = document.getElementById('goal-dates-container');
+    
+    if (type === 'monthly') {
+        container.innerHTML = `
+            <div class="form-group">
+                <label class="form-label" for="goal-month">Mês *</label>
+                <select class="form-select" id="goal-month" required>
+                    <option value="">Selecione</option>
+                    ${monthNames.map((month, index) => `
+                        <option value="${index + 1}" ${index + 1 === currentMonth ? 'selected' : ''}>
+                            ${month}
+                        </option>
+                    `).join('')}
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="goal-year">Ano *</label>
+                <input type="number" class="form-input" id="goal-year" 
+                       value="${currentYear}" min="2023" max="2030" required>
+            </div>
+        `;
+    } else if (type === 'annual') {
+        container.innerHTML = `
+            <div class="form-group">
+                <label class="form-label" for="goal-year">Ano *</label>
+                <input type="number" class="form-input" id="goal-year" 
+                       value="${currentYear}" min="2023" max="2030" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="goal-start-month">Início em</label>
+                <select class="form-select" id="goal-start-month">
+                    <option value="">Qualquer mês</option>
+                    ${monthNames.map((month, index) => `
+                        <option value="${index + 1}">${month}</option>
+                    `).join('')}
+                </select>
+            </div>
+        `;
+    }
+}
+
+async function saveGoal(e) {
+    e.preventDefault();
+    
+    const id = document.getElementById('goal-id').value;
+    const name = document.getElementById('goal-name').value;
+    const target = parseFloat(document.getElementById('goal-target').value);
+    const type = document.getElementById('goal-type').value;
+    const year = parseInt(document.getElementById('goal-year').value);
+    const current = document.getElementById('goal-current').value ? 
+        parseFloat(document.getElementById('goal-current').value) : 0;
+    
+    const goalData = {
+        name,
+        target_amount: target,
+        type,
+        target_year: year,
+        target_month: type === 'monthly' ? parseInt(document.getElementById('goal-month').value) : null,
+        start_date: new Date().toISOString().split('T')[0],
+        current_amount: current
+    };
+    
+    try {
+        if (id) {
+            await api.updateSavingsGoal(id, goalData);
+        } else {
+            await api.createSavingsGoal(goalData);
+        }
+        
+        await loadSavingsGoals();
+        hideGoalModal();
+        showToast('Meta salva com sucesso!');
+    } catch (error) {
+        showToast(error.message, 'error');
+    }
+}
+
+function editSavingsGoal(id) {
+    const goal = savingsGoals.find(g => g.id == id);
+    if (!goal) return;
+    
+    document.getElementById('goal-modal').style.display = 'flex';
+    document.getElementById('goal-modal-title').textContent = '✏️ Editar Meta';
+    document.getElementById('goal-id').value = goal.id;
+    document.getElementById('goal-name').value = goal.name;
+    document.getElementById('goal-target').value = goal.target_amount;
+    document.getElementById('goal-type').value = goal.type;
+    document.getElementById('goal-current').value = goal.current_amount;
+    
+    updateGoalDates();
+    
+    // Preencher datas existentes
+    setTimeout(() => {
+        if (goal.type === 'monthly' && goal.target_month) {
+            document.getElementById('goal-month').value = goal.target_month;
+        }
+        if (goal.target_year) {
+            document.getElementById('goal-year').value = goal.target_year;
+        }
+        if (goal.type === 'annual' && goal.start_date) {
+            const startMonth = new Date(goal.start_date).getMonth() + 1;
+            document.getElementById('goal-start-month').value = startMonth;
+        }
+    }, 100);
+    
+    document.getElementById('current-amount-group').style.display = 'block';
+    document.getElementById('delete-goal').style.display = 'block';
+}
+
+async function deleteGoal() {
+    const id = document.getElementById('goal-id').value;
+    if (!id) return;
+    
+    if (confirm('Tem certeza que deseja excluir esta meta?')) {
+        try {
+            await api.deleteSavingsGoal(id);
+            await loadSavingsGoals();
+            hideGoalModal();
+            showToast('Meta excluída!', 'warning');
+        } catch (error) {
+            showToast(error.message, 'error');
+        }
+    }
+}
+
+function hideGoalModal() {
+    document.getElementById('goal-modal').style.display = 'none';
+}
+
+// Atualize a função initializeApp para carregar metas:
+async function initializeApp() {
+    // ... código existente ... (cade a parte correta do código dessa parte???)
+    await loadSavingsGoals(); // Adicione esta linha
+    // ... resto do código ... (cade a parte correta do código dessa parte???)
+}
+
+// Adicione event listeners
+document.addEventListener('DOMContentLoaded', function() {
+    // ... listeners existentes ... (cade a parte correta do código dessa parte???)
+    
+    // Novos listeners para metas
+    document.getElementById('goal-type').addEventListener('change', updateGoalDates);
+    document.getElementById('goal-form').addEventListener('submit', saveGoal);
+    document.getElementById('cancel-goal').addEventListener('click', hideGoalModal);
+    document.getElementById('delete-goal').addEventListener('click', deleteGoal);
+    document.getElementById('savings-modal-close').addEventListener('click', hideSavingsGoalsModal);
+    document.getElementById('goal-modal-close').addEventListener('click', hideGoalModal);
+    
+    // Clique no card de economias
+    document.getElementById('savings-card').addEventListener('click', showSavingsGoalsModal);
+});
 
         // ==============================
         // FUNÇÕES DE MODAIS
