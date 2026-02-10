@@ -1793,13 +1793,31 @@
             }
         }
 
-        // Inicializar aplicação
         async function initializeApp() {
             // Carregar dados da API
             await loadUserData();
-            
+    
+            // Carregar metas de economia
+            await loadSavingsGoals();
+    
             // Configurar data atual nos campos
             const today = new Date().toISOString().split('T')[0];
+            document.getElementById('transaction-start-date').value = today;
+    
+            // Configurar mês atual
+            updateMonthDisplay();
+    
+            // Gerar transações recorrentes se houver
+            generateRecurringTransactions();
+    
+            // Mostrar notificações
+            setTimeout(() => {
+                updateNotificationBell();
+                checkAndShowNotifications();
+            }, 500);
+    
+            setupEventListeners();
+        }
             document.getElementById('transaction-start-date').value = today;
             
             // Configurar mês atual
@@ -1957,6 +1975,19 @@
             autoDebitCheckbox.addEventListener('change', function() {
                 autoDebitToggle.classList.toggle('active', this.checked);
             });
+
+                autoDebitCheckbox.addEventListener('change', function() {
+        autoDebitToggle.classList.toggle('active', this.checked);
+    });
+    
+    // LISTENERS PARA METAS DE ECONOMIA
+    document.getElementById('savings-card').addEventListener('click', showSavingsGoalsModal);
+    document.getElementById('savings-modal-close').addEventListener('click', hideSavingsGoalsModal);
+    document.getElementById('goal-modal-close').addEventListener('click', hideGoalModal);
+    document.getElementById('goal-type').addEventListener('change', updateGoalDates);
+    document.getElementById('goal-form').addEventListener('submit', saveGoal);
+    document.getElementById('cancel-goal').addEventListener('click', hideGoalModal);
+    document.getElementById('delete-goal').addEventListener('click', deleteGoal);
         }
 
         // ==============================
@@ -3195,28 +3226,7 @@ function hideGoalModal() {
     document.getElementById('goal-modal').style.display = 'none';
 }
 
-// Atualize a função initializeApp para carregar metas:
-async function initializeApp() {
-    // ... código existente ... (cade a parte correta do código dessa parte???)
-    await loadSavingsGoals(); // Adicione esta linha
-    // ... resto do código ... (cade a parte correta do código dessa parte???)
-}
 
-// Adicione event listeners
-document.addEventListener('DOMContentLoaded', function() {
-    // ... listeners existentes ... (cade a parte correta do código dessa parte???)
-    
-    // Novos listeners para metas
-    document.getElementById('goal-type').addEventListener('change', updateGoalDates);
-    document.getElementById('goal-form').addEventListener('submit', saveGoal);
-    document.getElementById('cancel-goal').addEventListener('click', hideGoalModal);
-    document.getElementById('delete-goal').addEventListener('click', deleteGoal);
-    document.getElementById('savings-modal-close').addEventListener('click', hideSavingsGoalsModal);
-    document.getElementById('goal-modal-close').addEventListener('click', hideGoalModal);
-    
-    // Clique no card de economias
-    document.getElementById('savings-card').addEventListener('click', showSavingsGoalsModal);
-});
 
         // ==============================
         // FUNÇÕES DE MODAIS
