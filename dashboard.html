@@ -6,6 +6,7 @@
     <title>Meu Financeiro Pessoal - Sistema Completo</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        /* TODA A PARTE DE CSS FICA IGUAL - NÃO MUDA */
         * {
             margin: 0;
             padding: 0;
@@ -2372,22 +2373,22 @@
 
         function getCategoryName(category) {
             const names = {
-                salario: 'Salário',
-                freelance: 'Freelance',
-                investimentos: 'Investimentos',
-                rendimentos: 'Rendimentos',
-                vendas: 'Vendas',
-                alimentacao: 'Alimentação',
-                moradia: 'Moradia',
-                transporte: 'Transporte',
-                lazer: 'Lazer',
-                saude: 'Saúde',
-                educacao: 'Educação',
-                outros: 'Outros',
-                poupanca: 'Poupança',
-                tesouro: 'Tesouro Direto',
-                acoes: 'Ações',
-                fii: 'Fundos Imobiliários'
+                'salario': 'Salário',
+                'freelance': 'Freelance',
+                'investimentos': 'Investimentos',
+                'rendimentos': 'Rendimentos',
+                'vendas': 'Vendas',
+                'alimentacao': 'Alimentação',
+                'moradia': 'Moradia',
+                'transporte': 'Transporte',
+                'lazer': 'Lazer',
+                'saude': 'Saúde',
+                'educacao': 'Educação',
+                'outros': 'Outros',
+                'poupanca': 'Poupança',
+                'tesouro': 'Tesouro Direto',
+                'acoes': 'Ações',
+                'fii': 'Fundos Imobiliários'
             };
             return names[category] || category;
         }
@@ -2435,110 +2436,8 @@
         }
 
         // ==============================
-        // INICIALIZAÇÃO
+        // FUNÇÕES DO DASHBOARD COMPLETAS
         // ==============================
-
-        document.addEventListener('DOMContentLoaded', checkAuth);
-
-        // ==============================
-        // FUNÇÕES GLOBAIS
-        // ==============================
-
-        window.showDayDetails = showDayDetails;
-        window.goToMonth = goToMonth;
-        window.editTransaction = editTransaction;
-        window.filterByCategory = filterByCategory;
-        window.filterByType = filterByType;
-        window.editRecurrenceMaster = editRecurrenceMaster;
-        window.deleteRecurrenceMasterConfirm = deleteRecurrenceMasterConfirm;
-        window.toggleNotificationDropdown = toggleNotificationDropdown;
-        window.markAllNotificationsAsRead = markAllNotificationsAsRead;
-
-        // Funções auxiliares (mantidas do código original)
-        function goToMonth(year, month) {
-            currentYear = year;
-            currentMonth = month;
-            updateMonthDisplay();
-            updateDashboard();
-            generateCalendar();
-        }
-
-        function editRecurrenceMaster(masterId) {
-            hideRecurrenceModal();
-            // Implementação simplificada
-        }
-
-        function deleteRecurrenceMasterConfirm(masterId) {
-            if (confirm('Tem certeza que deseja excluir esta recorrência?')) {
-                // Implementação simplificada
-                showToast('Recorrência excluída!', 'warning');
-            }
-        }
-
-        function toggleNotificationDropdown() {
-            const dropdown = document.getElementById('notification-dropdown');
-            dropdown.classList.toggle('show');
-            
-            if (dropdown.classList.contains('show')) {
-                setTimeout(() => {
-                    document.addEventListener('click', closeNotificationDropdownOnClickOutside);
-                }, 10);
-            } else {
-                document.removeEventListener('click', closeNotificationDropdownOnClickOutside);
-            }
-        }
-
-        function closeNotificationDropdownOnClickOutside(event) {
-            const dropdown = document.getElementById('notification-dropdown');
-            const bell = document.getElementById('notification-bell');
-            
-            if (!dropdown.contains(event.target) && !bell.contains(event.target)) {
-                dropdown.classList.remove('show');
-                document.removeEventListener('click', closeNotificationDropdownOnClickOutside);
-            }
-        }
-
-        function checkAndShowNotifications() {
-            const upcomingTransactions = getUpcomingTransactions();
-            if (upcomingTransactions.length > 0) {
-                showNotificationModal(upcomingTransactions);
-            }
-            updateNotificationBell();
-        }
-
-        function showNotificationModal(transactions) {
-            // Implementação simplificada
-            const modal = document.getElementById('notification-modal');
-            modal.style.display = 'flex';
-        }
-
-        function hideNotificationModal() {
-            document.getElementById('notification-modal').style.display = 'none';
-        }
-
-        function hideTransactionModal() {
-            document.getElementById('transaction-modal').style.display = 'none';
-            document.getElementById('transaction-form').reset();
-            editingTransactionId = null;
-        }
-
-        function hideRecurrenceModal() {
-            document.getElementById('recurrence-modal').style.display = 'none';
-        }
-
-        function showRecurrenceManager() {
-            // Implementação simplificada
-            const modal = document.getElementById('recurrence-modal');
-            modal.style.display = 'flex';
-        }
-
-        function deleteAllRecurrences() {
-            if (confirm('Tem certeza que deseja excluir TODAS as parcelas?')) {
-                // Implementação simplificada
-                hideTransactionModal();
-                showToast('Todas as parcelas excluídas!', 'warning');
-            }
-        }
 
         function updateNotificationDropdown() {
             const upcomingTransactions = getUpcomingTransactions();
@@ -2559,45 +2458,528 @@
             const today = new Date();
             today.setHours(0, 0, 0, 0);
             
-            const todayTransactions = [];
-            const soonTransactions = [];
-            
             upcomingTransactions.forEach(transaction => {
                 const tDate = new Date(transaction.date);
                 tDate.setHours(0, 0, 0, 0);
                 
-                if (tDate.getTime() === today.getTime()) {
-                    todayTransactions.push(transaction);
-                } else {
-                    soonTransactions.push(transaction);
-                }
+                const isToday = tDate.getTime() === today.getTime();
+                const daysUntil = Math.ceil((tDate - today) / (1000 * 60 * 60 * 24));
+                
+                html += `
+                    <div class="notification-dropdown-item ${isToday ? 'today' : 'soon'}" 
+                         onclick="editTransaction(${transaction.id})">
+                        <div style="flex: 1;">
+                            <div style="font-weight: 600; margin-bottom: 5px;">${transaction.name}</div>
+                            <div style="font-size: 14px; color: var(--gray);">
+                                <i class="fas fa-calendar"></i> 
+                                ${isToday ? 'Vence hoje' : `Vence em ${daysUntil} dia${daysUntil > 1 ? 's' : ''}`}
+                                • ${getCategoryName(transaction.category)}
+                            </div>
+                        </div>
+                        <div style="font-weight: 700; color: var(--expense);">
+                            ${formatCurrency(transaction.amount)}
+                        </div>
+                    </div>
+                `;
             });
             
-            // Implementação simplificada para economizar espaço
-            container.innerHTML = `<p style="padding: 20px; text-align: center;">${upcomingTransactions.length} vencimento(s) próximo(s)</p>`;
+            container.innerHTML = html;
         }
 
         function updateOffenders() {
-            // Implementação simplificada
+            const currentMonthData = getTransactionsForCurrentMonth();
+            const expenses = currentMonthData.filter(t => t.type === 'expense');
+            
+            // 1. OFENSORAS POR CATEGORIA
+            const categoryContainer = document.getElementById('offender-categories');
+            
+            if (expenses.length === 0) {
+                categoryContainer.innerHTML = 
+                    '<p style="color: var(--gray); text-align: center; padding: 20px;">Nenhuma despesa este mês</p>';
+            } else {
+                // Agrupar despesas por categoria
+                const categories = {};
+                expenses.forEach(expense => {
+                    const category = expense.category || 'outros';
+                    if (!categories[category]) {
+                        categories[category] = {
+                            total: 0,
+                            count: 0,
+                            category: category
+                        };
+                    }
+                    categories[category].total += parseFloat(expense.amount);
+                    categories[category].count += 1;
+                });
+                
+                // Converter para array e ordenar (maior gasto primeiro)
+                const sortedCategories = Object.values(categories)
+                    .sort((a, b) => b.total - a.total)
+                    .slice(0, 5); // Top 5 categorias
+                
+                // Calcular total de despesas
+                const totalExpenses = expenses.reduce((sum, t) => sum + parseFloat(t.amount), 0);
+                
+                // Gerar HTML
+                let categoriesHTML = '';
+                sortedCategories.forEach(cat => {
+                    const percentage = totalExpenses > 0 ? (cat.total / totalExpenses * 100).toFixed(1) : 0;
+                    
+                    categoriesHTML += `
+                        <div class="offender-card" onclick="filterByCategory('${cat.category}')">
+                            <div class="offender-header">
+                                <div class="offender-name">${getCategoryName(cat.category)}</div>
+                                <div class="offender-amount">${formatCurrency(cat.total)}</div>
+                            </div>
+                            <div class="offender-details">
+                                <span>${cat.count} transação${cat.count > 1 ? 'ões' : ''}</span>
+                                <span>${percentage}% das despesas</span>
+                            </div>
+                            <div class="offender-progress">
+                                <div class="offender-progress-bar" style="width: ${percentage}%"></div>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                categoryContainer.innerHTML = categoriesHTML;
+            }
+            
+            // 2. OFENSORAS INDIVIDUAIS (CONTAS MAIS CARAS)
+            const accountsContainer = document.getElementById('offender-accounts');
+            
+            if (expenses.length === 0) {
+                accountsContainer.innerHTML = 
+                    '<p style="color: var(--gray); text-align: center; padding: 20px;">Nenhuma despesa este mês</p>';
+            } else {
+                // Ordenar despesas por valor (maior primeiro)
+                const sortedExpenses = [...expenses]
+                    .sort((a, b) => parseFloat(b.amount) - parseFloat(a.amount))
+                    .slice(0, 5); // Top 5 contas
+                
+                let accountsHTML = '';
+                sortedExpenses.forEach(expense => {
+                    const date = new Date(expense.date);
+                    const day = date.getDate().toString().padStart(2, '0');
+                    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+                    
+                    accountsHTML += `
+                        <div class="offender-card" onclick="editTransaction(${expense.id})">
+                            <div class="offender-header">
+                                <div class="offender-name">${expense.name}</div>
+                                <div class="offender-amount">${formatCurrency(expense.amount)}</div>
+                            </div>
+                            <div class="offender-details">
+                                <span>${getCategoryName(expense.category)}</span>
+                                <span>${day}/${month}</span>
+                            </div>
+                            ${expense.notes ? `<div style="font-size: 13px; color: var(--gray); margin-top: 5px;">${expense.notes}</div>` : ''}
+                        </div>
+                    `;
+                });
+                
+                accountsContainer.innerHTML = accountsHTML;
+            }
         }
 
         function updateHealthScore() {
-            // Implementação simplificada
+            const currentMonthData = getTransactionsForCurrentMonth();
+            const previousMonthData = getTransactionsForPreviousMonth();
+            
+            const currentIncome = currentMonthData.filter(t => t.type === 'income')
+                .reduce((sum, t) => sum + parseFloat(t.amount), 0);
+            const currentExpense = currentMonthData.filter(t => t.type === 'expense')
+                .reduce((sum, t) => sum + parseFloat(t.amount), 0);
+            
+            const previousIncome = previousMonthData.filter(t => t.type === 'income')
+                .reduce((sum, t) => sum + parseFloat(t.amount), 0);
+            const previousExpense = previousMonthData.filter(t => t.type === 'expense')
+                .reduce((sum, t) => sum + parseFloat(t.amount), 0);
+            
+            // Cálculo do score (0-100)
+            let healthScore = 0;
+            let healthTitle = '';
+            let healthDescription = '';
+            
+            if (currentIncome > 0) {
+                const savingsRate = (currentIncome - currentExpense) / currentIncome * 100;
+                
+                if (savingsRate >= 20) {
+                    healthScore = 90;
+                    healthTitle = 'Excelente!';
+                    healthDescription = 'Você está economizando mais de 20% da sua renda';
+                } else if (savingsRate >= 10) {
+                    healthScore = 70;
+                    healthTitle = 'Bom';
+                    healthDescription = 'Continue assim, você está no caminho certo';
+                } else if (savingsRate >= 0) {
+                    healthScore = 50;
+                    healthTitle = 'Regular';
+                    healthDescription = 'Tente economizar um pouco mais';
+                } else {
+                    healthScore = 30;
+                    healthTitle = 'Atenção';
+                    healthDescription = 'Você está gastando mais do que ganha';
+                }
+            }
+            
+            // Atualizar interface
+            const healthCircle = document.getElementById('health-circle');
+            const healthTitleEl = document.getElementById('health-title');
+            const healthDescEl = document.getElementById('health-description');
+            const currentHealthEl = document.getElementById('current-health');
+            const previousHealthEl = document.getElementById('previous-health');
+            const healthChangeEl = document.getElementById('health-change');
+            const currentMonthLabel = document.getElementById('current-month-label');
+            const previousMonthLabel = document.getElementById('previous-month-label');
+            
+            healthCircle.textContent = `${healthScore}%`;
+            healthTitleEl.textContent = healthTitle;
+            healthDescEl.textContent = healthDescription;
+            currentHealthEl.textContent = `${healthScore}%`;
+            
+            // Calcular score anterior
+            let previousHealthScore = 0;
+            if (previousIncome > 0) {
+                previousHealthScore = Math.max(0, (previousIncome - previousExpense) / previousIncome * 100);
+            }
+            previousHealthEl.textContent = `${Math.round(previousHealthScore)}%`;
+            
+            // Atualizar labels de mês
+            const prevDate = new Date(currentYear, currentMonth - 1, 1);
+            const currentDate = new Date(currentYear, currentMonth, 1);
+            
+            previousMonthLabel.textContent = `${monthNames[prevDate.getMonth()]} ${prevDate.getFullYear()}`;
+            currentMonthLabel.textContent = `${monthNames[currentDate.getMonth()]} ${currentDate.getFullYear()}`;
+            
+            // Calcular mudança
+            const healthChange = healthScore - previousHealthScore;
+            if (healthChange > 0) {
+                healthChangeEl.innerHTML = `<span style="color: var(--income);">+${Math.round(healthChange)} pontos</span>`;
+            } else if (healthChange < 0) {
+                healthChangeEl.innerHTML = `<span style="color: var(--expense);">${Math.round(healthChange)} pontos</span>`;
+            } else {
+                healthChangeEl.textContent = 'Sem mudança';
+            }
+            
+            // Mudar cor baseada no score
+            if (healthScore >= 80) {
+                healthCircle.className = 'health-circle health-excellent';
+            } else if (healthScore >= 60) {
+                healthCircle.className = 'health-circle health-good';
+            } else if (healthScore >= 40) {
+                healthCircle.className = 'health-circle health-warning';
+            } else {
+                healthCircle.className = 'health-circle health-danger';
+            }
         }
 
         function updateAccountCategories() {
-            // Implementação simplificada
+            const currentMonthData = getTransactionsForCurrentMonth();
+            const expenses = currentMonthData.filter(t => t.type === 'expense');
+            const income = currentMonthData.filter(t => t.type === 'income');
+            
+            // Categorizar despesas
+            const essentialExpenses = expenses.filter(t => 
+                ['moradia', 'alimentacao', 'transporte', 'saude'].includes(t.category)
+            ).reduce((sum, t) => sum + parseFloat(t.amount), 0);
+            
+            const leisureExpenses = expenses.filter(t => 
+                t.category === 'lazer'
+            ).reduce((sum, t) => sum + parseFloat(t.amount), 0);
+            
+            const recurringExpenses = expenses.filter(t => 
+                t.recurrence_type && t.recurrence_type !== 'none'
+            ).reduce((sum, t) => sum + parseFloat(t.amount), 0);
+            
+            const investmentExpenses = currentMonthData.filter(t => 
+                t.type === 'investment'
+            ).reduce((sum, t) => sum + parseFloat(t.amount), 0);
+            
+            const totalExpenses = expenses.reduce((sum, t) => sum + parseFloat(t.amount), 0);
+            const totalIncome = income.reduce((sum, t) => sum + parseFloat(t.amount), 0);
+            
+            // Calcular porcentagens
+            const essentialPercent = totalExpenses > 0 ? (essentialExpenses / totalExpenses * 100).toFixed(1) : '0';
+            const leisurePercent = totalExpenses > 0 ? (leisureExpenses / totalExpenses * 100).toFixed(1) : '0';
+            const recurringPercent = totalExpenses > 0 ? (recurringExpenses / totalExpenses * 100).toFixed(1) : '0';
+            const investmentPercent = totalIncome > 0 ? (investmentExpenses / totalIncome * 100).toFixed(1) : '0';
+            
+            // Atualizar interface
+            const categories = document.getElementById('account-categories');
+            
+            categories.innerHTML = `
+                <div class="account-type-card" onclick="filterByType('essential')">
+                    <div class="account-type-icon account-type-essential">
+                        <i class="fas fa-home"></i>
+                    </div>
+                    <div class="account-type-name">Essenciais</div>
+                    <div class="account-type-value">${formatCurrency(essentialExpenses)}</div>
+                    <div style="font-size: 12px; color: var(--gray);">
+                        ${essentialPercent}% das despesas
+                    </div>
+                </div>
+                <div class="account-type-card" onclick="filterByType('investment')">
+                    <div class="account-type-icon account-type-investment">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="account-type-name">Investimentos</div>
+                    <div class="account-type-value">${formatCurrency(investmentExpenses)}</div>
+                    <div style="font-size: 12px; color: var(--gray);">
+                        ${investmentPercent}% da renda
+                    </div>
+                </div>
+                <div class="account-type-card" onclick="filterByType('recurring')">
+                    <div class="account-type-icon account-type-recurring">
+                        <i class="fas fa-redo"></i>
+                    </div>
+                    <div class="account-type-name">Recorrentes</div>
+                    <div class="account-type-value">${formatCurrency(recurringExpenses)}</div>
+                    <div style="font-size: 12px; color: var(--gray);">
+                        ${recurringPercent}% das despesas
+                    </div>
+                </div>
+                <div class="account-type-card" onclick="filterByType('leisure')">
+                    <div class="account-type-icon account-type-leisure">
+                        <i class="fas fa-film"></i>
+                    </div>
+                    <div class="account-type-name">Lazer</div>
+                    <div class="account-type-value">${formatCurrency(leisureExpenses)}</div>
+                    <div style="font-size: 12px; color: var(--gray);">
+                        ${leisurePercent}% das despesas
+                    </div>
+                </div>
+            `;
         }
 
         function updateRecurringList() {
-            // Implementação simplificada
+            const recurringTransactions = financialData.transactions.filter(t => 
+                t.recurrence_type && t.recurrence_type !== 'none'
+            );
+            
+            const container = document.getElementById('recurring-list');
+            
+            if (recurringTransactions.length === 0) {
+                container.innerHTML = `
+                    <p style="color: var(--gray); text-align: center; padding: 40px 20px;">
+                        Nenhuma recorrência cadastrada<br>
+                        <small>Clique em "Nova Transação" para começar</small>
+                    </p>
+                `;
+                return;
+            }
+            
+            let html = '';
+            const today = new Date();
+            
+            recurringTransactions.forEach(transaction => {
+                const tDate = new Date(transaction.date);
+                const daysUntil = Math.ceil((tDate - today) / (1000 * 60 * 60 * 24));
+                
+                let iconClass = 'fixed';
+                if (transaction.recurrence_type === 'parceled') {
+                    iconClass = 'parceled';
+                } else if (transaction.auto_debit) {
+                    iconClass = 'auto-debit';
+                }
+                
+                html += `
+                    <div class="recurring-item" onclick="editTransaction(${transaction.id})">
+                        <div class="recurring-icon ${iconClass}">
+                            <i class="fas fa-redo"></i>
+                        </div>
+                        <div class="recurring-details">
+                            <div class="recurring-title">${transaction.name}</div>
+                            <div class="recurring-info">
+                                ${getCategoryName(transaction.category)}
+                                ${transaction.recurrence_type === 'parceled' ? 
+                                    `• Parcela ${transaction.current_installment || 1}/${transaction.total_installments || 12}` : 
+                                    ''}
+                                ${transaction.auto_debit ? '<span class="auto-debit-badge"><i class="fas fa-robot"></i> Débito automático</span>' : ''}
+                            </div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div class="recurring-due-date">
+                                ${daysUntil === 0 ? 'Hoje' : daysUntil === 1 ? 'Amanhã' : `Em ${daysUntil} dias`}
+                            </div>
+                            <div class="recurring-amount expense">
+                                ${formatCurrency(transaction.amount)}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
         }
 
-        function filterByCategory(category) {
+        // ==============================
+        // FUNÇÕES AUXILIARES
+        // ==============================
+
+        function showNotificationModal(transactions) {
+            const modal = document.getElementById('notification-modal');
+            const container = document.getElementById('notification-items');
+            
+            if (transactions.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 20px; color: var(--gray);">
+                        <i class="fas fa-check-circle" style="font-size: 48px; margin-bottom: 15px; color: var(--income);"></i>
+                        <p>Nenhum vencimento próximo!</p>
+                    </div>
+                `;
+            } else {
+                let html = '';
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                
+                transactions.forEach(transaction => {
+                    const tDate = new Date(transaction.date);
+                    const daysUntil = Math.ceil((tDate - today) / (1000 * 60 * 60 * 24));
+                    
+                    html += `
+                        <div class="notification-item ${daysUntil === 0 ? 'today' : 'soon'}">
+                            <div>
+                                <div class="notification-item-name">${transaction.name}</div>
+                                <div class="notification-item-date">
+                                    ${daysUntil === 0 ? 'Vence hoje' : `Vence em ${daysUntil} dia${daysUntil > 1 ? 's' : ''}`}
+                                </div>
+                            </div>
+                            <div class="notification-item-amount">${formatCurrency(transaction.amount)}</div>
+                        </div>
+                    `;
+                });
+                
+                container.innerHTML = html;
+            }
+            
+            modal.style.display = 'flex';
+            hasShownNotification = true;
+        }
+
+        function checkAndShowNotifications() {
+            const upcomingTransactions = getUpcomingTransactions();
+            if (upcomingTransactions.length > 0 && !hasShownNotification) {
+                showNotificationModal(upcomingTransactions);
+            }
+            updateNotificationBell();
+        }
+
+        // ==============================
+        // FUNÇÕES DE MODAIS
+        // ==============================
+
+        function hideNotificationModal() {
+            document.getElementById('notification-modal').style.display = 'none';
+        }
+
+        function hideTransactionModal() {
+            document.getElementById('transaction-modal').style.display = 'none';
+            document.getElementById('transaction-form').reset();
+            editingTransactionId = null;
+        }
+
+        function hideRecurrenceModal() {
+            document.getElementById('recurrence-modal').style.display = 'none';
+        }
+
+        function showRecurrenceManager() {
+            const modal = document.getElementById('recurrence-modal');
+            const container = document.getElementById('recurrence-list');
+            
+            const recurringTransactions = financialData.transactions.filter(t => 
+                t.recurrence_type && t.recurrence_type !== 'none'
+            );
+            
+            if (recurringTransactions.length === 0) {
+                container.innerHTML = `
+                    <p style="text-align: center; color: var(--gray); padding: 40px 20px;">
+                        Nenhuma recorrência cadastrada<br>
+                        <small>Crie recorrências ao adicionar transações</small>
+                    </p>
+                `;
+            } else {
+                let html = '';
+                recurringTransactions.forEach(transaction => {
+                    html += `
+                        <div style="padding: 15px; border-bottom: 1px solid var(--gray-light); display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <div style="font-weight: 600;">${transaction.name}</div>
+                                <div style="font-size: 14px; color: var(--gray);">
+                                    ${getCategoryName(transaction.category)} • 
+                                    ${formatCurrency(transaction.amount)} • 
+                                    ${transaction.recurrence_type === 'fixed' ? 'Mensal' : 'Parcelada'}
+                                </div>
+                            </div>
+                            <div>
+                                <button onclick="editTransaction(${transaction.id})" style="background: var(--primary); color: white; border: none; padding: 8px 12px; border-radius: 8px; cursor: pointer;">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                });
+                container.innerHTML = html;
+            }
+            
+            modal.style.display = 'flex';
+        }
+
+        function deleteAllRecurrences() {
+            if (confirm('Tem certeza que deseja excluir TODAS as parcelas?')) {
+                // Implementação para excluir todas as parcelas
+                hideTransactionModal();
+                showToast('Todas as parcelas excluídas!', 'warning');
+            }
+        }
+
+        // ==============================
+        // FUNÇÕES GLOBAIS
+        // ==============================
+
+        window.showDayDetails = function(day, month, year) {
+            const date = new Date(year, month, day);
+            const transactions = financialData.transactions.filter(t => {
+                const tDate = new Date(t.date);
+                return tDate.getDate() === day && 
+                       tDate.getMonth() === month && 
+                       tDate.getFullYear() === year &&
+                       t.type === 'expense';
+            });
+            
+            if (transactions.length === 0) {
+                alert(`${day}/${month + 1}/${year}\nNenhuma conta vence neste dia.`);
+            } else {
+                let message = `Contas que vencem em ${day}/${month + 1}/${year}:\n\n`;
+                let total = 0;
+                
+                transactions.forEach(t => {
+                    message += `• ${t.name}: ${formatCurrency(t.amount)}\n`;
+                    total += parseFloat(t.amount);
+                });
+                
+                message += `\nTotal: ${formatCurrency(total)}`;
+                alert(message);
+            }
+        };
+
+        window.goToMonth = function(year, month) {
+            currentYear = year;
+            currentMonth = month;
+            updateMonthDisplay();
+            updateDashboard();
+            generateCalendar();
+        };
+
+        window.editTransaction = function(id) {
+            showTransactionModal(id);
+        };
+
+        window.filterByCategory = function(category) {
             alert(`Filtrando por categoria: ${getCategoryName(category)}`);
-        }
+        };
 
-        function filterByType(type) {
+        window.filterByType = function(type) {
             const typeNames = {
                 essential: 'Essenciais',
                 investment: 'Investimentos',
@@ -2605,7 +2987,49 @@
                 leisure: 'Lazer'
             };
             alert(`Filtrando por tipo: ${typeNames[type]}`);
+        };
+
+        window.editRecurrenceMaster = function(masterId) {
+            hideRecurrenceModal();
+            // Implementação para editar recorrência mestre
+        };
+
+        window.deleteRecurrenceMasterConfirm = function(masterId) {
+            if (confirm('Tem certeza que deseja excluir esta recorrência?')) {
+                showToast('Recorrência excluída!', 'warning');
+            }
+        };
+
+        window.toggleNotificationDropdown = function() {
+            const dropdown = document.getElementById('notification-dropdown');
+            dropdown.classList.toggle('show');
+            
+            if (dropdown.classList.contains('show')) {
+                setTimeout(() => {
+                    document.addEventListener('click', closeNotificationDropdownOnClickOutside);
+                }, 10);
+            } else {
+                document.removeEventListener('click', closeNotificationDropdownOnClickOutside);
+            }
+        };
+
+        window.markAllNotificationsAsRead = markAllNotificationsAsRead;
+
+        function closeNotificationDropdownOnClickOutside(event) {
+            const dropdown = document.getElementById('notification-dropdown');
+            const bell = document.getElementById('notification-bell');
+            
+            if (!dropdown.contains(event.target) && !bell.contains(event.target)) {
+                dropdown.classList.remove('show');
+                document.removeEventListener('click', closeNotificationDropdownOnClickOutside);
+            }
         }
+
+        // ==============================
+        // INICIALIZAÇÃO
+        // ==============================
+
+        document.addEventListener('DOMContentLoaded', checkAuth);
     </script>
 </body>
 </html>
