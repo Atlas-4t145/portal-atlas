@@ -148,8 +148,41 @@ class API {
         return this.request(`/admin/users/${id}`, {
             method: 'DELETE'
         });
+    }  // ← FECHA deleteUser CORRETAMENTE
+
+    // METAS DE ECONOMIA - COLOQUE AQUI
+    async getSavingsGoals() {
+        return this.request('/savings-goals');
     }
-}
+
+    async createSavingsGoal(goal) {
+        return this.request('/savings-goals', {
+            method: 'POST',
+            body: JSON.stringify(goal)
+        });
+    }
+
+    async updateSavingsGoal(id, goal) {
+        return this.request(`/savings-goals/${id}`, {
+            method: 'PUT',
+            body: JSON.stringify(goal)
+        });
+    }
+
+    async deleteSavingsGoal(id) {
+        return this.request(`/savings-goals/${id}`, {
+            method: 'DELETE'
+        });
+    }
+
+    async addToSavingsGoal(id, amount) {
+        return this.request(`/savings-goals/${id}/add`, {
+            method: 'POST',
+            body: JSON.stringify({ amount })
+        });
+    }
+
+} // ← ESTA chave fecha a classe API
 
 // Exportar
 const api = new API();
