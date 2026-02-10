@@ -49,6 +49,24 @@ async function criarTabelasSeNaoExistem() {
                 savings_rate DECIMAL(5,2) DEFAULT 0.3
             )
         `);
+
+        // Adicione após a criação da tabela user_settings
+await pool.query(`
+    CREATE TABLE IF NOT EXISTS savings_goals (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER REFERENCES users(id),
+        name VARCHAR(200) NOT NULL,
+        target_amount DECIMAL(10,2) NOT NULL,
+        current_amount DECIMAL(10,2) DEFAULT 0,
+        type VARCHAR(20) NOT NULL, -- 'monthly' ou 'annual'
+        target_year INTEGER, -- para metas anuais
+        target_month INTEGER, -- para metas mensais (1-12)
+        start_date DATE NOT NULL,
+        end_date DATE,
+        status VARCHAR(20) DEFAULT 'active',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+`);
         
         // Criar tabela transactions se não existir
         await pool.query(`
@@ -604,6 +622,108 @@ app.get('/api/test', async (req, res) => {
             port: process.env.PORT || 10000,
             timestamp: new Date().toISOString()
         });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ==================== ROTAS DE METAS DE ECONOMIA ====================
+
+// Obter todas as metas do usuário
+app.get('/api/savings-goals', authenticateToken, async (req, res) => {
+    try {
+        const result = await pool.query(
+            'SELECT * FROM savings_goals WHERE user_id = $1 ORDER BY created_at DESC',
+            [req.user.id]
+        );
+        res.json(result.rows);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Criar nova meta
+app.post('/api/savings-goals', authenticateToken, async (req, res) => {
+    try {
+        const { name, target_amount, type, target_year, target_month, start_date, end_date } = req.body;
+        
+        const result = await pool.query(
+            `INSERT INTO savings_goals 
+             (user_id, name, target_amount, type, target_year, target_month, start_date, end_date)
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+             RETURNING *`,
+            [req.user.id, name, target_amount, type, target_year, target_month, start_date, end_date]
+        );
+        
+        res.status(201).json(result.rows[0]);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Atualizar meta
+app.put('/api/savings-goals/:id', authenticateToken, async (req, res) => {
+    try {
+        const { name, target_amount, current_amount, type, target_year, target_month, start_date, end_date, status } = req.body;
+        
+        const result = await pool.query(
+            `UPDATE savings_goals SET
+             name = $1, target_amount = $2, current_amount = $3, 
+             type = $4, target_year = $5, target_month = $6,
+             start_date = $7, end_date = $8, status = $9
+             WHERE id = $10 AND user_id = $11
+             RETURNING *`,
+            [name, target_amount, current_amount, type, target_year, 
+             target_month, start_date, end_date, status, 
+             req.params.id, req.user.id]
+        );
+        
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: 'Meta não encontrada' });
+        }
+        
+        res.json(result.rows[0]);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Excluir meta
+app.delete('/api/savings-goals/:id', authenticateToken, async (req, res) => {
+    try {
+        const result = await pool.query(
+            'DELETE FROM savings_goals WHERE id = $1 AND user_id = $2 RETURNING id',
+            [req.params.id, req.user.id]
+        );
+        
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: 'Meta não encontrada' });
+        }
+        
+        res.json({ message: 'Meta excluída com sucesso' });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Adicionar valor à meta (soma ao current_amount)
+app.post('/api/savings-goals/:id/add', authenticateToken, async (req, res) => {
+    try {
+        const { amount } = req.body;
+        
+        const result = await pool.query(
+            `UPDATE savings_goals 
+             SET current_amount = current_amount + $1
+             WHERE id = $2 AND user_id = $3
+             RETURNING *`,
+            [amount, req.params.id, req.user.id]
+        );
+        
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: 'Meta não encontrada' });
+        }
+        
+        res.json(result.rows[0]);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
