@@ -1252,7 +1252,7 @@
                     <span>Nenhuma receita</span>
                 </div>
             </div>
-            
+    
             <div class="overview-card">
                 <div class="card-category">
                     <div class="card-category-icon expense-icon">
@@ -1268,7 +1268,7 @@
                     <span>Nenhuma despesa</span>
                 </div>
             </div>
-            
+    
             <div class="overview-card">
                 <div class="card-category">
                     <div class="card-category-icon balance-icon">
@@ -1284,20 +1284,20 @@
                     <span>Saldo zerado</span>
                 </div>
             </div>
-            
+    
             <div class="overview-card">
                 <div class="card-category">
                     <div class="card-category-icon savings-icon">
                         <i class="fas fa-piggy-bank"></i>
                     </div>
                     <div>
-                        <div class="card-category-title">Economias</div>
+                        <div class="card-category-title">Saldo Acumulado</div>
                         <div class="card-amount savings-amount" id="total-savings">R$ 0,00</div>
                     </div>
                 </div>
                 <div class="card-change positive" id="savings-change">
                     <i class="fas fa-arrow-up"></i>
-                    <span>Comece a economizar</span>
+                    <span>Total acumulado</span>
                 </div>
             </div>
         </div>
@@ -2263,38 +2263,57 @@
         function updateOverviewCards() {
             const currentMonthData = getTransactionsForCurrentMonth();
             const previousMonthData = getTransactionsForPreviousMonth();
-            
+    
             const currentIncome = currentMonthData.filter(t => t.type === 'income')
                 .reduce((sum, t) => sum + parseFloat(t.amount), 0);
             const currentExpense = currentMonthData.filter(t => t.type === 'expense')
                 .reduce((sum, t) => sum + parseFloat(t.amount), 0);
             const currentBalance = currentIncome - currentExpense;
-            
+    
             const currentInvestments = currentMonthData.filter(t => t.type === 'investment')
                 .reduce((sum, t) => sum + parseFloat(t.amount), 0);
-            
-            const monthlySavingsContribution = currentBalance > 0 ? 
-                currentBalance * financialData.savingsRate : 0;
-            
-            financialData.totalSavings += monthlySavingsContribution + currentInvestments;
-            financialData.totalSavings = Math.round(financialData.totalSavings * 100) / 100;
-            
+    
+            // CALCULAR SALDO ACUMULADO REAL
+            // Soma todas as receitas de TODOS OS TEMPOS
+            const allIncome = financialData.transactions
+                .filter(t => t.type === 'income')
+                .reduce((sum, t) => sum + parseFloat(t.amount), 0);
+    
+            // Subtrai todas as despesas de TODOS OS TEMPOS
+            const allExpenses = financialData.transactions
+                .filter(t => t.type === 'expense')
+                .reduce((sum, t) => sum + parseFloat(t.amount), 0);
+    
+            // Saldo acumulado histórico
+            const accumulatedBalance = allIncome - allExpenses;
+    
+            // Atualizar variável global
+            financialData.totalSavings = accumulatedBalance;
+    
             const previousIncome = previousMonthData.filter(t => t.type === 'income')
                 .reduce((sum, t) => sum + parseFloat(t.amount), 0);
             const previousExpense = previousMonthData.filter(t => t.type === 'expense')
                 .reduce((sum, t) => sum + parseFloat(t.amount), 0);
             const previousBalance = previousIncome - previousExpense;
-            
+    
+            // Saldo acumulado do mês anterior
+            const previousAllIncome = financialData.transactions
+                .filter(t => t.type === 'income' && new Date(t.date) < new Date(currentYear, currentMonth, 1))
+                .reduce((sum, t) => sum + parseFloat(t.amount), 0);
+            const previousAllExpenses = financialData.transactions
+                .filter(t => t.type === 'expense' && new Date(t.date) < new Date(currentYear, currentMonth, 1))
+                .reduce((sum, t) => sum + parseFloat(t.amount), 0);
+            const previousAccumulatedBalance = previousAllIncome - previousAllExpenses;
+    
             // Atualizar interface
             document.getElementById('total-income').textContent = formatCurrency(currentIncome);
             document.getElementById('total-expense').textContent = formatCurrency(currentExpense);
             document.getElementById('total-balance').textContent = formatCurrency(currentBalance);
-            document.getElementById('total-savings').textContent = formatCurrency(financialData.totalSavings);
-            
+            document.getElementById('total-savings').textContent = formatCurrency(accumulatedBalance);
+    
             const incomeChange = currentIncome - previousIncome;
             const expenseChange = currentExpense - previousExpense;
-            const savingsAddedThisMonth = monthlySavingsContribution + currentInvestments;
-            
+    
             const incomeChangeElement = document.getElementById('income-change');
             if (incomeChange > 0) {
                 incomeChangeElement.innerHTML = `<i class="fas fa-arrow-up"></i><span>${formatCurrency(Math.abs(incomeChange))} a mais que mês passado</span>`;
@@ -2318,7 +2337,7 @@
                 expenseChangeElement.innerHTML = `<i class="fas fa-equals"></i><span>Mesmo valor que mês passado</span>`;
                 expenseChangeElement.className = 'card-change';
             }
-            
+    
             const balanceChangeElement = document.getElementById('balance-change');
             if (currentBalance > 0) {
                 const percentage = currentIncome > 0 ? Math.round((currentBalance/currentIncome)*100) : 0;
@@ -2331,13 +2350,18 @@
                 balanceChangeElement.innerHTML = `<i class="fas fa-equals"></i><span>Saldo zerado</span>`;
                 balanceChangeElement.className = 'card-change';
             }
-            
+    
             const savingsChangeElement = document.getElementById('savings-change');
-            if (savingsAddedThisMonth > 0) {
-                savingsChangeElement.innerHTML = `<i class="fas fa-arrow-up"></i><span>${formatCurrency(savingsAddedThisMonth)} adicionados este mês</span>`;
+            const balanceDifference = accumulatedBalance - previousAccumulatedBalance;
+    
+            if (balanceDifference > 0) {
+                savingsChangeElement.innerHTML = `<i class="fas fa-arrow-up"></i><span>${formatCurrency(balanceDifference)} acumulados este mês</span>`;
                 savingsChangeElement.className = 'card-change positive';
+            } else if (balanceDifference < 0) {
+                savingsChangeElement.innerHTML = `<i class="fas fa-arrow-down"></i><span>${formatCurrency(Math.abs(balanceDifference))} consumidos este mês</span>`;
+                savingsChangeElement.className = 'card-change negative';
             } else {
-                savingsChangeElement.innerHTML = `<i class="fas fa-arrow-right"></i><span>Sem aportes este mês</span>`;
+                savingsChangeElement.innerHTML = `<i class="fas fa-equals"></i><span>Saldo acumulado estável</span>`;
                 savingsChangeElement.className = 'card-change';
             }
         }
