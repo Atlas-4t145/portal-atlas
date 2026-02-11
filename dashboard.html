@@ -1288,16 +1288,16 @@
             <div class="overview-card">
                 <div class="card-category">
                     <div class="card-category-icon savings-icon">
-                        <i class="fas fa-piggy-bank"></i>
+                        <i class="fas fa-bullseye"></i>
                     </div>
                     <div>
-                        <div class="card-category-title">Economias</div>
-                        <div class="card-amount savings-amount" id="total-savings">R$ 0,00</div>
+                        <div class="card-category-title">Meta de Economia</div>
+                        <div class="card-amount savings-amount" id="savings-goal">R$ 0,00</div>
                     </div>
                 </div>
-                <div class="card-change positive" id="savings-change">
-                    <i class="fas fa-arrow-up"></i>
-                    <span>Comece a economizar</span>
+                <div class="card-change" id="savings-progress">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Defina sua meta mensal</span>
                 </div>
             </div>
         </div>
@@ -1879,6 +1879,23 @@
             autoDebitCheckbox.addEventListener('change', function() {
                 autoDebitToggle.classList.toggle('active', this.checked);
             });
+
+            // Clicar na meta para editar
+            const savingsGoalCard = document.querySelector('.overview-card .savings-icon').closest('.overview-card');
+            if (savingsGoalCard) {
+                savingsGoalCard.addEventListener('click', function() {
+                    const novaMeta = prompt('Defina sua meta mensal de economia (R$):', financialData.savingsGoal || '');
+                    if (novaMeta !== null) {
+                        const valor = parseFloat(novaMeta.replace(',', '.'));
+                        if (!isNaN(valor) && valor >= 0) {
+                            financialData.savingsGoal = valor;
+                            saveToServer();
+                            updateDashboard();
+                            showToast('Meta de economia atualizada!');
+                        }
+                    }
+                });
+            }
         }
 
         // ==============================
@@ -2332,13 +2349,21 @@
                 balanceChangeElement.className = 'card-change';
             }
             
-            const savingsChangeElement = document.getElementById('savings-change');
-            if (savingsAddedThisMonth > 0) {
-                savingsChangeElement.innerHTML = `<i class="fas fa-arrow-up"></i><span>${formatCurrency(savingsAddedThisMonth)} adicionados este mês</span>`;
-                savingsChangeElement.className = 'card-change positive';
-            } else {
-                savingsChangeElement.innerHTML = `<i class="fas fa-arrow-right"></i><span>Sem aportes este mês</span>`;
-                savingsChangeElement.className = 'card-change';
+            // Meta de economia
+            const savingsGoalElement = document.getElementById('savings-goal');
+            const savingsProgressElement = document.getElementById('savings-progress');
+
+            if (savingsGoalElement) {
+                const goal = financialData.savingsGoal || 0;
+                savingsGoalElement.textContent = formatCurrency(goal);
+    
+                if (goal > 0) {
+                    const currentSavings = financialData.totalSavings || 0;
+                    const percent = Math.min(100, Math.round((currentSavings / goal) * 100));
+                    savingsProgressElement.innerHTML = `<i class="fas fa-check-circle"></i><span>${percent}% da meta atingida</span>`;
+                } else {
+                    savingsProgressElement.innerHTML = `<i class="fas fa-pencil-alt"></i><span>Clique para definir meta</span>`;
+                }
             }
         }
 
