@@ -1703,10 +1703,8 @@
         // Estrutura de dados - VAZIA (agora vem da API)
         let financialData = {
             transactions: [],
-            totalSavings: 0,
-            savingsGoal: 0,
             monthlyBudget: 0,
-            savingsRate: 0.3,
+            monthlyGoal: 0,
             recurrenceMasters: [],
             readNotifications: {},
             categories: {
@@ -1762,26 +1760,20 @@
             setupEventListeners();
         }
 
-        // Carregar dados do usuário da API
+        
         async function loadUserData() {
             try {
-                // Carregar transações
                 const transactions = await api.getTransactions();
                 financialData.transactions = transactions;
-                
-                // Carregar configurações
+        
                 const settings = await api.getSettings();
                 if (settings) {
-                    financialData.totalSavings = settings.total_savings || 0;
-                    financialData.savingsGoal = settings.savings_goal || 0;
                     financialData.monthlyBudget = settings.monthly_budget || 0;
-                    financialData.savingsRate = settings.savings_rate || 0.3;
                 }
-                
-                // Atualizar dashboard
+        
+                financialData.monthlyGoal = financialData.monthlyGoal || 0;
+        
                 updateDashboard();
-                
-                // Gerar calendário
                 generateCalendar();
             } catch (error) {
                 console.error('Erro ao carregar dados:', error);
@@ -1911,13 +1903,8 @@
         // Salvar dados no servidor
         async function saveToServer() {
             try {
-                // Salvar transações individualmente (o servidor já trata)
-                // Salvar configurações
                 await api.updateSettings({
-                    total_savings: financialData.totalSavings,
-                    savings_goal: financialData.savingsGoal,
-                    monthly_budget: financialData.monthlyBudget,
-                    savings_rate: financialData.savingsRate
+                    monthly_budget: financialData.monthlyBudget
                 });
             } catch (error) {
                 console.error('Erro ao salvar no servidor:', error);
