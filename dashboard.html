@@ -2397,6 +2397,17 @@
             return getTransactionsForMonth(prevYear, prevMonth);
         }
 
+        function getTransactionsForCurrentYear() {
+            return getTransactionsForYear(currentYear);
+        }
+
+        function getTransactionsForYear(year) {
+            return financialData.transactions.filter(t => {
+                const transactionDate = new Date(t.date);
+                return transactionDate.getFullYear() === year;
+            });
+        }
+
         function getTransactionsForMonth(year, month) {
             return financialData.transactions.filter(t => {
                 const transactionDate = new Date(t.date);
