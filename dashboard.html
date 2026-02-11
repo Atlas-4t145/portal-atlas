@@ -1235,8 +1235,9 @@
             </div>
         </div>
 
-        <!-- Visão Geral Financeira -->
+        <!-- Visão Geral Financeira - 5 CARDS -->
         <div class="financial-overview">
+            <!-- CARD 1: RECEITAS -->
             <div class="overview-card">
                 <div class="card-category">
                     <div class="card-category-icon income-icon">
@@ -1252,7 +1253,8 @@
                     <span>Nenhuma receita</span>
                 </div>
             </div>
-            
+    
+            <!-- CARD 2: DESPESAS -->
             <div class="overview-card">
                 <div class="card-category">
                     <div class="card-category-icon expense-icon">
@@ -1268,7 +1270,8 @@
                     <span>Nenhuma despesa</span>
                 </div>
             </div>
-            
+    
+            <!-- CARD 3: SALDO DO MÊS -->
             <div class="overview-card">
                 <div class="card-category">
                     <div class="card-category-icon balance-icon">
@@ -1279,25 +1282,45 @@
                         <div class="card-amount balance-amount" id="total-balance">R$ 0,00</div>
                     </div>
                 </div>
-                <div class="card-change positive" id="balance-change">
-                    <i class="fas fa-arrow-up"></i>
-                    <span>Saldo zerado</span>
+                <div class="card-change" id="balance-change">
+                    <span>Receitas - Despesas</span>
                 </div>
             </div>
-            
+    
+            <!-- CARD 4: META DO MÊS (QUANTO QUER GUARDAR) -->
             <div class="overview-card">
                 <div class="card-category">
                     <div class="card-category-icon savings-icon">
-                        <i class="fas fa-piggy-bank"></i>
+                        <i class="fas fa-flag-checkered"></i>
                     </div>
                     <div>
-                        <div class="card-category-title">Economias</div>
-                        <div class="card-amount savings-amount" id="total-savings">R$ 0,00</div>
+                        <div class="card-category-title">Meta do Mês</div>
+                        <div class="card-amount savings-amount" id="monthly-goal">R$ 0,00</div>
                     </div>
                 </div>
-                <div class="card-change positive" id="savings-change">
-                    <i class="fas fa-arrow-up"></i>
-                    <span>Comece a economizar</span>
+                <div class="card-change" id="goal-progress">
+                    <span id="goal-progress-text">0% guardado</span>
+                </div>
+                <!-- Barra de progresso -->
+                <div style="margin-top: 15px; height: 6px; background-color: var(--gray-light); border-radius: 3px; overflow: hidden;">
+                    <div id="goal-progress-bar" style="height: 100%; width: 0%; background-color: var(--savings); border-radius: 3px;"></div>
+                </div>
+            </div>
+    
+            <!-- CARD 5: SALDO ACUMULADO NO ANO -->
+            <div class="overview-card">
+                <div class="card-category">
+                    <div class="card-category-icon balance-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div>
+                        <div class="card-category-title">Acumulado no Ano</div>
+                        <div class="card-amount balance-amount" id="year-balance">R$ 0,00</div>
+                    </div>
+                </div>
+                <div class="card-change" id="year-change">
+                    <i class="fas fa-calendar"></i>
+                    <span id="year-label">2026</span>
                 </div>
             </div>
         </div>
@@ -2263,84 +2286,102 @@
         function updateOverviewCards() {
             const currentMonthData = getTransactionsForCurrentMonth();
             const previousMonthData = getTransactionsForPreviousMonth();
-            
+            const currentYearData = getTransactionsForCurrentYear();
+    
+            // ===== CARD 1 E 2: RECEITAS E DESPESAS =====
             const currentIncome = currentMonthData.filter(t => t.type === 'income')
                 .reduce((sum, t) => sum + parseFloat(t.amount), 0);
             const currentExpense = currentMonthData.filter(t => t.type === 'expense')
                 .reduce((sum, t) => sum + parseFloat(t.amount), 0);
+    
+            // ===== CARD 3: SALDO DO MÊS =====
             const currentBalance = currentIncome - currentExpense;
-            
-            const currentInvestments = currentMonthData.filter(t => t.type === 'investment')
+    
+            // ===== CARD 4: META DO MÊS (ECONOMIA) =====
+            // Quanto o usuário quer guardar esse mês
+            let monthlyGoal = financialData.monthlyGoal || 0;
+    
+            // Se não tiver meta, sugere 20% da receita
+            if (monthlyGoal === 0) {
+                monthlyGoal = currentIncome * 0.2;
+                financialData.monthlyGoal = monthlyGoal;
+            }
+    
+            // Quanto já guardou esse mês (saldo positivo = economia)
+            const savedThisMonth = Math.max(0, currentBalance);
+            const goalPercentage = monthlyGoal > 0 ? (savedThisMonth / monthlyGoal * 100) : 0;
+            const cappedPercentage = Math.min(100, goalPercentage);
+    
+            // ===== CARD 5: SALDO ACUMULADO NO ANO =====
+            const yearIncome = currentYearData.filter(t => t.type === 'income')
                 .reduce((sum, t) => sum + parseFloat(t.amount), 0);
-            
-            const monthlySavingsContribution = currentBalance > 0 ? 
-                currentBalance * financialData.savingsRate : 0;
-            
-            financialData.totalSavings += monthlySavingsContribution + currentInvestments;
-            financialData.totalSavings = Math.round(financialData.totalSavings * 100) / 100;
-            
+            const yearExpense = currentYearData.filter(t => t.type === 'expense')
+                .reduce((sum, t) => sum + parseFloat(t.amount), 0);
+            const yearBalance = yearIncome - yearExpense;
+    
+            // ===== COMPARATIVO MÊS ANTERIOR =====
             const previousIncome = previousMonthData.filter(t => t.type === 'income')
                 .reduce((sum, t) => sum + parseFloat(t.amount), 0);
             const previousExpense = previousMonthData.filter(t => t.type === 'expense')
                 .reduce((sum, t) => sum + parseFloat(t.amount), 0);
-            const previousBalance = previousIncome - previousExpense;
-            
-            // Atualizar interface
+    
+            // ===== ATUALIZAR INTERFACE =====
+            // Card 1: Receitas
             document.getElementById('total-income').textContent = formatCurrency(currentIncome);
-            document.getElementById('total-expense').textContent = formatCurrency(currentExpense);
-            document.getElementById('total-balance').textContent = formatCurrency(currentBalance);
-            document.getElementById('total-savings').textContent = formatCurrency(financialData.totalSavings);
-            
             const incomeChange = currentIncome - previousIncome;
-            const expenseChange = currentExpense - previousExpense;
-            const savingsAddedThisMonth = monthlySavingsContribution + currentInvestments;
-            
-            const incomeChangeElement = document.getElementById('income-change');
+            const incomeEl = document.getElementById('income-change');
             if (incomeChange > 0) {
-                incomeChangeElement.innerHTML = `<i class="fas fa-arrow-up"></i><span>${formatCurrency(Math.abs(incomeChange))} a mais que mês passado</span>`;
-                incomeChangeElement.className = 'card-change positive';
+                incomeEl.innerHTML = `<i class="fas fa-arrow-up"></i><span>${formatCurrency(incomeChange)} a mais</span>`;
+                incomeEl.className = 'card-change positive';
             } else if (incomeChange < 0) {
-                incomeChangeElement.innerHTML = `<i class="fas fa-arrow-down"></i><span>${formatCurrency(Math.abs(incomeChange))} a menos que mês passado</span>`;
-                incomeChangeElement.className = 'card-change negative';
-            } else {
-                incomeChangeElement.innerHTML = `<i class="fas fa-equals"></i><span>Mesmo valor que mês passado</span>`;
-                incomeChangeElement.className = 'card-change';
-            }
-            
-            const expenseChangeElement = document.getElementById('expense-change');
-            if (expenseChange < 0) {
-                expenseChangeElement.innerHTML = `<i class="fas fa-arrow-down"></i><span>${formatCurrency(Math.abs(expenseChange))} a menos que mês passado</span>`;
-                expenseChangeElement.className = 'card-change positive';
-            } else if (expenseChange > 0) {
-                expenseChangeElement.innerHTML = `<i class="fas fa-arrow-up"></i><span>${formatCurrency(Math.abs(expenseChange))} a mais que mês passado</span>`;
-                expenseChangeElement.className = 'card-change negative';
-            } else {
-                expenseChangeElement.innerHTML = `<i class="fas fa-equals"></i><span>Mesmo valor que mês passado</span>`;
-                expenseChangeElement.className = 'card-change';
-            }
-            
-            const balanceChangeElement = document.getElementById('balance-change');
-            if (currentBalance > 0) {
-                const percentage = currentIncome > 0 ? Math.round((currentBalance/currentIncome)*100) : 0;
-                balanceChangeElement.innerHTML = `<i class="fas fa-arrow-up"></i><span>${percentage}% da sua renda</span>`;
-                balanceChangeElement.className = 'card-change positive';
-            } else if (currentBalance < 0) {
-                balanceChangeElement.innerHTML = `<i class="fas fa-arrow-down"></i><span>Déficit de ${formatCurrency(Math.abs(currentBalance))}</span>`;
-                balanceChangeElement.className = 'card-change negative';
-            } else {
-                balanceChangeElement.innerHTML = `<i class="fas fa-equals"></i><span>Saldo zerado</span>`;
-                balanceChangeElement.className = 'card-change';
-            }
-            
-            const savingsChangeElement = document.getElementById('savings-change');
-            if (savingsAddedThisMonth > 0) {
-                savingsChangeElement.innerHTML = `<i class="fas fa-arrow-up"></i><span>${formatCurrency(savingsAddedThisMonth)} adicionados este mês</span>`;
-                savingsChangeElement.className = 'card-change positive';
-            } else {
-                savingsChangeElement.innerHTML = `<i class="fas fa-arrow-right"></i><span>Sem aportes este mês</span>`;
-                savingsChangeElement.className = 'card-change';
-            }
-        }
+                 incomeEl.innerHTML = `<i class="fas fa-arrow-down"></i><span>${formatCurrency(Math.abs(incomeChange))} a menos</span>`;
+                 incomeEl.className = 'card-change negative';
+             } else {
+                 incomeEl.innerHTML = `<span>Mesmo valor</span>`;
+                 incomeEl.className = 'card-change';
+             }
+    
+             // Card 2: Despesas
+             document.getElementById('total-expense').textContent = formatCurrency(currentExpense);
+             const expenseChange = currentExpense - previousExpense;
+             const expenseEl = document.getElementById('expense-change');
+             if (expenseChange < 0) {
+                 expenseEl.innerHTML = `<i class="fas fa-arrow-down"></i><span>${formatCurrency(Math.abs(expenseChange))} a menos</span>`;
+                 expenseEl.className = 'card-change positive';
+             } else if (expenseChange > 0) {
+                 expenseEl.innerHTML = `<i class="fas fa-arrow-up"></i><span>${formatCurrency(expenseChange)} a mais</span>`;
+                 expenseEl.className = 'card-change negative';
+             } else {
+                 expenseEl.innerHTML = `<span>Mesmo valor</span>`;
+                 expenseEl.className = 'card-change';
+             }
+    
+             // Card 3: Saldo do Mês
+             document.getElementById('total-balance').textContent = formatCurrency(currentBalance);
+             if (currentBalance > 0) {
+                 document.getElementById('balance-change').innerHTML = `<span style="color: var(--income);">Positivo: ${formatCurrency(currentBalance)}</span>`;
+             } else if (currentBalance < 0) {
+                 document.getElementById('balance-change').innerHTML = `<span style="color: var(--expense);">Negativo: ${formatCurrency(Math.abs(currentBalance))}</span>`;
+             } else {
+                 document.getElementById('balance-change').innerHTML = `<span>Saldo zerado</span>`;
+             }
+    
+             // Card 4: Meta do Mês
+             document.getElementById('monthly-goal').textContent = formatCurrency(monthlyGoal);
+             document.getElementById('goal-progress-text').innerHTML = `${Math.round(goalPercentage)}% guardado`;
+             document.getElementById('goal-progress-bar').style.width = `${cappedPercentage}%`;
+    
+             // Card 5: Acumulado no Ano
+             document.getElementById('year-balance').textContent = formatCurrency(yearBalance);
+             document.getElementById('year-label').textContent = currentYear;
+             if (yearBalance > 0) {
+                 document.getElementById('year-change').innerHTML = `<i class="fas fa-arrow-up"></i><span>Superávit anual</span>`;
+             } else if (yearBalance < 0) {
+                 document.getElementById('year-change').innerHTML = `<i class="fas fa-arrow-down"></i><span>Déficit anual</span>`;
+             } else {
+                 document.getElementById('year-change').innerHTML = `<span>Saldo zerado</span>`;
+             }
+         }
 
         // ==============================
         // FUNÇÕES UTILITÁRIAS
