@@ -1,4 +1,4 @@
-// server.js - Backend completo para o Render
+// server.js - Backend completo para o Render - SEM ECONOMIAS
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
@@ -39,14 +39,11 @@ async function criarTabelasSeNaoExistem() {
             )
         `);
         
-        // Criar tabela user_settings se não existir
+        // Criar tabela user_settings se não existir - SEM ECONOMIAS
         await pool.query(`
             CREATE TABLE IF NOT EXISTS user_settings (
                 user_id INTEGER PRIMARY KEY REFERENCES users(id),
-                total_savings DECIMAL(10,2) DEFAULT 0,
-                savings_goal DECIMAL(10,2) DEFAULT 0,
-                monthly_budget DECIMAL(10,2) DEFAULT 0,
-                savings_rate DECIMAL(5,2) DEFAULT 0.3
+                monthly_budget DECIMAL(10,2) DEFAULT 0
             )
         `);
         
@@ -234,9 +231,9 @@ app.post('/api/admin/users', authenticateToken, isAdmin, async (req, res) => {
             [phone, email, name, hashedPassword, is_admin || false]
         );
         
-        // Criar configurações padrão
+        // Criar configurações padrão - SÓ monthly_budget
         await pool.query(
-            'INSERT INTO user_settings (user_id) VALUES ($1)',
+            'INSERT INTO user_settings (user_id, monthly_budget) VALUES ($1, 0)',
             [result.rows[0].id]
         );
         
@@ -511,28 +508,25 @@ app.get('/api/settings', authenticateToken, async (req, res) => {
             [req.user.id]
         );
         
-        res.json(result.rows[0] || {});
+        res.json(result.rows[0] || { monthly_budget: 0 });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 });
 
-// Atualizar configurações do usuário
+// Atualizar configurações do usuário - SÓ MONTHLY_BUDGET
 app.put('/api/settings', authenticateToken, async (req, res) => {
     try {
-        const { total_savings, savings_goal, monthly_budget, savings_rate } = req.body;
+        const { monthly_budget } = req.body;
         
         const result = await pool.query(
-            `INSERT INTO user_settings (user_id, total_savings, savings_goal, monthly_budget, savings_rate)
-             VALUES ($1, $2, $3, $4, $5)
+            `INSERT INTO user_settings (user_id, monthly_budget)
+             VALUES ($1, $2)
              ON CONFLICT (user_id) 
              DO UPDATE SET 
-                total_savings = EXCLUDED.total_savings,
-                savings_goal = EXCLUDED.savings_goal,
-                monthly_budget = EXCLUDED.monthly_budget,
-                savings_rate = EXCLUDED.savings_rate
+                monthly_budget = EXCLUDED.monthly_budget
              RETURNING *`,
-            [req.user.id, total_savings, savings_goal, monthly_budget, savings_rate]
+            [req.user.id, monthly_budget || 0]
         );
         
         res.json(result.rows[0]);
@@ -611,7 +605,7 @@ app.get('/api/test', async (req, res) => {
 
 // ==================== INICIAR SERVIDOR ====================
 
-const PORT = process.env.PORT || 10000;  // MUDE 3000 PARA 10000
+const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
     console.log(`Servidor rodando na porta ${PORT}`);
 });
