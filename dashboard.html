@@ -3060,5 +3060,293 @@
 
         document.addEventListener('DOMContentLoaded', checkAuth);
     </script>
+
+    <script>
+// FUNÇÃO ÚNICA - EDITAR CATEGORIAS EXISTENTES
+async function editarCategoria(categoriaAtual, novoTipo) {
+    if (!confirm(`Renomear categoria "${categoriaAtual}" para "${novoTipo}"?`)) return;
+    
+    try {
+        const token = localStorage.getItem('token');
+        const transactions = await api.getTransactions();
+        
+        // Atualizar TODAS as transações com esta categoria
+        for (const trans of transactions) {
+            if (trans.category === categoriaAtual) {
+                await api.updateTransaction(trans.id, {
+                    ...trans,
+                    category: novoTipo
+                });
+            }
+        }
+        
+        alert('Categoria renomeada com sucesso!');
+        location.reload();
+    } catch (error) {
+        alert('Erro: ' + error.message);
+    }
+}
+
+// USO: editarCategoria('Alimentação', 'Comida e Bebida')
+</script>
+<!-- BOTÃO ÚNICO - GERENCIAR CATEGORIAS -->
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <h3 class="section-title" style="margin-bottom: 0;">
+        <span><i class="fas fa-tags"></i> Categorias</span>
+    </h3>
+    <button onclick="abrirGerenciadorCategorias()" class="btn btn-primary" style="padding: 8px 16px;">
+        <i class="fas fa-cog"></i> Gerenciar Categorias
+    </button>
+</div>
+
+<!-- OS CARDS CONTINUAM ABAIXO -->
+<div class="account-types" id="account-categories">
+    <!-- seus cards aqui -->
+</div>
+
+<!-- MODAL SIMPLES DE GERENCIAMENTO -->
+<div id="modal-categorias" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center;">
+    <div style="background: white; border-radius: 15px; padding: 30px; width: 90%; max-width: 600px; max-height: 80vh; overflow-y: auto;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h2 style="margin: 0;">Gerenciar Categorias</h2>
+            <button onclick="fecharModal()" style="background: none; border: none; font-size: 24px; cursor: pointer;">&times;</button>
+        </div>
+        
+        <!-- TABS -->
+        <div style="display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px;">
+            <button onclick="mostrarTipo('income')" class="tab-btn active" data-tab="income" style="padding: 8px 16px; border: none; background: #3b82f6; color: white; border-radius: 8px; cursor: pointer;">Receitas</button>
+            <button onclick="mostrarTipo('expense')" class="tab-btn" data-tab="expense" style="padding: 8px 16px; border: none; background: #e2e8f0; border-radius: 8px; cursor: pointer;">Despesas</button>
+            <button onclick="mostrarTipo('investment')" class="tab-btn" data-tab="investment" style="padding: 8px 16px; border: none; background: #e2e8f0; border-radius: 8px; cursor: pointer;">Investimentos</button>
+        </div>
+        
+        <!-- BOTÃO NOVA CATEGORIA -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h3 id="titulo-tipo" style="margin: 0;">Categorias de Receita</h3>
+            <button onclick="novaCategoria()" style="padding: 8px 16px; background: #10b981; color: white; border: none; border-radius: 8px; cursor: pointer;">
+                <i class="fas fa-plus"></i> Nova
+            </button>
+        </div>
+        
+        <!-- LISTA DE CATEGORIAS -->
+        <div id="lista-categorias" style="margin-bottom: 20px;">
+            <!-- categorias serão inseridas aqui -->
+        </div>
+        
+        <!-- FORMULÁRIO NOVA/EDITAR -->
+        <div id="form-categoria" style="display: none; background: #f8fafc; padding: 20px; border-radius: 10px; margin-top: 20px;">
+            <h4 id="form-titulo">Nova Categoria</h4>
+            <input type="hidden" id="categoria-id">
+            <input type="hidden" id="categoria-tipo">
+            
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px; font-weight: 600;">Nome</label>
+                <input type="text" id="categoria-nome" style="width: 100%; padding: 10px; border: 2px solid #e2e8f0; border-radius: 8px;" required>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                <div>
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Ícone</label>
+                    <select id="categoria-icon" style="width: 100%; padding: 10px; border: 2px solid #e2e8f0; border-radius: 8px;">
+                        <option value="home">Casa</option>
+                        <option value="utensils">Comida</option>
+                        <option value="car">Carro</option>
+                        <option value="heartbeat">Saúde</option>
+                        <option value="book">Educação</option>
+                        <option value="film">Lazer</option>
+                        <option value="briefcase">Trabalho</option>
+                        <option value="chart-line">Gráfico</option>
+                        <option value="piggy-bank">Porquinho</option>
+                        <option value="tag">Tag</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Cor</label>
+                    <input type="color" id="categoria-cor" value="#3b82f6" style="width: 100%; height: 42px; border: 2px solid #e2e8f0; border-radius: 8px;">
+                </div>
+            </div>
+            
+            <div style="display: flex; gap: 10px;">
+                <button onclick="salvarCategoria()" style="flex: 1; padding: 12px; background: #3b82f6; color: white; border: none; border-radius: 8px; cursor: pointer;">Salvar</button>
+                <button onclick="cancelarForm()" style="flex: 1; padding: 12px; background: #e2e8f0; border: none; border-radius: 8px; cursor: pointer;">Cancelar</button>
+                <button id="btn-excluir" onclick="excluirCategoria()" style="display: none; padding: 12px; background: #ef4444; color: white; border: none; border-radius: 8px; cursor: pointer;">Excluir</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// DADOS DAS CATEGORIAS (depois virá do banco)
+let categorias = {
+    income: [
+        { id: 1, nome: 'Salário', icon: 'briefcase', cor: '#10b981' },
+        { id: 2, nome: 'Freelance', icon: 'laptop-code', cor: '#3b82f6' },
+        { id: 3, nome: 'Investimentos', icon: 'chart-line', cor: '#8b5cf6' },
+        { id: 4, nome: 'Vendas', icon: 'store', cor: '#f59e0b' },
+        { id: 5, nome: 'Outros', icon: 'ellipsis-h', cor: '#64748b' }
+    ],
+    expense: [
+        { id: 6, nome: 'Alimentação', icon: 'utensils', cor: '#ef4444' },
+        { id: 7, nome: 'Moradia', icon: 'home', cor: '#f97316' },
+        { id: 8, nome: 'Transporte', icon: 'car', cor: '#3b82f6' },
+        { id: 9, nome: 'Saúde', icon: 'heartbeat', cor: '#ec4899' },
+        { id: 10, nome: 'Educação', icon: 'book', cor: '#8b5cf6' },
+        { id: 11, nome: 'Lazer', icon: 'film', cor: '#f59e0b' },
+        { id: 12, nome: 'Outros', icon: 'ellipsis-h', cor: '#64748b' }
+    ],
+    investment: [
+        { id: 13, nome: 'Poupança', icon: 'piggy-bank', cor: '#10b981' },
+        { id: 14, nome: 'Tesouro Direto', icon: 'landmark', cor: '#f59e0b' },
+        { id: 15, nome: 'Ações', icon: 'chart-line', cor: '#3b82f6' },
+        { id: 16, nome: 'FIIs', icon: 'building', cor: '#8b5cf6' },
+        { id: 17, nome: 'Criptomoedas', icon: 'bitcoin', cor: '#f97316' }
+    ]
+};
+
+let tipoAtual = 'income';
+let editandoId = null;
+
+function abrirGerenciadorCategorias() {
+    document.getElementById('modal-categorias').style.display = 'flex';
+    mostrarTipo('income');
+}
+
+function fecharModal() {
+    document.getElementById('modal-categorias').style.display = 'none';
+    document.getElementById('form-categoria').style.display = 'none';
+}
+
+function mostrarTipo(tipo) {
+    tipoAtual = tipo;
+    
+    // Atualizar tabs
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        if (btn.dataset.tab === tipo) {
+            btn.style.background = '#3b82f6';
+            btn.style.color = 'white';
+        } else {
+            btn.style.background = '#e2e8f0';
+            btn.style.color = '#1e293b';
+        }
+    });
+    
+    // Atualizar título
+    const titulos = {
+        income: 'Categorias de Receita',
+        expense: 'Categorias de Despesa',
+        investment: 'Categorias de Investimento'
+    };
+    document.getElementById('titulo-tipo').textContent = titulos[tipo];
+    
+    // Renderizar lista
+    const lista = document.getElementById('lista-categorias');
+    let html = '';
+    
+    categorias[tipo].forEach(cat => {
+        html += `
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px; border-bottom: 1px solid #e2e8f0;">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <div style="width: 36px; height: 36px; border-radius: 8px; background-color: ${cat.cor}20; color: ${cat.cor}; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-${cat.icon}"></i>
+                    </div>
+                    <span style="font-weight: 500;">${cat.nome}</span>
+                </div>
+                <div>
+                    <button onclick="editarCategoria(${cat.id})" style="padding: 5px 10px; background: #3b82f6; color: white; border: none; border-radius: 5px; margin-right: 5px; cursor: pointer;">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button onclick="confirmarExclusao(${cat.id}, '${cat.nome}')" style="padding: 5px 10px; background: #ef4444; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+        `;
+    });
+    
+    lista.innerHTML = html;
+}
+
+function novaCategoria() {
+    editandoId = null;
+    document.getElementById('form-titulo').textContent = 'Nova Categoria';
+    document.getElementById('categoria-id').value = '';
+    document.getElementById('categoria-tipo').value = tipoAtual;
+    document.getElementById('categoria-nome').value = '';
+    document.getElementById('categoria-icon').value = 'tag';
+    document.getElementById('categoria-cor').value = '#3b82f6';
+    document.getElementById('btn-excluir').style.display = 'none';
+    document.getElementById('form-categoria').style.display = 'block';
+}
+
+function editarCategoria(id) {
+    const categoria = [...categorias.income, ...categorias.expense, ...categorias.investment].find(c => c.id === id);
+    if (!categoria) return;
+    
+    editandoId = id;
+    document.getElementById('form-titulo').textContent = 'Editar Categoria';
+    document.getElementById('categoria-id').value = categoria.id;
+    document.getElementById('categoria-tipo').value = tipoAtual;
+    document.getElementById('categoria-nome').value = categoria.nome;
+    document.getElementById('categoria-icon').value = categoria.icon;
+    document.getElementById('categoria-cor').value = categoria.cor;
+    document.getElementById('btn-excluir').style.display = 'block';
+    document.getElementById('form-categoria').style.display = 'block';
+}
+
+function salvarCategoria() {
+    const nome = document.getElementById('categoria-nome').value;
+    const icon = document.getElementById('categoria-icon').value;
+    const cor = document.getElementById('categoria-cor').value;
+    const tipo = document.getElementById('categoria-tipo').value;
+    
+    if (!nome) {
+        alert('Nome é obrigatório');
+        return;
+    }
+    
+    if (editandoId) {
+        // EDITAR
+        const categoria = [...categorias.income, ...categorias.expense, ...categorias.investment].find(c => c.id === editandoId);
+        if (categoria) {
+            categoria.nome = nome;
+            categoria.icon = icon;
+            categoria.cor = cor;
+        }
+        alert('Categoria editada com sucesso!');
+    } else {
+        // CRIAR
+        const novoId = Math.max(...categorias.income.map(c => c.id), ...categorias.expense.map(c => c.id), ...categorias.investment.map(c => c.id), 0) + 1;
+        const novaCategoria = { id: novoId, nome, icon, cor };
+        categorias[tipo].push(novaCategoria);
+        alert('Categoria criada com sucesso!');
+    }
+    
+    mostrarTipo(tipoAtual);
+    cancelarForm();
+}
+
+function confirmarExclusao(id, nome) {
+    if (confirm(`Tem certeza que deseja excluir a categoria "${nome}"?`)) {
+        excluirCategoria(id);
+    }
+}
+
+function excluirCategoria(id) {
+    if (!id && editandoId) id = editandoId;
+    if (!id) return;
+    
+    // EXCLUIR
+    categorias.income = categorias.income.filter(c => c.id !== id);
+    categorias.expense = categorias.expense.filter(c => c.id !== id);
+    categorias.investment = categorias.investment.filter(c => c.id !== id);
+    
+    alert('Categoria excluída com sucesso!');
+    mostrarTipo(tipoAtual);
+    cancelarForm();
+}
+
+function cancelarForm() {
+    document.getElementById('form-categoria').style.display = 'none';
+}
+</script>
 </body>
 </html>
