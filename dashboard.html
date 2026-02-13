@@ -1199,6 +1199,11 @@
                 <div class="current-month" id="current-month">Junho 2023</div>
                 <button id="next-month"><i class="fas fa-chevron-right"></i></button>
             </div>
+
+            <button class="btn-secondary" onclick="abrirGerenciadorCategorias()" style="margin-right: 10px;">
+                <i class="fas fa-tags"></i>
+                Categorias
+            </button>
             
             <div class="user-area">
                 <button class="btn-primary" id="add-transaction">
@@ -3089,15 +3094,6 @@ async function editarCategoria(categoriaAtual, novoTipo) {
 
 // USO: editarCategoria('Alimentação', 'Comida e Bebida')
 </script>
-<!-- BOTÃO ÚNICO - GERENCIAR CATEGORIAS -->
-<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-    <h3 class="section-title" style="margin-bottom: 0;">
-        <span><i class="fas fa-tags"></i> Categorias</span>
-    </h3>
-    <button onclick="abrirGerenciadorCategorias()" class="btn btn-primary" style="padding: 8px 16px;">
-        <i class="fas fa-cog"></i> Gerenciar Categorias
-    </button>
-</div>
 
 <!-- OS CARDS CONTINUAM ABAIXO -->
 <div class="account-types" id="account-categories">
