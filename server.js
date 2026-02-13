@@ -26,7 +26,6 @@ async function criarTabelasSeNaoExistem() {
     try {
         console.log('🔄 Verificando/criando tabelas...');
         
-        // Criar tabela users se não existir
         await pool.query(`
             CREATE TABLE IF NOT EXISTS users (
                 id SERIAL PRIMARY KEY,
@@ -39,7 +38,6 @@ async function criarTabelasSeNaoExistem() {
             )
         `);
         
-        // Criar tabela user_settings se não existir
         await pool.query(`
             CREATE TABLE IF NOT EXISTS user_settings (
                 user_id INTEGER PRIMARY KEY REFERENCES users(id),
@@ -50,7 +48,6 @@ async function criarTabelasSeNaoExistem() {
             )
         `);
         
-        // Criar tabela transactions se não existir
         await pool.query(`
             CREATE TABLE IF NOT EXISTS transactions (
                 id SERIAL PRIMARY KEY,
@@ -72,7 +69,6 @@ async function criarTabelasSeNaoExistem() {
             )
         `);
         
-        // Criar tabela read_notifications se não existir
         await pool.query(`
             CREATE TABLE IF NOT EXISTS read_notifications (
                 user_id INTEGER REFERENCES users(id),
@@ -82,9 +78,25 @@ async function criarTabelasSeNaoExistem() {
             )
         `);
         
+        // ÚNICA TABELA NOVA - SÓ ISSO
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS user_categories (
+                id SERIAL PRIMARY KEY,
+                user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+                name VARCHAR(50) NOT NULL,
+                type VARCHAR(20) NOT NULL,
+                icon VARCHAR(50) DEFAULT 'tag',
+                color VARCHAR(20) DEFAULT '#3b82f6',
+                is_default BOOLEAN DEFAULT FALSE,
+                is_active BOOLEAN DEFAULT TRUE,
+                display_order INTEGER DEFAULT 0,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE(user_id, name, type)
+            )
+        `);
+        
         console.log('✅ Tabelas verificadas/criadas com sucesso!');
         
-        // Criar usuário admin se não existir
         const adminCheck = await pool.query(
             "SELECT id FROM users WHERE phone = '11999999999'"
         );
