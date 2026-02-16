@@ -196,6 +196,30 @@ app.get('/api/verify', authenticateToken, (req, res) => {
     res.json({ valid: true, user: req.user });
 });
 
+// ===========================================
+// ROTA PARA BUSCAR USUÁRIO POR TELEFONE
+// ===========================================
+app.get('/api/usuario-por-telefone/:numero', async (req, res) => {
+    try {
+        const numero = req.params.numero.replace(/\D/g, '');
+        
+        const result = await pool.query(
+            'SELECT id, name, phone, email FROM users WHERE phone = $1',
+            [numero]
+        );
+        
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: 'Usuário não encontrado' });
+        }
+        
+        res.json(result.rows[0]);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+
+
 // ==================== ROTAS DE USUÁRIOS (ADMIN) ====================
 
 // Listar todos os usuários (apenas admin)
