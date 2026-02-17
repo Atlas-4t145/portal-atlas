@@ -397,43 +397,36 @@
         // Enviar mensagem pro bot
         async function enviarMensagem() {
             const texto = inputMensagem.value.trim();
-            
             if (!texto) return;
-            
-            // Desabilita input enquanto processa
+
             inputMensagem.disabled = true;
             btnEnviar.disabled = true;
-            
-            // Adiciona mensagem do usuário na tela
+
             adicionarMensagem('usuario', texto);
             inputMensagem.value = '';
-            
-            // Mostra "digitando"
+
             digitando.style.display = 'block';
-            
+
             try {
-                const numero = usuario.phone;
-                
-                // Chama a rota de teste do bot (que já funciona)
+                // USA EXATAMENTE O NÚMERO QUE VEIO DO LOGIN
+                const numero = usuario.phone; // ✅ JÁ ESTÁ 5549984094010
+
                 const response = await fetch(`${BOT_URL}/teste/${numero}/${encodeURIComponent(texto)}`);
                 const data = await response.json();
-                
-                // Remove "digitando"
+
                 digitando.style.display = 'none';
-                
-                // Adiciona resposta do bot
+
                 if (data.resposta) {
                     adicionarMensagem('bot', data.resposta);
                 } else {
                     adicionarMensagem('bot', '❌ Erro ao processar mensagem.');
                 }
-                
+
             } catch (error) {
                 digitando.style.display = 'none';
                 adicionarMensagem('bot', '❌ Erro de conexão com o bot.');
                 console.error(error);
             } finally {
-                // Reabilita input
                 inputMensagem.disabled = false;
                 btnEnviar.disabled = false;
                 inputMensagem.focus();
