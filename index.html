@@ -246,7 +246,12 @@
             e.preventDefault();
             
             // REMOVER FORMATAÇÃO DO TELEFONE ANTES DE ENVIAR
-            const rawPhone = document.getElementById('phone').value.replace(/\D/g, '');
+            let rawPhone = document.getElementById('phone').value.replace(/\D/g, '');
+
+            // Se não começar com 55, adiciona
+            if (!rawPhone.startsWith('55')) {
+                rawPhone = '55' + rawPhone;
+            }
             const password = document.getElementById('password').value;
             const errorEl = document.getElementById('error-message');
             const loginBtn = document.getElementById('login-btn');
