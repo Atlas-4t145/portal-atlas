@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Atlas Chat</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* TELA DE LOGIN */
+        .login-container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .login-container h1 {
+            color: #333;
+            margin-bottom: 10px;
+            text-align: center;
+            font-size: 28px;
+        }
+
+        .login-container p {
+            color: #666;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #444;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border 0.3s;
+        }
+
+        .form-group input:focus {
+            border-color: #667eea;
+            outline: none;
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 15px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .btn-login:hover {
+            background: #5a67d8;
+        }
+
+        .btn-login:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .erro-login {
+            background: #fee2e2;
+            color: #dc2626;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        /* TELA DO CHAT */
+        .chat-container {
+            display: none;
+            background: white;
+            width: 95%;
+            max-width: 450px;
+            height: 90vh;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            flex-direction: column;
+        }
+
+        .chat-header {
+            background: #667eea;
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chat-header h2 {
+            font-size: 18px;
+        }
+
+        .chat-header span {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .btn-sair {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: #f5f5f5;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .message {
+            max-width: 80%;
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .message.usuario {
+            align-self: flex-end;
+        }
+
+        .message.bot {
+            align-self: flex-start;
+        }
+
+        .message-content {
+            padding: 12px 16px;
+            border-radius: 18px;
+            font-size: 14px;
+            line-height: 1.4;
+            white-space: pre-wrap;
+        }
+
+        .message.usuario .message-content {
+            background: #667eea;
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .message.bot .message-content {
+            background: white;
+            color: #333;
+            border-bottom-left-radius: 4px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .message-time {
+            font-size: 11px;
+            color: #999;
+            margin-top: 5px;
+            margin-left: 10px;
+        }
+
+        .message.usuario .message-time {
+            text-align: right;
+        }
+
+        .chat-input-area {
+            background: white;
+            padding: 15px;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-input-area input {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #e0e0e0;
+            border-radius: 25px;
+            font-size: 14px;
+        }
+
+        .chat-input-area input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .chat-input-area button {
+            background: #667eea;
+            color: white;
+            border: none;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .chat-input-area button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .digitando {
+            color: #999;
+            font-size: 12px;
+            margin-left: 15px;
+            margin-top: -10px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <!-- TELA DE LOGIN -->
+    <div class="login-container" id="telaLogin">
+        <h1>👋 Atlas Chat</h1>
+        <p>Entre com suas credenciais</p>
+        
+        <div class="erro-login" id="erroLogin"></div>
+        
+        <div class="form-group">
+            <label>📱 Telefone</label>
+            <input type="text" id="telefone" placeholder="(49) 8409-4010" value="554984094010">
+        </div>
+        
+        <div class="form-group">
+            <label>🔐 Senha</label>
+            <input type="password" id="senha" placeholder="Sua senha" value="admin123">
+        </div>
+        
+        <button class="btn-login" id="btnLogin" onclick="fazerLogin()">Entrar no Chat</button>
+        <p style="text-align: center; margin-top: 20px; font-size: 13px; color: #999;">
+            Use suas credenciais do Atlas
+        </p>
+    </div>
+
+    <!-- TELA DO CHAT -->
+    <div class="chat-container" id="telaChat">
+        <div class="chat-header">
+            <div>
+                <h2>💬 Atlas Bot</h2>
+                <span id="nomeUsuario">Carregando...</span>
+            </div>
+            <button class="btn-sair" onclick="logout()">Sair</button>
+        </div>
+        
+        <div class="chat-messages" id="mensagens"></div>
+        
+        <div class="digitando" id="digitando" style="display: none;">🤖 Bot está digitando...</div>
+        
+        <div class="chat-input-area">
+            <input type="text" id="inputMensagem" placeholder="Digite sua mensagem..." onkeypress="if(event.key === 'Enter') enviarMensagem()">
+            <button id="btnEnviar" onclick="enviarMensagem()">➤</button>
+        </div>
+    </div>
+
+    <script>
+        // ===========================================
+        // CONFIGURAÇÕES
+        // ===========================================
+        const API_URL = 'https://atlas-database.onrender.com/api';
+        const BOT_URL = 'https://atlas-whatsapp-bot.onrender.com';
+        
+        let token = null;
+        let usuario = null;
+        
+        // Elementos DOM
+        const telaLogin = document.getElementById('telaLogin');
+        const telaChat = document.getElementById('telaChat');
+        const erroLogin = document.getElementById('erroLogin');
+        const mensagensDiv = document.getElementById('mensagens');
+        const inputMensagem = document.getElementById('inputMensagem');
+        const btnEnviar = document.getElementById('btnEnviar');
+        const nomeUsuario = document.getElementById('nomeUsuario');
+        const digitando = document.getElementById('digitando');
+        
+        // ===========================================
+        // FUNÇÕES DE AUTENTICAÇÃO
+        // ===========================================
+        
+        // Login
+        async function fazerLogin() {
+            const telefoneRaw = document.getElementById('telefone').value.replace(/\D/g, '');
+            const senha = document.getElementById('senha').value;
+            const btnLogin = document.getElementById('btnLogin');
+            
+            erroLogin.style.display = 'none';
+            btnLogin.disabled = true;
+            btnLogin.textContent = 'Entrando...';
+            
+            try {
+                // Faz login na API do Atlas
+                const response = await fetch(`${API_URL}/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        phone: telefoneRaw,
+                        password: senha
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error || 'Telefone ou senha inválidos');
+                }
+                
+                // Login bem sucedido
+                token = data.token;
+                usuario = data.user;
+                
+                // Atualiza interface
+                nomeUsuario.textContent = usuario.name;
+                telaLogin.style.display = 'none';
+                telaChat.style.display = 'flex';
+                
+                // Adiciona mensagem de boas-vindas
+                adicionarMensagem('bot', `👋 Olá ${usuario.name}! Como posso ajudar?\n\nDigite *ajuda* para ver os comandos.`);
+                
+            } catch (error) {
+                erroLogin.textContent = error.message;
+                erroLogin.style.display = 'block';
+            } finally {
+                btnLogin.disabled = false;
+                btnLogin.textContent = 'Entrar no Chat';
+            }
+        }
+        
+        // Logout
+        function logout() {
+            token = null;
+            usuario = null;
+            mensagensDiv.innerHTML = '';
+            telaChat.style.display = 'none';
+            telaLogin.style.display = 'block';
+        }
+        
+        // ===========================================
+        // FUNÇÕES DO CHAT
+        // ===========================================
+        
+        // Adicionar mensagem na tela
+        function adicionarMensagem(tipo, texto) {
+            const div = document.createElement('div');
+            div.className = `message ${tipo}`;
+            
+            const agora = new Date();
+            const hora = `${agora.getHours().toString().padStart(2,'0')}:${agora.getMinutes().toString().padStart(2,'0')}`;
+            
+            // Formata o texto (substitui \n por <br>)
+            const textoFormatado = texto.replace(/\n/g, '<br>');
+            
+            div.innerHTML = `
+                <div class="message-content">${textoFormatado}</div>
+                <div class="message-time">${hora}</div>
+            `;
+            
+            mensagensDiv.appendChild(div);
+            mensagensDiv.scrollTop = mensagensDiv.scrollHeight;
+        }
+        
+        // Enviar mensagem pro bot
+        async function enviarMensagem() {
+            const texto = inputMensagem.value.trim();
+            
+            if (!texto) return;
+            
+            // Desabilita input enquanto processa
+            inputMensagem.disabled = true;
+            btnEnviar.disabled = true;
+            
+            // Adiciona mensagem do usuário na tela
+            adicionarMensagem('usuario', texto);
+            inputMensagem.value = '';
+            
+            // Mostra "digitando"
+            digitando.style.display = 'block';
+            
+            try {
+                // Extrai o número no formato que o bot espera
+                const numero = usuario.phone.startsWith('55') ? usuario.phone : `55${usuario.phone}`;
+                
+                // Chama a rota de teste do bot (que já funciona)
+                const response = await fetch(`${BOT_URL}/teste/${numero}/${encodeURIComponent(texto)}`);
+                const data = await response.json();
+                
+                // Remove "digitando"
+                digitando.style.display = 'none';
+                
+                // Adiciona resposta do bot
+                if (data.resposta) {
+                    adicionarMensagem('bot', data.resposta);
+                } else {
+                    adicionarMensagem('bot', '❌ Erro ao processar mensagem.');
+                }
+                
+            } catch (error) {
+                digitando.style.display = 'none';
+                adicionarMensagem('bot', '❌ Erro de conexão com o bot.');
+                console.error(error);
+            } finally {
+                // Reabilita input
+                inputMensagem.disabled = false;
+                btnEnviar.disabled = false;
+                inputMensagem.focus();
+            }
+        }
+        
+        // Enter envia mensagem
+        document.getElementById('inputMensagem').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                enviarMensagem();
+            }
+        });
+    </script>
+</body>
+</html>
