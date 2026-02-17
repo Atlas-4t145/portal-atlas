@@ -251,20 +251,16 @@
             const loginBtn = document.getElementById('login-btn');
             const btnText = document.getElementById('btn-text');
             const btnLoading = document.getElementById('btn-loading');
-            
+
             console.log('📱 Telefone (formatado):', document.getElementById('phone').value);
             console.log('📱 Telefone (raw):', rawPhone);
             console.log('🔑 Senha:', password);
-            
+
             errorEl.style.display = 'none';
-            
-            // Validar telefone
-            if (rawPhone.length < 10 || rawPhone.length > 13) {
-                errorEl.textContent = 'Telefone inválido. Deve ter entre 10 e 13 dígitos.';
-                errorEl.style.display = 'block';
-                return;
-            }
-                errorEl.textContent = 'Telefone inválido. Use DDD + número (ex: 5511912345678)';
+
+            // ✅ VALIDAÇÃO SIMPLES (igual ao chat)
+            if (!rawPhone) {
+                errorEl.textContent = 'Telefone é obrigatório';
                 errorEl.style.display = 'block';
                 return;
             }
