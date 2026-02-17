@@ -311,9 +311,9 @@
             this.dataset.raw = value;
             
             // Formatar para exibição com 13 dígitos (ex: 55 49 9 8409-4010)
-            if (value.length === 13) {
+            if (value.length === 15) {
                 value = value.replace(/^(\d{2})(\d{2})(\d{1})(\d{4})(\d{4})$/, '($1) $2 $3-$4-$5');
-            } else if (value.length > 13) {
+            } else if (value.length > 10) {
                 // fallback para 11 dígitos (sem DDI)
                 value = value.replace(/^(\d{2})(\d{5})(\d{4}).*/, '($1) $2-$3');
             } else if (value.length > 6) {
