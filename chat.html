@@ -407,6 +407,10 @@
 
             digitando.style.display = 'block';
 
+            console.log('📞 Número que será enviado:', usuario.phone);
+            console.log('📝 Mensagem:', texto);
+            console.log('🔗 URL completa:', `${BOT_URL}/teste/${usuario.phone}/${encodeURIComponent(texto)}`);
+
             try {
                 // USA EXATAMENTE O NÚMERO QUE VEIO DO LOGIN
                 const numero = usuario.phone; // ✅ JÁ ESTÁ 5549984094010
