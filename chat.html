@@ -522,17 +522,21 @@
                 return `✅ Compra parcelada: ${desc} ${formatarMoeda(total)} em ${parcelas}x de ${formatarMoeda(valorParcela)}`;
             }
 
-            // Despesa recorrente
-            const matchRec = msg.match(/(.+?)\s+(\d+[.,]?\d*)\s+todo dia\s+(\d+)/);
-            if (matchRec) {
-                const valor = parseFloat(matchRec[2].replace(',', '.'));
-                const desc = matchRec[1].charAt(0).toUpperCase() + matchRec[1].slice(1);
-                const dia = parseInt(matchRec[3]);
-                
-                let data = new Date();
-                data.setDate(dia);
-                if (data < hoje) data.setMonth(data.getMonth() + 1);
-
+            // FUNC 5: Despesa recorrente (academia 120 todo dia 10) — CORRIGIDO
+            const matchRecorrente = texto.match(/(.+?)\s+(\d+[.,]?\d*)\s+todo dia\s+(\d+)/);
+            if (matchRecorrente) {
+                const valor = parseFloat(matchRecorrente[2].replace(',', '.'));
+                const desc = matchRecorrente[1].charAt(0).toUpperCase() + matchRecorrente[1].slice(1);
+                const dia = parseInt(matchRecorrente[3]);
+    
+                const hoje = moment();
+                let data = moment().date(dia);
+    
+                // Se o dia escolhido já passou neste mês, avança para o próximo mês
+                if (data.isSameOrBefore(hoje, 'day')) {
+                    data = data.add(1, 'month');
+                }
+    
                 await fetch(`${API_URL}/transactions`, {
                     method: 'POST',
                     headers: { 
@@ -544,15 +548,15 @@
                         amount: valor,
                         name: desc,
                         category: 'outros',
-                        date: data.toISOString().split('T')[0],
+                        date: data.format('YYYY-MM-DD'), // ✅ data correta (ex: 01/03/2026)
                         due_day: dia,
                         recurrence_type: 'fixed'
                     })
                 });
+    
                 await carregarTransacoes();
-                return `✅ Despesa recorrente: ${desc} ${formatarMoeda(valor)} todo dia ${dia}`;
+                return `✅ Despesa recorrente registrada: ${desc} ${formatarMoeda(valor)} todo dia ${dia} (primeiro vencimento: ${data.format('DD/MM/YYYY')})`;
             }
-
             // Receita
             const matchRecb = msg.match(/(recebi|deposito)\s+(.+?)\s+(\d+[.,]?\d*)/);
             if (matchRecb) {
