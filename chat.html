@@ -291,6 +291,33 @@
         const nomeUsuario = document.getElementById('nomeUsuario');
         const digitando = document.getElementById('digitando');
 
+        // Pega token da URL (se existir)
+        const urlParams = new URLSearchParams(window.location.search);
+        const tokenFromParent = urlParams.get('token');
+
+        if (tokenFromParent) {
+            // Faz login automático com o token
+            verificarToken(tokenFromParent);
+        }
+
+        async function verificarToken(token) {
+            try {
+                const response = await fetch(`${API_URL}/verify`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await response.json();
+                if (data.valid) {
+                    usuario = data.user;
+                    token = token;
+                    await carregarTransacoes();
+                    nomeUsuario.textContent = usuario.name;
+                    telaLogin.style.display = 'none';
+                    telaChat.style.display = 'flex';
+                    adicionarMensagem('bot', `👋 Olá ${usuario.name}! Como posso ajudar?`);
+                }
+            } catch {}
+        }
+
         // ===========================================
         // FUNÇÕES DE AUTENTICAÇÃO E DADOS
         // ===========================================
