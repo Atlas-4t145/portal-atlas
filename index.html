@@ -172,9 +172,9 @@
                 <input type="text" 
                        id="phone" 
                        class="form-input" 
-                       placeholder="(11) 99999-9999"
+                       placeholder="55 (11) 9 9999-9999"
                        required
-                       value="11999999999">
+                       value="5511999999999">
             </div>
             
             <div class="form-group">
@@ -259,8 +259,8 @@
             errorEl.style.display = 'none';
             
             // Validar telefone
-            if (rawPhone.length < 10 || rawPhone.length > 11) {
-                errorEl.textContent = 'Telefone inválido. Use DDD + número (ex: 11999999999)';
+            if (rawPhone.length < 10 || rawPhone.length > 13) {
+                errorEl.textContent = 'Telefone inválido. Use DDD + número (ex: 5511999999999)';
                 errorEl.style.display = 'block';
                 return;
             }
@@ -294,7 +294,7 @@
                 if (error.message.includes('fetch') || error.message.includes('Network')) {
                     errorEl.innerHTML = '❌ Erro de conexão com o servidor.<br><small>Verifique sua internet ou a API pode estar offline.</small>';
                 } else if (error.message.includes('Telefone ou senha incorretos')) {
-                    errorEl.innerHTML = '❌ Telefone ou senha incorretos.<br><small>Use: 11999999999 / admin123</small>';
+                    errorEl.innerHTML = '❌ Telefone ou senha incorretos.<br><small>Use: 5511999999999 / admin123</small>';
                 } else {
                     errorEl.textContent = `❌ ${error.message}`;
                 }
@@ -306,7 +306,7 @@
         // Mascarar telefone (APENAS PARA EXIBIÇÃO)
         document.getElementById('phone').addEventListener('input', function(e) {
             let value = e.target.value.replace(/\D/g, '');
-            if (value.length > 11) value = value.substring(0, 13);
+            if (value.length > 13) value = value.substring(0, 13);
             
             // Salvar valor raw em data attribute
             this.dataset.raw = value;
