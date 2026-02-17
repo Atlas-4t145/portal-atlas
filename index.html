@@ -306,7 +306,6 @@
         // Mascarar telefone (APENAS PARA EXIBIÇÃO)
         document.getElementById('phone').addEventListener('input', function(e) {
             let value = e.target.value.replace(/\D/g, '');
-            if (value.length > 13) value = value.substring(0, 13);
             
             // Salvar valor raw em data attribute
             this.dataset.raw = value;
