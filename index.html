@@ -259,7 +259,11 @@
             errorEl.style.display = 'none';
             
             // Validar telefone
-            if (rawPhone.length < 13 || rawPhone.length > 13) {
+            if (rawPhone.length < 10 || rawPhone.length > 13) {
+                errorEl.textContent = 'Telefone inválido. Deve ter entre 10 e 13 dígitos.';
+                errorEl.style.display = 'block';
+                return;
+            }
                 errorEl.textContent = 'Telefone inválido. Use DDD + número (ex: 5511912345678)';
                 errorEl.style.display = 'block';
                 return;
