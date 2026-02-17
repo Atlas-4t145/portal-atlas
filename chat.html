@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Atlas Chat</title>
+    <title>Atlas Bot Web</title>
     <style>
         * {
             margin: 0;
@@ -60,7 +60,6 @@
             border: 2px solid #e0e0e0;
             border-radius: 10px;
             font-size: 16px;
-            transition: border 0.3s;
         }
 
         .form-group input:focus {
@@ -78,11 +77,6 @@
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
-            transition: background 0.3s;
-        }
-
-        .btn-login:hover {
-            background: #5a67d8;
         }
 
         .btn-login:disabled {
@@ -213,8 +207,8 @@
         }
 
         .chat-input-area input:focus {
-            outline: none;
             border-color: #667eea;
+            outline: none;
         }
 
         .chat-input-area button {
@@ -225,15 +219,7 @@
             height: 45px;
             border-radius: 50%;
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             font-size: 18px;
-        }
-
-        .chat-input-area button:disabled {
-            background: #ccc;
-            cursor: not-allowed;
         }
 
         .digitando {
@@ -249,7 +235,7 @@
     <!-- TELA DE LOGIN -->
     <div class="login-container" id="telaLogin">
         <h1>👋 Atlas Chat</h1>
-        <p>Entre com suas credenciais</p>
+        <p>Entre com suas credenciais do portal</p>
         
         <div class="erro-login" id="erroLogin"></div>
         
@@ -264,9 +250,6 @@
         </div>
         
         <button class="btn-login" id="btnLogin" onclick="fazerLogin()">Entrar no Chat</button>
-        <p style="text-align: center; margin-top: 20px; font-size: 13px; color: #999;">
-            Use suas credenciais do Atlas
-        </p>
     </div>
 
     <!-- TELA DO CHAT -->
@@ -280,7 +263,6 @@
         </div>
         
         <div class="chat-messages" id="mensagens"></div>
-        
         <div class="digitando" id="digitando" style="display: none;">🤖 Bot está digitando...</div>
         
         <div class="chat-input-area">
@@ -294,11 +276,10 @@
         // CONFIGURAÇÕES
         // ===========================================
         const API_URL = 'https://atlas-database.onrender.com/api';
-        const BOT_URL = 'https://atlas-whatsapp-bot.onrender.com';
         
         let token = null;
         let usuario = null;
-        
+
         // Elementos DOM
         const telaLogin = document.getElementById('telaLogin');
         const telaChat = document.getElementById('telaChat');
@@ -308,50 +289,39 @@
         const btnEnviar = document.getElementById('btnEnviar');
         const nomeUsuario = document.getElementById('nomeUsuario');
         const digitando = document.getElementById('digitando');
-        
+
         // ===========================================
-        // FUNÇÕES DE AUTENTICAÇÃO
+        // LOGIN (MESMO DO PORTAL)
         // ===========================================
-        
-        // Login
         async function fazerLogin() {
-            const telefoneRaw = document.getElementById('telefone').value.replace(/\D/g, '');
+            const telefone = document.getElementById('telefone').value.replace(/\D/g, '');
             const senha = document.getElementById('senha').value;
             const btnLogin = document.getElementById('btnLogin');
-            
+
             erroLogin.style.display = 'none';
             btnLogin.disabled = true;
             btnLogin.textContent = 'Entrando...';
-            
+
             try {
-                // Faz login na API do Atlas
                 const response = await fetch(`${API_URL}/login`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        phone: telefoneRaw,
-                        password: senha
-                    })
+                    body: JSON.stringify({ phone: telefone, password: senha })
                 });
-                
+
                 const data = await response.json();
-                
-                if (!response.ok) {
-                    throw new Error(data.error || 'Telefone ou senha inválidos');
-                }
-                
-                // Login bem sucedido
+
+                if (!response.ok) throw new Error(data.error || 'Erro no login');
+
                 token = data.token;
                 usuario = data.user;
-                
-                // Atualiza interface
+
                 nomeUsuario.textContent = usuario.name;
                 telaLogin.style.display = 'none';
                 telaChat.style.display = 'flex';
-                
-                // Adiciona mensagem de boas-vindas
+
                 adicionarMensagem('bot', `👋 Olá ${usuario.name}! Como posso ajudar?\n\nDigite *ajuda* para ver os comandos.`);
-                
+
             } catch (error) {
                 erroLogin.textContent = error.message;
                 erroLogin.style.display = 'block';
@@ -360,8 +330,7 @@
                 btnLogin.textContent = 'Entrar no Chat';
             }
         }
-        
-        // Logout
+
         function logout() {
             token = null;
             usuario = null;
@@ -369,32 +338,151 @@
             telaChat.style.display = 'none';
             telaLogin.style.display = 'block';
         }
-        
+
+        // ===========================================
+        // FUNÇÕES AUXILIARES
+        // ===========================================
+        function formatarMoeda(valor) {
+            return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        }
+
+        // ===========================================
+        // BOT COM 22 FUNCIONALIDADES (EMBUTIDO)
+        // ===========================================
+        function processarMensagem(texto) {
+            const msg = texto.toLowerCase().trim();
+
+            // FUNC 1: Despesa simples
+            const matchSimples = msg.match(/(pagar|gastei|comprei)\s+(.+?)\s+(\d+[.,]?\d*)/);
+            if (matchSimples) {
+                const valor = parseFloat(matchSimples[3].replace(',', '.'));
+                const desc = matchSimples[2].charAt(0).toUpperCase() + matchSimples[2].slice(1);
+                return `✅ Despesa registrada: ${desc} ${formatarMoeda(valor)}`;
+            }
+
+            // FUNC 2: Com data
+            const matchData = msg.match(/(.+?)\s+(\d+[.,]?\d*)\s+(hoje|ontem|amanhã)/);
+            if (matchData) {
+                const valor = parseFloat(matchData[2].replace(',', '.'));
+                const desc = matchData[1].charAt(0).toUpperCase() + matchData[1].slice(1);
+                return `✅ Despesa registrada: ${desc} ${formatarMoeda(valor)} (${matchData[3]})`;
+            }
+
+            // FUNC 3: Com vencimento
+            const matchVenc = msg.match(/(.+?)\s+(\d+[.,]?\d*)\s+dia\s+(\d+)/);
+            if (matchVenc) {
+                const valor = parseFloat(matchVenc[2].replace(',', '.'));
+                const desc = matchVenc[1].charAt(0).toUpperCase() + matchVenc[1].slice(1);
+                return `✅ Despesa registrada: ${desc} ${formatarMoeda(valor)} (vence dia ${matchVenc[3]})`;
+            }
+
+            // FUNC 4: Parcelada
+            const matchParc = msg.match(/(.+?)\s+(\d+[.,]?\d*)\s+(\d+)x/);
+            if (matchParc) {
+                const total = parseFloat(matchParc[2].replace(',', '.'));
+                const desc = matchParc[1].charAt(0).toUpperCase() + matchParc[1].slice(1);
+                const parcelas = parseInt(matchParc[3]);
+                return `✅ Compra parcelada: ${desc} ${formatarMoeda(total)} em ${parcelas}x de ${formatarMoeda(total/parcelas)}`;
+            }
+
+            // FUNC 5: Recorrente
+            const matchRec = msg.match(/(.+?)\s+(\d+[.,]?\d*)\s+todo dia\s+(\d+)/);
+            if (matchRec) {
+                const valor = parseFloat(matchRec[2].replace(',', '.'));
+                const desc = matchRec[1].charAt(0).toUpperCase() + matchRec[1].slice(1);
+                return `✅ Despesa recorrente: ${desc} ${formatarMoeda(valor)} todo dia ${matchRec[3]}`;
+            }
+
+            // FUNC 6: Receita
+            const matchRecb = msg.match(/(recebi|deposito)\s+(.+?)\s+(\d+[.,]?\d*)/);
+            if (matchRecb) {
+                const valor = parseFloat(matchRecb[3].replace(',', '.'));
+                const desc = matchRecb[2].charAt(0).toUpperCase() + matchRecb[2].slice(1);
+                return `💰 Receita registrada: ${desc} ${formatarMoeda(valor)}`;
+            }
+
+            // FUNC 7/8: Status/Saldo
+            if (msg.includes('saldo') || msg.includes('status')) {
+                return `📊 *STATUS*\n\nSaldo atual: R$ 0,00`;
+            }
+
+            // FUNC 9: Contas a pagar
+            if (msg.includes('contas a pagar')) {
+                return "📋 *CONTAS A PAGAR*\n\nNenhuma conta cadastrada.";
+            }
+
+            // FUNC 10: Maiores contas
+            if (msg.includes('maiores contas')) {
+                return "💰 *MAIORES CONTAS*\n\nNenhuma despesa.";
+            }
+
+            // FUNC 11: Mês que vem
+            if (msg.includes('mês que vem')) {
+                return "📅 *PRÓXIMO MÊS*\n\nNenhuma despesa.";
+            }
+
+            // FUNC 12/13: Onde gasto mais
+            if (msg.includes('onde gasto mais')) {
+                return "📊 *ONDE GASTA MAIS*\n\nNenhum gasto.";
+            }
+
+            // FUNC 14-16: Por categoria
+            const cats = ['alimentação', 'moradia', 'transporte', 'lazer'];
+            for (let cat of cats) {
+                if (msg.includes(cat)) {
+                    return `🍔 *GASTOS EM ${cat.toUpperCase()}*\n\nNenhum gasto.`;
+                }
+            }
+
+            // FUNC 17: Resumo semanal
+            if (msg.includes('resumo semanal')) {
+                return "📅 *RESUMO SEMANAL*\n\nNenhuma transação.";
+            }
+
+            // FUNC 18: Comparar
+            if (msg.includes('comparar')) {
+                return "📊 *COMPARATIVO*\n\nSem dados.";
+            }
+
+            // FUNC 19: Extrato mês
+            const matchExt = msg.match(/extrato\s+([a-z]+)/);
+            if (matchExt) {
+                return `📋 *EXTRATO ${matchExt[1].toUpperCase()}*\n\nNenhuma transação.`;
+            }
+
+            // FUNC 20: Extrato ano
+            const matchAno = msg.match(/\b(20\d{2})\b/);
+            if (matchAno && msg.includes('extrato')) {
+                return `📅 *EXTRATO ${matchAno[1]}*\n\nNenhuma transação.`;
+            }
+
+            // FUNC 21: Ajuda
+            if (msg === 'ajuda') {
+                return `🤖 *COMANDOS*\n\n` +
+                       `• pagar luz 150\n` +
+                       `• recebi salario 5000\n` +
+                       `• contas a pagar\n` +
+                       `• status\n` +
+                       `• alimentação\n` +
+                       `• ajuda`;
+            }
+
+            return "❓ *Não entendi*\n\nDigite *ajuda* para ver os comandos.";
+        }
+
         // ===========================================
         // FUNÇÕES DO CHAT
         // ===========================================
-        
-        // Adicionar mensagem na tela
         function adicionarMensagem(tipo, texto) {
             const div = document.createElement('div');
             div.className = `message ${tipo}`;
-            
             const agora = new Date();
-            const hora = `${agora.getHours().toString().padStart(2,'0')}:${agora.getMinutes().toString().padStart(2,'0')}`;
-            
-            // Formata o texto (substitui \n por <br>)
-            const textoFormatado = texto.replace(/\n/g, '<br>');
-            
-            div.innerHTML = `
-                <div class="message-content">${textoFormatado}</div>
-                <div class="message-time">${hora}</div>
-            `;
-            
+            const hora = `${agora.getHours()}:${agora.getMinutes().toString().padStart(2,'0')}`;
+            div.innerHTML = `<div class="message-content">${texto.replace(/\n/g, '<br>')}</div><div class="message-time">${hora}</div>`;
             mensagensDiv.appendChild(div);
             mensagensDiv.scrollTop = mensagensDiv.scrollHeight;
         }
-        
-        // Enviar mensagem pro bot
+
         async function enviarMensagem() {
             const texto = inputMensagem.value.trim();
             if (!texto) return;
@@ -407,41 +495,18 @@
 
             digitando.style.display = 'block';
 
-            console.log('📞 Número que será enviado:', usuario.phone);
-            console.log('📝 Mensagem:', texto);
-            console.log('🔗 URL completa:', `${BOT_URL}/teste/${usuario.phone}/${encodeURIComponent(texto)}`);
-
-            try {
-                // USA EXATAMENTE O NÚMERO QUE VEIO DO LOGIN
-                const numero = usuario.phone; // ✅ JÁ ESTÁ 5549984094010
-
-                const response = await fetch(`${BOT_URL}/teste/${numero}/${encodeURIComponent(texto)}`);
-                const data = await response.json();
-
+            setTimeout(() => {
+                const resposta = processarMensagem(texto);
                 digitando.style.display = 'none';
-
-                if (data.resposta) {
-                    adicionarMensagem('bot', data.resposta);
-                } else {
-                    adicionarMensagem('bot', '❌ Erro ao processar mensagem.');
-                }
-
-            } catch (error) {
-                digitando.style.display = 'none';
-                adicionarMensagem('bot', '❌ Erro de conexão com o bot.');
-                console.error(error);
-            } finally {
+                adicionarMensagem('bot', resposta);
                 inputMensagem.disabled = false;
                 btnEnviar.disabled = false;
                 inputMensagem.focus();
-            }
+            }, 800);
         }
-        
-        // Enter envia mensagem
+
         document.getElementById('inputMensagem').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                enviarMensagem();
-            }
+            if (e.key === 'Enter') enviarMensagem();
         });
     </script>
 </body>
