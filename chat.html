@@ -412,8 +412,7 @@
             digitando.style.display = 'block';
             
             try {
-                // Extrai o número no formato que o bot espera
-                const numero = usuario.phone.startsWith('55') ? usuario.phone : `55${usuario.phone}`;
+                const numero = usuario.phone;
                 
                 // Chama a rota de teste do bot (que já funciona)
                 const response = await fetch(`${BOT_URL}/teste/${numero}/${encodeURIComponent(texto)}`);
