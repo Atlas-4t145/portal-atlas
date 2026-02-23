@@ -522,40 +522,45 @@
                 return `✅ Compra parcelada: ${desc} ${formatarMoeda(total)} em ${parcelas}x de ${formatarMoeda(valorParcela)}`;
             }
 
-            // FUNC 5: Despesa recorrente (academia 120 todo dia 10) — CORRIGIDO
+            // FUNC 5: Despesa recorrente (academia 120 todo dia 10) — AGORA GERA 12 MESES
             const matchRecorrente = texto.match(/(.+?)\s+(\d+[.,]?\d*)\s+todo dia\s+(\d+)/);
             if (matchRecorrente) {
                 const valor = parseFloat(matchRecorrente[2].replace(',', '.'));
                 const desc = matchRecorrente[1].charAt(0).toUpperCase() + matchRecorrente[1].slice(1);
                 const dia = parseInt(matchRecorrente[3]);
-    
+
                 const hoje = moment();
-                let data = moment().date(dia);
-    
-                // Se o dia escolhido já passou neste mês, avança para o próximo mês
-                if (data.isSameOrBefore(hoje, 'day')) {
-                    data = data.add(1, 'month');
+                let primeiraData = moment().date(dia);
+                if (primeiraData.isSameOrBefore(hoje, 'day')) {
+                    primeiraData = primeiraData.add(1, 'month');
                 }
-    
-                await fetch(`${API_URL}/transactions`, {
-                    method: 'POST',
-                    headers: { 
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        type: 'expense',
-                        amount: valor,
-                        name: desc,
-                        category: 'outros',
-                        date: data.format('YYYY-MM-DD'), // ✅ data correta (ex: 01/03/2026)
-                        due_day: dia,
-                        recurrence_type: 'fixed'
-                    })
-                });
-    
+
+                // Define quantos meses futuros criar (12 é um bom número, ajuste se quiser)
+                const quantidadeMeses = 12;
+
+                for (let i = 0; i < quantidadeMeses; i++) {
+                    const dataTransacao = primeiraData.clone().add(i, 'month');
+
+                    await fetch(`${API_URL}/transactions`, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            type: 'expense',
+                            amount: valor,
+                            name: `${desc} (${i+1}/${quantidadeMeses})`, // opcional: mostra o número da parcela
+                            category: 'outros',
+                            date: dataTransacao.format('YYYY-MM-DD'),
+                            due_day: dia,
+                            recurrence_type: 'fixed'
+                        })
+                    });
+                }
+
                 await carregarTransacoes();
-                return `✅ Despesa recorrente registrada: ${desc} ${formatarMoeda(valor)} todo dia ${dia} (primeiro vencimento: ${data.format('DD/MM/YYYY')})`;
+                return `✅ Despesa recorrente registrada: ${desc} ${formatarMoeda(valor)} todo dia ${dia} – geradas ${quantidadeMeses} parcelas (primeira: ${primeiraData.format('DD/MM/YYYY')}).`;
             }
             // Receita
             const matchRecb = msg.match(/(recebi|deposito)\s+(.+?)\s+(\d+[.,]?\d*)/);
