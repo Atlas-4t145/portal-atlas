@@ -522,7 +522,7 @@
                 return `✅ Compra parcelada: ${desc} ${formatarMoeda(total)} em ${parcelas}x de ${formatarMoeda(valorParcela)}`;
             }
 
-            // FUNC 5: Despesa recorrente (academia 120 todo dia 10) — VERSÃO CORRIGIDA
+            // FUNC 5: Despesa recorrente (academia 120 todo dia 10) — VERSÃO 100% NATIVA
             const matchRecorrente = texto.match(/(.+?)\s+(\d+[.,]?\d*)\s+todo dia\s+(\d+)/);
             if (matchRecorrente) {
                 try {
@@ -530,18 +530,29 @@
                     const desc = matchRecorrente[1].charAt(0).toUpperCase() + matchRecorrente[1].slice(1);
                     const dia = parseInt(matchRecorrente[3]);
 
-                    const hoje = moment();
-                    let primeiraData = moment().date(dia);
-                    if (primeiraData.isSameOrBefore(hoje, 'day')) {
-                        primeiraData = primeiraData.add(1, 'month');
+                    const hoje = new Date();
+                    // Cria a data para o mês atual com o dia escolhido
+                    let primeiraData = new Date(hoje.getFullYear(), hoje.getMonth(), dia);
+
+                    // Se essa data for menor ou igual a hoje, significa que já passou -> vai para o próximo mês
+                    if (primeiraData <= hoje) {
+                        primeiraData = new Date(hoje.getFullYear(), hoje.getMonth() + 1, dia);
                     }
 
-                    const quantidadeMeses = 12; // ou o número desejado
+                    const quantidadeMeses = 12; // pode ajustar
                     const promessas = [];
 
                     for (let i = 0; i < quantidadeMeses; i++) {
-                        const dataTransacao = primeiraData.clone().add(i, 'month');
-                        // Cria a promessa para cada requisição, mas não espera agora
+                        // Cria nova data a partir da primeira, adicionando i meses
+                        const dataTransacao = new Date(primeiraData);
+                        dataTransacao.setMonth(primeiraData.getMonth() + i);
+
+                        // Formata como YYYY-MM-DD
+                        const ano = dataTransacao.getFullYear();
+                        const mes = String(dataTransacao.getMonth() + 1).padStart(2, '0');
+                        const diaFormatado = String(dataTransacao.getDate()).padStart(2, '0');
+                        const dataFormatada = `${ano}-${mes}-${diaFormatado}`;
+
                         promessas.push(
                             fetch(`${API_URL}/transactions`, {
                                 method: 'POST',
@@ -554,30 +565,30 @@
                                     amount: valor,
                                     name: `${desc} (${i+1}/${quantidadeMeses})`,
                                     category: 'outros',
-                                    date: dataTransacao.format('YYYY-MM-DD'),
+                                    date: dataFormatada,
                                     due_day: dia,
                                     recurrence_type: 'fixed'
                                 })
-                            }).then(async (res) => {
+                            }).then(async res => {
                                 if (!res.ok) {
-                                    const errorData = await res.json();
-                                    throw new Error(`Erro ao criar parcela ${i+1}: ${errorData.error || res.statusText}`);
+                                    const err = await res.json();
+                                    throw new Error(err.error || `Erro na parcela ${i+1}`);
                                 }
                                 return res.json();
                             })
                         );
                     }
 
-                    // Executa todas as promessas em paralelo
-                    const resultados = await Promise.all(promessas);
-                    console.log(`✅ ${resultados.length} parcelas criadas com sucesso.`);
+                    await Promise.all(promessas);
+                    await carregarTransacoes();
 
-                    await carregarTransacoes(); // Recarrega as transações
-                    return `✅ Despesa recorrente registrada: ${desc} ${formatarMoeda(valor)} todo dia ${dia} – geradas ${quantidadeMeses} parcelas (primeira: ${primeiraData.format('DD/MM/YYYY')}).`;
+                    // Formata a primeira data para exibição
+                    const primeiraDataStr = primeiraData.toLocaleDateString('pt-BR');
+                    return `✅ Despesa recorrente registrada: ${desc} ${formatarMoeda(valor)} todo dia ${dia} – geradas ${quantidadeMeses} parcelas (primeira: ${primeiraDataStr}).`;
 
                 } catch (error) {
                     console.error('❌ Erro ao processar despesa recorrente:', error);
-                    return `❌ Erro ao registrar despesa recorrente: ${error.message}. Algumas parcelas podem não ter sido criadas.`;
+                    return `❌ Erro ao registrar despesa recorrente: ${error.message}`;
                 }
             }
             // Receita
