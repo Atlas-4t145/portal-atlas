@@ -645,6 +645,8 @@ app.get('/api/test', async (req, res) => {
     }
 });
 
+
+
 // ==================== INICIAR SERVIDOR ====================
 
 const PORT = process.env.PORT || 10000;  // MUDE 3000 PARA 10000
