@@ -2157,9 +2157,12 @@
             modal.style.display = 'flex';
         }
 
+        // ==============================
+        // SALVAR TRANSAÇÃO (COMPLETO)
+        // ==============================
         async function saveTransaction(e) {
             e.preventDefault();
-            
+    
             const id = document.getElementById('transaction-id').value;
             const type = document.getElementById('transaction-type').value;
             const amount = parseFloat(document.getElementById('transaction-amount').value);
@@ -2171,7 +2174,7 @@
             const recurrenceType = document.getElementById('transaction-recurrence-type').value;
             const notes = document.getElementById('transaction-notes').value;
             const autoDebit = document.getElementById('transaction-auto-debit').checked;
-            
+    
             const transactionData = {
                 type: type,
                 amount: amount,
@@ -2183,8 +2186,8 @@
                 notes: notes,
                 auto_debit: autoDebit
             };
-            
-            // Adicionar informações de parcelamento se for parcelada
+    
+            // Se for parcelada, adiciona campos específicos
             if (recurrenceType === 'parceled') {
                 transactionData.current_installment = parseInt(document.getElementById('transaction-current-installment').value) || 1;
                 transactionData.total_installments = parseInt(document.getElementById('transaction-total-installments').value) || 12;
@@ -2192,43 +2195,90 @@
             } else if (recurrenceType === 'fixed') {
                 transactionData.end_date = document.getElementById('transaction-end-date').value || null;
             }
-            
+    
             try {
-                let savedTransaction;
-                
+                // ========== EDIÇÃO (já existe) ==========
                 if (id) {
-                    savedTransaction = await api.updateTransaction(id, transactionData);
-                    
+                    const savedTransaction = await api.updateTransaction(id, transactionData);
                     // Atualizar localmente
                     const index = financialData.transactions.findIndex(t => t.id == id);
                     if (index !== -1) {
                         financialData.transactions[index] = savedTransaction;
                     }
-                } else {
-                    savedTransaction = await api.createTransaction(transactionData);
-                    financialData.transactions.push(savedTransaction);
+            
+                    // Marcar como lida se for débito automático
+                    if (autoDebit && savedTransaction.id) {
+                        await api.markNotificationAsRead(savedTransaction.id);
+                    }
+            
+                    await saveToServer();
+                    updateDashboard();
+                    generateCalendar();
+                    checkAndShowNotifications();
+                    hideTransactionModal();
+                    showToast('Transação atualizada com sucesso!');
+                    return;
                 }
+        
+                // ========== CRIAÇÃO ==========
+                // Se for transação fixa (recorrente mensal), cria múltiplas parcelas
+                if (recurrenceType === 'fixed') {
+                    const quantidadeMeses = 12; // Número de parcelas futuras
+                    const promessas = [];
+            
+                    // Data inicial (a primeira parcela)
+                    let dataAtual = new Date(startDate);
+            
+                    for (let i = 0; i < quantidadeMeses; i++) {
+                        // Calcula a data da parcela (adiciona i meses à data inicial)
+                        const dataParcela = new Date(dataAtual);
+                        dataParcela.setMonth(dataAtual.getMonth() + i);
+                        const dataFormatada = dataParcela.toISOString().split('T')[0];
                 
+                        const parcelaData = {
+                            type: type,
+                            amount: amount,
+                            name: `${name} (${i+1}/${quantidadeMeses})`, // Identificador opcional
+                            category: category,
+                            date: dataFormatada,
+                            due_day: dueDay,
+                            recurrence_type: 'fixed',
+                            notes: notes,
+                            auto_debit: autoDebit
+                        };
+                
+                        promessas.push(
+                            api.createTransaction(parcelaData) // api.createTransaction já faz o POST
+                        );
+                    }
+            
+                    await Promise.all(promessas);
+                    await loadUserData(); // Recarrega os dados do dashboard
+                    hideTransactionModal();
+                    showToast(`${quantidadeMeses} parcelas criadas com sucesso!`);
+                    return;
+                }
+        
+                // ========== CRIAÇÃO DE TRANSAÇÃO NORMAL (não recorrente) ==========
+                const savedTransaction = await api.createTransaction(transactionData);
+                financialData.transactions.push(savedTransaction);
+        
                 // Marcar como lida se for débito automático
                 if (autoDebit && savedTransaction.id) {
                     await api.markNotificationAsRead(savedTransaction.id);
                 }
-                
-                // Salvar configurações
+        
                 await saveToServer();
-                
-                // Atualizar interface
                 updateDashboard();
                 generateCalendar();
                 checkAndShowNotifications();
                 hideTransactionModal();
-                
-                showToast(id ? 'Transação atualizada com sucesso!' : 'Transação salva com sucesso!');
+                showToast('Transação salva com sucesso!');
+        
             } catch (error) {
                 showToast(error.message, 'error');
             }
         }
-
         async function deleteTransaction() {
             if (!editingTransactionId) return;
             
