@@ -1027,34 +1027,33 @@
         document.getElementById('inputMensagem').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') enviarMensagem();
         });
+
+        // ===========================================
+        // API PARA O BOT DO TELEGRAM
+        // ===========================================
+        // Quando o chat.html for carregado com um token especial na URL,
+        // ele processa a mensagem e retorna a resposta via callback
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const telegramToken = urlParams.get('telegram_token');
+        const mensagem = urlParams.get('mensagem');
+        const chatId = urlParams.get('chat_id');
+
+        if (telegramToken === 'SEGREDO_DO_BOT' && mensagem && chatId) {
+            // Processa a mensagem (reaproveita a função existente)
+            (async () => {
+                const resposta = await processarMensagem(mensagem);
+                // Envia a resposta de volta para o bot
+                await fetch(`https://atlas-whatsapp-bot.onrender.com/telegram-resposta`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ chat_id: chatId, resposta })
+                });
+                // Fecha a página
+                window.close();
+            })();
+        }
+
     </script>
-
-    // ===========================================
-    // API PARA O BOT DO TELEGRAM
-    // ===========================================
-    // Quando o chat.html for carregado com um token especial na URL,
-    // ele processa a mensagem e retorna a resposta via callback
-
-    const urlParams = new URLSearchParams(window.location.search);
-    const telegramToken = urlParams.get('telegram_token');
-    const mensagem = urlParams.get('mensagem');
-    const chatId = urlParams.get('chat_id');
-
-    if (telegramToken === 'SEGREDO_DO_BOT' && mensagem && chatId) {
-        // Processa a mensagem (reaproveita a função existente)
-        (async () => {
-            const resposta = await processarMensagem(mensagem);
-            // Envia a resposta de volta para o bot
-            await fetch(`https://atlas-whatsapp-bot.onrender.com/telegram-resposta`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ chat_id: chatId, resposta })
-            });
-            // Fecha a página
-            window.close();
-        })();
-    }
-
-    
 </body>
 </html>
