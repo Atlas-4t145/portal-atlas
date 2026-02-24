@@ -1028,64 +1028,71 @@
             if (e.key === 'Enter') enviarMensagem();
         });
 
-        // ===========================================
-        // API PARA O BOT DO TELEGRAM
-        // ===========================================
-        // Quando o chat.html for carregado com um token especial na URL,
-        // ele processa a mensagem e retorna a resposta via callback
-
-        const urlParams = new URLSearchParams(window.location.search);
-        const telegramToken = urlParams.get('telegram_token');
-        const mensagem = urlParams.get('mensagem');
-        const chatId = urlParams.get('chat_id');
-
-        if (telegramToken === 'SEGREDO_DO_BOT' && mensagem && chatId) {
-            // Processa a mensagem (reaproveita a função existente)
-            (async () => {
-                const resposta = await processarMensagem(mensagem);
-                // Envia a resposta de volta para o bot
-                await fetch(`https://atlas-whatsapp-bot.onrender.com/telegram-resposta`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ chat_id: chatId, resposta })
-                });
-                // Fecha a página
-                window.close();
-            })();
-        }
-
     </script>
-    <script>
+<script>
 // ===========================================
 // ENVIAR RESPOSTA DE VOLTA PRO TELEGRAM
 // ===========================================
 (function() {
     const urlParams = new URLSearchParams(window.location.search);
     const chatId = urlParams.get('chatId');
+    const telefone = urlParams.get('telefone');
+    const senha = urlParams.get('senha');
+    const mensagem = urlParams.get('mensagem');
     
+    // Se tem chatId, veio do Telegram
     if (chatId) {
-        // Observa quando o bot responde
-        const observer = new MutationObserver(() => {
-            const ultimaMsg = document.querySelector('.message.bot:last-child .message-content');
-            if (ultimaMsg) {
-                const resposta = ultimaMsg.textContent;
-                
-                // Manda pro bot do Telegram
-                fetch('https://seu-bot.onrender.com/resposta-telegram', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ chatId, resposta })
-                });
-                
-                observer.disconnect();
-                window.close();
-            }
-        });
+        console.log('📨 Veio do Telegram. Processando...');
         
-        observer.observe(document.getElementById('mensagens'), {
-            childList: true,
-            subtree: true
-        });
+        // Se tiver telefone e senha na URL, preenche e faz login automaticamente
+        if (telefone && senha) {
+            document.getElementById('telefone').value = telefone;
+            document.getElementById('senha').value = senha;
+            
+            // Aguarda um pouco e clica no botão de login
+            setTimeout(() => {
+                document.getElementById('btnLogin').click();
+                
+                // Depois do login, aguarda e digita a mensagem
+                setTimeout(() => {
+                    if (mensagem) {
+                        document.getElementById('inputMensagem').value = mensagem;
+                        document.getElementById('btnEnviar').click();
+                    }
+                }, 2000);
+            }, 1000);
+        }
+        
+        // Observa quando o bot responde
+        setTimeout(() => {
+            const observer = new MutationObserver(() => {
+                const ultimaMsg = document.querySelector('.message.bot:last-child .message-content');
+                if (ultimaMsg) {
+                    const resposta = ultimaMsg.textContent;
+                    
+                    // Manda pro bot do Telegram
+                    fetch('https://atlas-whatsapp-bot-1.onrender.com/resposta-telegram', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ chatId, resposta })
+                    })
+                    .then(() => {
+                        console.log('✅ Resposta enviada');
+                        window.close();
+                    })
+                    .catch(err => {
+                        console.error('❌ Erro ao enviar:', err);
+                    });
+                    
+                    observer.disconnect();
+                }
+            });
+            
+            observer.observe(document.getElementById('mensagens'), {
+                childList: true,
+                subtree: true
+            });
+        }, 3000); // Espera 3 segundos pro chat carregar
     }
 })();
 </script>
