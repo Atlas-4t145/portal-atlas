@@ -1055,5 +1055,39 @@
         }
 
     </script>
+    <script>
+// ===========================================
+// ENVIAR RESPOSTA DE VOLTA PRO TELEGRAM
+// ===========================================
+(function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const chatId = urlParams.get('chatId');
+    
+    if (chatId) {
+        // Observa quando o bot responde
+        const observer = new MutationObserver(() => {
+            const ultimaMsg = document.querySelector('.message.bot:last-child .message-content');
+            if (ultimaMsg) {
+                const resposta = ultimaMsg.textContent;
+                
+                // Manda pro bot do Telegram
+                fetch('https://seu-bot.onrender.com/resposta-telegram', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ chatId, resposta })
+                });
+                
+                observer.disconnect();
+                window.close();
+            }
+        });
+        
+        observer.observe(document.getElementById('mensagens'), {
+            childList: true,
+            subtree: true
+        });
+    }
+})();
+</script>
 </body>
 </html>
