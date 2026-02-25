@@ -404,6 +404,8 @@
             const mesAtual = hoje.getMonth() + 1;
             const anoAtual = hoje.getFullYear();
 
+            
+
             // -----------------------------------------
             // 1-6. REGISTROS (FLEXÍVEL)
             // -----------------------------------------
@@ -430,6 +432,8 @@
                 await carregarTransacoes();
                 return `✅ Despesa registrada: ${desc} ${formatarMoeda(valor)}`;
             }
+
+            
 
             // Despesa com data
             const matchData = msg.match(/(.+?)\s+(\d+[.,]?\d*)\s+(hoje|ontem|amanhã)/);
@@ -988,6 +992,8 @@
             return "❓ *Não entendi*\n\nDigite *ajuda* para ver os comandos disponíveis.";
         }
 
+        window.processarMensagem = processarMensagem;
+
         // ===========================================
         // FUNÇÕES DO CHAT
         // ===========================================
@@ -1031,7 +1037,7 @@
     </script>
 <script>
 // ===========================================
-// ENVIAR RESPOSTA DE VOLTA PRO TELEGRAM
+// ENVIAR RESPOSTA DE VOLTA PRO TELEGRAM - VERSÃO UNIFICADA
 // ===========================================
 (function() {
     const urlParams = new URLSearchParams(window.location.search);
@@ -1039,62 +1045,151 @@
     const telefone = urlParams.get('telefone');
     const senha = urlParams.get('senha');
     const mensagem = urlParams.get('mensagem');
+    const modoResposta = urlParams.get('modo'); // 'direto' ou 'link'
     
     // Se tem chatId, veio do Telegram
     if (chatId) {
-        console.log('📨 Veio do Telegram. Processando...');
+        console.log('📨 Veio do Telegram. Modo:', modoResposta || 'link');
         
-        // Se tiver telefone e senha na URL, preenche e faz login automaticamente
-        if (telefone && senha) {
-            document.getElementById('telefone').value = telefone;
-            document.getElementById('senha').value = senha;
+        // ===== MODO DIRETO (SEM INTERFACE) =====
+        if (modoResposta === 'direto') {
+            console.log('📨 Modo resposta direta ativado');
             
-            // Aguarda um pouco e clica no botão de login
-            setTimeout(() => {
-                document.getElementById('btnLogin').click();
-                
-                // Depois do login, aguarda e digita a mensagem
-                setTimeout(() => {
-                    if (mensagem) {
-                        document.getElementById('inputMensagem').value = mensagem;
-                        document.getElementById('btnEnviar').click();
-                    }
-                }, 2000);
-            }, 1000);
-        }
-        
-        // Observa quando o bot responde
-        setTimeout(() => {
-            const observer = new MutationObserver(() => {
-                const ultimaMsg = document.querySelector('.message.bot:last-child .message-content');
-                if (ultimaMsg) {
-                    const resposta = ultimaMsg.textContent;
-                    
-                    // Manda pro bot do Telegram
-                    fetch('https://atlas-whatsapp-bot-1.onrender.com/resposta-telegram', {
+            // Função para enviar resposta ao Telegram
+            async function enviarResposta(resposta) {
+                try {
+                    const response = await fetch('https://atlas-whatsapp-bot-1.onrender.com/resposta-telegram', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ chatId, resposta })
-                    })
-                    .then(() => {
-                        console.log('✅ Resposta enviada');
-                        window.close();
-                    })
-                    .catch(err => {
-                        console.error('❌ Erro ao enviar:', err);
                     });
                     
-                    observer.disconnect();
+                    if (response.ok) {
+                        console.log('✅ Resposta enviada ao Telegram');
+                    } else {
+                        console.error('❌ Erro ao enviar resposta:', await response.text());
+                    }
+                } catch (err) {
+                    console.error('❌ Erro ao enviar resposta:', err);
                 }
-            });
+            }
             
-            observer.observe(document.getElementById('mensagens'), {
-                childList: true,
-                subtree: true
-            });
-        }, 3000); // Espera 3 segundos pro chat carregar
+            // Função principal - USA as variáveis e funções GLOBAIS
+            async function processarDireto() {
+                // Se tiver telefone e senha, faz login automático
+                if (telefone && senha) {
+                    try {
+                        // Login - usando a função global fazerLogin? Não, faz direto
+                        const loginResponse = await fetch(`${API_URL}/login`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ 
+                                phone: telefone.replace(/\D/g, ''), 
+                                password: senha 
+                            })
+                        });
+                        
+                        if (!loginResponse.ok) {
+                            const error = await loginResponse.json();
+                            throw new Error(error.error || 'Login falhou');
+                        }
+                        
+                        const loginData = await loginResponse.json();
+                        
+                        // Atribuir às variáveis GLOBAIS
+                        window.token = loginData.token;
+                        window.usuario = loginData.user;
+                        
+                        // Carregar transações
+                        const transacoesResponse = await fetch(`${API_URL}/transactions`, {
+                            headers: { 'Authorization': `Bearer ${window.token}` }
+                        });
+                        
+                        if (transacoesResponse.ok) {
+                            window.transacoes = await transacoesResponse.json();
+                        } else {
+                            window.transacoes = [];
+                        }
+                        
+                        // Processar a mensagem - usando a função global processarMensagem
+                        if (typeof window.processarMensagem === 'function') {
+                            const resposta = await window.processarMensagem(mensagem);
+                            await enviarResposta(resposta);
+                        } else {
+                            await enviarResposta("❌ Erro interno: função processarMensagem não encontrada");
+                        }
+                        
+                    } catch (error) {
+                        console.error('❌ Erro no processamento direto:', error);
+                        await enviarResposta(`❌ Erro: ${error.message}\n\nFaça login com: login SEU_TELEFONE SUA_SENHA`);
+                    }
+                } else {
+                    // Sem telefone/senha, pede login
+                    await enviarResposta("🔐 *Para usar o bot, primeiro faça login*\n\nEnvie: *login 5511999999999 sua_senha*");
+                }
+            }
+            
+            // Executar processamento (sem mostrar interface)
+            processarDireto();
+            
+            // Esconder as telas de login/chat
+            document.getElementById('telaLogin').style.display = 'none';
+            document.getElementById('telaChat').style.display = 'none';
+            
+        } else {
+            // ===== MODO LINK (COM INTERFACE) =====
+            console.log('📨 Modo link ativado');
+            
+            // Se tiver telefone e senha na URL, preenche e faz login automático
+            if (telefone && senha) {
+                document.getElementById('telefone').value = telefone;
+                document.getElementById('senha').value = senha;
+                
+                // Aguarda um pouco e clica no botão de login
+                setTimeout(() => {
+                    document.getElementById('btnLogin').click();
+                    
+                    // Depois do login, aguarda e digita a mensagem
+                    setTimeout(() => {
+                        if (mensagem) {
+                            document.getElementById('inputMensagem').value = mensagem;
+                            document.getElementById('btnEnviar').click();
+                        }
+                    }, 2000);
+                }, 1000);
+            }
+            
+            // Observa quando o bot responde
+            setTimeout(() => {
+                const observer = new MutationObserver(() => {
+                    const ultimaMsg = document.querySelector('.message.bot:last-child .message-content');
+                    if (ultimaMsg) {
+                        const resposta = ultimaMsg.textContent;
+                        
+                        // Manda pro bot do Telegram
+                        fetch('https://atlas-whatsapp-bot-1.onrender.com/resposta-telegram', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ chatId, resposta })
+                        })
+                        .then(() => {
+                            console.log('✅ Resposta enviada');
+                            window.close();
+                        })
+                        .catch(err => {
+                            console.error('❌ Erro ao enviar:', err);
+                        });
+                        
+                        observer.disconnect();
+                    }
+                });
+                
+                observer.observe(document.getElementById('mensagens'), {
+                    childList: true,
+                    subtree: true
+                });
+            }, 3000);
+        }
     }
 })();
 </script>
-</body>
-</html>
