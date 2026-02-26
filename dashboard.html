@@ -2442,29 +2442,49 @@
         }
 
         function getTransactionsForMonth(year, month) {
+            console.log('🎯 FILTRANDO MÊS:', month + 1, year);
+    
             return financialData.transactions.filter(t => {
-                // Se for conta recorrente fixa (todo dia X)
+                // Mostra todas as transações sendo avaliadas
+                console.log('📌 Analisando:', t.name, '| data:', t.date, '| due_day:', t.due_day, '| recurrence:', t.recurrence_type);
+        
+                // Data da transação
+                const transactionDate = new Date(t.date);
+                const mesTransacao = transactionDate.getMonth();
+                const anoTransacao = transactionDate.getFullYear();
+        
+                // CASO 1: Conta recorrente "todo dia X"
                 if (t.recurrence_type === 'fixed' && t.due_day) {
-                    // Data da primeira parcela
-                    const dataPrimeiraParcela = new Date(t.date);
+                    console.log('🔄 É conta recorrente! due_day =', t.due_day);
             
-                    // Cria data de vencimento para o mês atual
-                    const dataVencimento = new Date(year, month, t.due_day);
+                    // Data da primeira parcela
+                    const primeiraParcela = new Date(t.date);
+            
+                    // Data de vencimento no mês atual
+                    const vencimentoEsteMes = new Date(year, month, t.due_day);
+            
+                    console.log('📅 primeira parcela:', primeiraParcela.toLocaleDateString());
+                    console.log('📅 vencimento este mês:', vencimentoEsteMes.toLocaleDateString());
             
                     // Só mostra se a primeira parcela já passou ou é este mês
-                    // E se o mês/ano do vencimento bater com o filtro
-                    return dataPrimeiraParcela <= dataVencimento && 
-                           dataVencimento.getMonth() === month && 
-                           dataVencimento.getFullYear() === year;
-                } else {
-                    // Transações normais: usa a data normal
-                    const transactionDate = new Date(t.date);
-                    return transactionDate.getMonth() === month && 
-                           transactionDate.getFullYear() === year;
+                    // E se o vencimento bate com o mês filtrado
+                    const incluir = primeiraParcela <= vencimentoEsteMes && 
+                                   vencimentoEsteMes.getMonth() === month && 
+                                   vencimentoEsteMes.getFullYear() === year;
+            
+                    console.log(incluir ? '✅ INCLUIR' : '❌ EXCLUIR');
+                    return incluir;
+                } 
+                // CASO 2: Transação normal
+                else {
+                    console.log('📄 Transação normal');
+                    const incluir = mesTransacao === month && anoTransacao === year;
+                    console.log(incluir ? '✅ INCLUIR' : '❌ EXCLUIR');
+                    return incluir;
                 }
             });
         }
-
+        
         function formatCurrency(value) {
             return new Intl.NumberFormat('pt-BR', {
                 style: 'currency',
