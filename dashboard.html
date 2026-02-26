@@ -2197,20 +2197,71 @@
             }
     
             try {
-                // ========== EDIÇÃO (já existe) ==========
+                // ========== EDIÇÃO ==========
                 if (id) {
+                    // Verifica se é uma transação recorrente/parcelada
+                    const transactionOriginal = financialData.transactions.find(t => t.id == id);
+                    const isRecurrente = transactionOriginal?.recurrence_type && 
+                                        transactionOriginal?.recurrence_type !== 'none';
+    
+                    // Se for recorrente e a categoria foi alterada
+                    if (isRecurrente && transactionOriginal.category !== category) {
+                        if (confirm(`Esta conta faz parte de um grupo de transações recorrentes.\n\nDeseja aplicar a categoria "${getCategoryName(category)}" em TODAS as parcelas deste grupo?`)) {
+            
+                            // Extrair nome base (remove (X/Y) do final)
+                            const nomeBaseOriginal = transactionOriginal.name.replace(/\s*\(\d+\/\d+\)\s*$/, '').trim();
+            
+                            // Buscar TODAS as transações do grupo
+                            const transacoesGrupo = financialData.transactions.filter(t => {
+                                // Mesma recorrência
+                                if (t.recurrence_type !== transactionOriginal.recurrence_type) return false;
+                
+                                // Mesmo nome base
+                                const nomeBaseAtual = t.name.replace(/\s*\(\d+\/\d+\)\s*$/, '').trim();
+                
+                                return nomeBaseOriginal === nomeBaseAtual && 
+                                       Math.abs(t.amount - transactionOriginal.amount) < 0.01 && // mesmo valor
+                                       t.due_day === transactionOriginal.due_day; // mesmo dia de vencimento
+                            });
+            
+                            console.log(`🔄 Replicando categoria para ${transacoesGrupo.length} transações do grupo`);
+                    
+                            // Mostrar toast de progresso
+                            showToast(`Alterando categoria de ${transacoesGrupo.length} transações...`, 'info');
+            
+                            // Atualizar todas do grupo
+                            const promises = transacoesGrupo.map(t => 
+                                api.updateTransaction(t.id, {
+                                    ...t,
+                                    category: category
+                                })
+                            );
+            
+                            await Promise.all(promises);
+            
+                            // Recarregar dados
+                            await loadUserData();
+            
+                            showToast(`✅ Categoria alterada em ${transacoesGrupo.length} transações!`);
+                            hideTransactionModal();
+                            return;
+                        }
+                    }
+    
+                    // Se não for recorrente ou usuário optou por não replicar
                     const savedTransaction = await api.updateTransaction(id, transactionData);
+    
                     // Atualizar localmente
                     const index = financialData.transactions.findIndex(t => t.id == id);
                     if (index !== -1) {
                         financialData.transactions[index] = savedTransaction;
                     }
-            
+
                     // Marcar como lida se for débito automático
                     if (autoDebit && savedTransaction.id) {
                         await api.markNotificationAsRead(savedTransaction.id);
                     }
-            
+
                     await saveToServer();
                     updateDashboard();
                     generateCalendar();
@@ -3432,6 +3483,12 @@ function cancelarForm() {
 }
 </script>
     <script src="/chat-widget.js"></script>
+    <script>
+    // Função para extrair nome base (já existe, mas vou reforçar)
+    function getNomeBase(nome) {
+        return nome.replace(/\s*\(\d+\/\d+\)\s*$/, '').trim();
+    }
+    </script>
 
 </body>
 </html>
