@@ -2443,9 +2443,25 @@
 
         function getTransactionsForMonth(year, month) {
             return financialData.transactions.filter(t => {
-                const transactionDate = new Date(t.date);
-                return transactionDate.getMonth() === month && 
-                       transactionDate.getFullYear() === year;
+                // Se for conta recorrente fixa (todo dia X)
+                if (t.recurrence_type === 'fixed' && t.due_day) {
+                    // Data da primeira parcela
+                    const dataPrimeiraParcela = new Date(t.date);
+            
+                    // Cria data de vencimento para o mês atual
+                    const dataVencimento = new Date(year, month, t.due_day);
+            
+                    // Só mostra se a primeira parcela já passou ou é este mês
+                    // E se o mês/ano do vencimento bater com o filtro
+                    return dataPrimeiraParcela <= dataVencimento && 
+                           dataVencimento.getMonth() === month && 
+                           dataVencimento.getFullYear() === year;
+                } else {
+                    // Transações normais: usa a data normal
+                    const transactionDate = new Date(t.date);
+                    return transactionDate.getMonth() === month && 
+                           transactionDate.getFullYear() === year;
+                }
             });
         }
 
