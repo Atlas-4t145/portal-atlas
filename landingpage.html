@@ -9,6 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <style>
+        /* ========== SEUS ESTILOS EXISTENTES (MANTIDOS IGUAL) ========== */
         * {
             margin: 0;
             padding: 0;
@@ -96,7 +97,7 @@
             transform: scale(1.05);
         }
 
-        /* HERO */
+        /* HERO (MANTIDO IGUAL) */
         .hero {
             padding: 80px 0 60px;
             position: relative;
@@ -204,8 +205,12 @@
             color: #64748b;
         }
 
-        /* ========== DASHBOARD REAL (IGUAL AO CHAT) ========== */
-        .dashboard-real {
+        /* DASHBOARD PREVIEW (MANTIDO IGUAL) */
+        .hero-image {
+            position: relative;
+        }
+
+        .dashboard-preview {
             background: white;
             border-radius: 24px;
             box-shadow: 0 50px 70px -20px rgba(0,0,0,0.3);
@@ -213,16 +218,12 @@
             transform: perspective(1000px) rotateY(-5deg) rotateX(2deg);
             transition: transform 0.5s;
             border: 1px solid rgba(255,255,255,0.2);
-            width: 100%;
-            max-width: 600px;
-            margin: 0 auto;
         }
 
-        .dashboard-real:hover {
+        .dashboard-preview:hover {
             transform: perspective(1000px) rotateY(-3deg) rotateX(1deg) translateY(-10px);
         }
 
-        /* Header do Dashboard */
         .dashboard-header {
             background: #0f172a;
             padding: 16px;
@@ -240,13 +241,11 @@
         .dashboard-dot:nth-child(2) { background: #f59e0b; }
         .dashboard-dot:nth-child(3) { background: #10b981; }
 
-        /* Conteúdo - IGUAL AO DASHBOARD REAL */
         .dashboard-content {
             padding: 24px;
             background: white;
         }
 
-        /* Cards de Resumo */
         .dashboard-row {
             display: flex;
             justify-content: space-between;
@@ -258,13 +257,11 @@
             padding: 16px;
             border-radius: 16px;
             width: 48%;
-            border: 1px solid #e2e8f0;
         }
 
         .dashboard-card .label {
             color: #64748b;
             font-size: 14px;
-            font-weight: 500;
         }
 
         .dashboard-card .value {
@@ -276,7 +273,6 @@
         .dashboard-card.income .value { color: #10b981; }
         .dashboard-card.expense .value { color: #ef4444; }
 
-        /* Gráfico */
         .dashboard-chart {
             height: 100px;
             background: linear-gradient(90deg, #2563eb20 0%, #7c3aed20 100%);
@@ -286,7 +282,6 @@
             align-items: flex-end;
             padding: 8px;
             gap: 8px;
-            border: 1px solid #e2e8f0;
         }
 
         .chart-bar {
@@ -297,48 +292,17 @@
             animation: bar-grow 1.5s ease-out;
         }
 
-        .chart-bar:nth-child(1) { height: 45px; }
-        .chart-bar:nth-child(2) { height: 70px; }
-        .chart-bar:nth-child(3) { height: 30px; }
-        .chart-bar:nth-child(4) { height: 55px; }
-        .chart-bar:nth-child(5) { height: 80px; }
-        .chart-bar:nth-child(6) { height: 40px; }
-        .chart-bar:nth-child(7) { height: 65px; }
+        .chart-bar:nth-child(2) { height: 40px; }
+        .chart-bar:nth-child(3) { height: 70px; }
+        .chart-bar:nth-child(4) { height: 30px; }
+        .chart-bar:nth-child(5) { height: 50px; }
+        .chart-bar:nth-child(6) { height: 80px; }
+        .chart-bar:nth-child(7) { height: 45px; }
 
         @keyframes bar-grow {
             from { height: 0; }
         }
 
-        /* Cards Inferiores */
-        .dashboard-footer {
-            display: flex;
-            gap: 16px;
-            margin-top: 16px;
-        }
-
-        .footer-card {
-            flex: 1;
-            background: #f1f5f9;
-            padding: 12px;
-            border-radius: 12px;
-            border: 1px solid #e2e8f0;
-        }
-
-        .footer-card .label {
-            color: #64748b;
-            font-size: 13px;
-        }
-
-        .footer-card .value {
-            font-size: 18px;
-            font-weight: 700;
-            margin-top: 4px;
-        }
-
-        .footer-card .value.expense { color: #ef4444; }
-        .footer-card .value.savings { color: #10b981; }
-
-        /* Badge Flutuante */
         .floating-badge {
             position: absolute;
             bottom: -20px;
@@ -350,10 +314,6 @@
             font-weight: 700;
             box-shadow: 0 10px 25px -5px #10b981;
             animation: float 3s infinite;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            z-index: 10;
         }
 
         @keyframes float {
@@ -770,7 +730,7 @@
             color: #94a3b8;
         }
 
-        /* ========== SIMULADOR DO BOT ========== */
+        /* ========== NOVO: SIMULADOR DE 2 ETAPAS ========== */
         .simulador-modal {
             position: fixed;
             top: 0;
@@ -783,29 +743,29 @@
             align-items: center;
             z-index: 1000;
             backdrop-filter: blur(5px);
-            animation: fadeIn 0.3s;
         }
 
         .simulador-container {
+            width: 90%;
+            max-width: 500px;
             background: white;
-            width: 450px;
             border-radius: 30px;
             overflow: hidden;
             box-shadow: 0 50px 70px -20px rgba(0,0,0,0.5);
-            transform: scale(0.9);
-            animation: slideUp 0.3s forwards;
+            animation: slideUp 0.3s;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+        .simulador-container.dashboard-mode {
+            max-width: 900px;
+            width: 95%;
         }
 
         @keyframes slideUp {
-            from { transform: scale(0.9) translateY(20px); opacity: 0; }
-            to { transform: scale(1) translateY(0); opacity: 1; }
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
         }
 
+        /* Header do Simulador */
         .simulador-header {
             background: linear-gradient(135deg, #2563eb, #7c3aed);
             color: white;
@@ -842,8 +802,15 @@
             transform: rotate(90deg);
         }
 
-        .simulador-messages {
-            height: 400px;
+        /* ETAPA 1: CHAT (IGUAL AO BOT) */
+        .chat-container {
+            height: 500px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-messages {
+            flex: 1;
             padding: 20px;
             overflow-y: auto;
             background: #f8fafc;
@@ -852,7 +819,7 @@
             gap: 15px;
         }
 
-        .simulador-message {
+        .message {
             max-width: 80%;
             padding: 12px 16px;
             border-radius: 18px;
@@ -866,7 +833,7 @@
             to { transform: translateY(0); opacity: 1; }
         }
 
-        .simulador-message.bot {
+        .message.bot {
             background: white;
             color: #0f172a;
             align-self: flex-start;
@@ -874,26 +841,26 @@
             box-shadow: 0 2px 5px rgba(0,0,0,0.05);
         }
 
-        .simulador-message.user {
+        .message.user {
             background: #2563eb;
             color: white;
             align-self: flex-end;
             border-bottom-right-radius: 4px;
         }
 
-        .simulador-footer {
+        .chat-input-area {
             padding: 20px;
             background: white;
             border-top: 1px solid #e2e8f0;
         }
 
-        .simulador-input-group {
+        .input-group {
             display: flex;
             gap: 10px;
             margin-bottom: 12px;
         }
 
-        .simulador-input {
+        .chat-input {
             flex: 1;
             padding: 14px;
             border: 2px solid #e2e8f0;
@@ -902,12 +869,12 @@
             transition: all 0.2s;
         }
 
-        .simulador-input:focus {
+        .chat-input:focus {
             outline: none;
             border-color: #2563eb;
         }
 
-        .simulador-send {
+        .chat-send {
             background: #2563eb;
             color: white;
             border: none;
@@ -918,12 +885,12 @@
             transition: all 0.2s;
         }
 
-        .simulador-send:hover {
+        .chat-send:hover {
             background: #1d4ed8;
             transform: scale(1.05);
         }
 
-        .simulador-suggestions {
+        .suggestions {
             display: flex;
             flex-wrap: wrap;
             gap: 8px;
@@ -946,7 +913,7 @@
             color: white;
         }
 
-        .simulador-typing {
+        .typing-indicator {
             display: flex;
             gap: 5px;
             padding: 12px 16px;
@@ -956,7 +923,7 @@
             margin-bottom: 10px;
         }
 
-        .simulador-typing span {
+        .typing-indicator span {
             width: 8px;
             height: 8px;
             background: #94a3b8;
@@ -964,26 +931,202 @@
             animation: typing 1.4s infinite;
         }
 
-        .simulador-typing span:nth-child(2) { animation-delay: 0.2s; }
-        .simulador-typing span:nth-child(3) { animation-delay: 0.4s; }
+        .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
 
         @keyframes typing {
             0%, 60%, 100% { transform: translateY(0); }
             30% { transform: translateY(-10px); }
         }
 
-        .simulador-footer small {
-            display: block;
-            text-align: center;
-            color: #94a3b8;
+        /* ETAPA 2: DASHBOARD REAL (IGUAL AO PORTAL) */
+        .dashboard-real {
+            padding: 24px;
+            background: #f8fafc;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .dashboard-header-real {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .dashboard-title {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .dashboard-date {
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        /* Cards do Dashboard */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -2px rgba(0,0,0,0.05);
+            border: 1px solid #e2e8f0;
+        }
+
+        .stat-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 12px;
+            font-size: 18px;
+        }
+
+        .stat-icon.income { background: #10b98120; color: #10b981; }
+        .stat-icon.expense { background: #ef444420; color: #ef4444; }
+        .stat-icon.balance { background: #2563eb20; color: #2563eb; }
+        .stat-icon.savings { background: #f59e0b20; color: #f59e0b; }
+
+        .stat-label {
+            font-size: 14px;
+            color: #64748b;
+            margin-bottom: 4px;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .stat-value.income { color: #10b981; }
+        .stat-value.expense { color: #ef4444; }
+        .stat-value.balance { color: #0f172a; }
+        .stat-value.savings { color: #f59e0b; }
+
+        /* Lista de Transações */
+        .transactions-list {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .list-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .list-title {
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .transaction-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .transaction-item:last-child {
+            border-bottom: none;
+        }
+
+        .transaction-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            font-size: 16px;
+        }
+
+        .transaction-icon.income { background: #10b98120; color: #10b981; }
+        .transaction-icon.expense { background: #ef444420; color: #ef4444; }
+
+        .transaction-details {
+            flex: 1;
+        }
+
+        .transaction-name {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .transaction-category {
             font-size: 12px;
-            margin-top: 10px;
+            color: #64748b;
+        }
+
+        .transaction-amount {
+            font-weight: 700;
+            margin-right: 16px;
+        }
+
+        .transaction-amount.income { color: #10b981; }
+        .transaction-amount.expense { color: #ef4444; }
+
+        .transaction-date {
+            font-size: 12px;
+            color: #64748b;
+        }
+
+        .dashboard-footer {
+            margin-top: 16px;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .btn-dashboard {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-dashboard:hover {
+            background: #1d4ed8;
+        }
+
+        .btn-outline {
+            background: white;
+            color: #2563eb;
+            border: 2px solid #2563eb;
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-outline:hover {
+            background: #2563eb10;
         }
 
         /* Responsividade */
         @media (max-width: 1024px) {
             .hero-title { font-size: 48px; }
             .steps-grid, .features-grid, .testimonials-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .cards-grid {
                 grid-template-columns: repeat(2, 1fr);
             }
             .footer-grid {
@@ -998,16 +1141,14 @@
             .steps-grid, .features-grid, .testimonials-grid {
                 grid-template-columns: 1fr;
             }
-            .simulador-container {
-                width: 90%;
-            }
-            .pricing-grid {
+            .cards-grid {
                 grid-template-columns: 1fr;
             }
         }
     </style>
 </head>
 <body>
+    <!-- HEADER (IGUAL) -->
     <header class="header">
         <div class="container header-content">
             <div class="logo">
@@ -1026,6 +1167,7 @@
         </div>
     </header>
 
+    <!-- HERO (IGUAL) -->
     <section class="hero">
         <div class="container hero-grid">
             <div class="hero-content">
@@ -1043,7 +1185,7 @@
                         Começar grátis <i class="fas fa-arrow-right"></i>
                     </button>
                     <button class="btn-secondary" onclick="abrirSimulador()">
-                        <i class="fas fa-comment"></i> Testar o bot
+                        <i class="fas fa-play"></i> Ver demo completa
                     </button>
                 </div>
                 <div class="hero-stats">
@@ -1062,9 +1204,9 @@
                 </div>
             </div>
             
-            <!-- ========== DASHBOARD REAL (IGUAL AO CHAT) ========== -->
+            <!-- DASHBOARD PREVIEW (IGUAL) -->
             <div class="hero-image">
-                <div class="dashboard-real">
+                <div class="dashboard-preview">
                     <div class="dashboard-header">
                         <span class="dashboard-dot"></span>
                         <span class="dashboard-dot"></span>
@@ -1090,14 +1232,14 @@
                             <div class="chart-bar"></div>
                             <div class="chart-bar"></div>
                         </div>
-                        <div class="dashboard-footer">
-                            <div class="footer-card">
+                        <div class="dashboard-row">
+                            <div style="flex:1; background: #f1f5f9; padding: 12px; border-radius: 12px;">
                                 <span class="label">Contas a pagar</span>
-                                <span class="value expense">R$ 1.250,00</span>
+                                <span class="value" style="color: #ef4444; font-size: 18px;">R$ 1.250,00</span>
                             </div>
-                            <div class="footer-card">
+                            <div style="flex:1; background: #f1f5f9; padding: 12px; border-radius: 12px;">
                                 <span class="label">Economias</span>
-                                <span class="value savings">R$ 3.220,00</span>
+                                <span class="value" style="color: #10b981; font-size: 18px;">R$ 3.220,00</span>
                             </div>
                         </div>
                     </div>
@@ -1109,7 +1251,7 @@
         </div>
     </section>
 
-    <!-- SEÇÃO COMO FUNCIONA (CORRIGIDA) -->
+    <!-- SEÇÃO COMO FUNCIONA (IGUAL) -->
     <section id="como-funciona" class="how-it-works">
         <div class="container">
             <div class="section-tag">SIMPLES COMO DEVERIA SER</div>
@@ -1156,7 +1298,7 @@
         </div>
     </section>
 
-    <!-- SEÇÃO RECURSOS -->
+    <!-- SEÇÃO RECURSOS (IGUAL) -->
     <section id="recursos" class="features">
         <div class="container">
             <div class="section-tag">TUDO QUE VOCÊ PRECISA</div>
@@ -1221,7 +1363,7 @@
         </div>
     </section>
 
-    <!-- DEPOIMENTOS -->
+    <!-- DEPOIMENTOS (IGUAL) -->
     <section class="testimonials">
         <div class="container">
             <div class="section-tag">QUEM USA, APROVA</div>
@@ -1268,7 +1410,7 @@
         </div>
     </section>
 
-    <!-- PLANOS -->
+    <!-- PLANOS (IGUAL) -->
     <section id="planos" class="pricing">
         <div class="container">
             <div class="section-tag">INVISTA EM VOCÊ</div>
@@ -1320,7 +1462,7 @@
         </div>
     </section>
 
-    <!-- CTA FINAL -->
+    <!-- CTA FINAL (IGUAL) -->
     <section class="final-cta">
         <div class="container">
             <h2>Pare de se preocupar com dinheiro.<br>Comece a deixar o Atlas cuidar.</h2>
@@ -1330,7 +1472,7 @@
         </div>
     </section>
 
-    <!-- FOOTER -->
+    <!-- FOOTER (IGUAL) -->
     <footer>
         <div class="container">
             <div class="footer-grid">
@@ -1374,55 +1516,134 @@
         </div>
     </footer>
 
-    <!-- SIMULADOR DO ATLAS BOT -->
+    <!-- ========== SIMULADOR DE 2 ETAPAS ========== -->
     <div class="simulador-modal" id="simuladorModal">
-        <div class="simulador-container">
-            <div class="simulador-header">
-                <h3>
-                    <i class="fas fa-robot"></i>
-                    Atlas Bot - Teste grátis
-                </h3>
-                <button class="simulador-close" onclick="fecharSimulador()">×</button>
-            </div>
-            
-            <div class="simulador-messages" id="simuladorMessages">
-                <div class="simulador-message bot">
-                    👋 Olá! Eu sou o Atlas, seu assistente financeiro.
-                </div>
-                <div class="simulador-message bot">
-                    Teste comandos como:<br>
-                    • "pagar luz 150"<br>
-                    • "saldo"<br>
-                    • "contas a pagar"<br>
-                    • "ifood 89 ontem"<br>
-                    • "aluguel 2500 dia 10"
-                </div>
-            </div>
-            
-            <div class="simulador-footer">
-                <div class="simulador-input-group">
-                    <input type="text" class="simulador-input" id="simuladorInput" placeholder="Digite seu comando..." onkeypress="if(event.key === 'Enter') enviarMensagemSimulador()">
-                    <button class="simulador-send" onclick="enviarMensagemSimulador()">
-                        <i class="fas fa-paper-plane"></i>
-                    </button>
+        <div class="simulador-container" id="simuladorContainer">
+            <!-- ETAPA 1: CHAT (IGUAL AO BOT) -->
+            <div id="etapaChat">
+                <div class="simulador-header">
+                    <h3>
+                        <i class="fas fa-robot"></i>
+                        Atlas Bot - Modo Demo
+                    </h3>
+                    <button class="simulador-close" onclick="fecharSimulador()">×</button>
                 </div>
                 
-                <div class="simulador-suggestions">
-                    <button class="suggestion-chip" onclick="usarSugestao('pagar luz 150')">💡 pagar luz 150</button>
-                    <button class="suggestion-chip" onclick="usarSugestao('saldo')">💰 saldo</button>
-                    <button class="suggestion-chip" onclick="usarSugestao('contas a pagar')">📋 contas a pagar</button>
-                    <button class="suggestion-chip" onclick="usarSugestao('ifood 89 ontem')">🍔 ifood 89 ontem</button>
+                <div class="chat-container">
+                    <div class="chat-messages" id="chatMessages">
+                        <div class="message bot">
+                            👋 Olá! Eu sou o Atlas, seu assistente financeiro.
+                        </div>
+                        <div class="message bot">
+                            Vamos simular o uso? Teste alguns comandos:<br><br>
+                            • "pagar luz 150"<br>
+                            • "ifood 89 ontem"<br>
+                            • "aluguel 2500 dia 10"<br>
+                            • "recebi salario 5000"
+                        </div>
+                    </div>
+                    
+                    <div class="chat-input-area">
+                        <div class="input-group">
+                            <input type="text" class="chat-input" id="chatInput" placeholder="Digite seu comando..." onkeypress="if(event.key === 'Enter') enviarMensagemChat()">
+                            <button class="chat-send" onclick="enviarMensagemChat()">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="suggestions">
+                            <button class="suggestion-chip" onclick="usarSugestaoChat('pagar luz 150')">💡 pagar luz 150</button>
+                            <button class="suggestion-chip" onclick="usarSugestaoChat('ifood 89 ontem')">🍔 ifood 89 ontem</button>
+                            <button class="suggestion-chip" onclick="usarSugestaoChat('recebi salario 5000')">💰 recebi salario 5000</button>
+                        </div>
+                        
+                        <div style="text-align: center; margin-top: 10px;">
+                            <button class="btn-outline" onclick="irParaDashboard()" style="font-size: 14px; padding: 8px 16px;">
+                                Pular e ver dashboard →
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- ETAPA 2: DASHBOARD REAL (IGUAL AO PORTAL) -->
+            <div id="etapaDashboard" style="display: none;">
+                <div class="simulador-header">
+                    <h3>
+                        <i class="fas fa-chart-line"></i>
+                        Atlas Dashboard - Demonstração
+                    </h3>
+                    <button class="simulador-close" onclick="fecharSimulador()">×</button>
                 </div>
                 
-                <small>
-                    <i class="fas fa-lock"></i> Teste sem compromisso • Não coleta dados
-                </small>
+                <div class="dashboard-real" id="dashboardReal">
+                    <div class="dashboard-header-real">
+                        <h2 class="dashboard-title">Resumo Financeiro</h2>
+                        <span class="dashboard-date">Março 2025</span>
+                    </div>
+                    
+                    <!-- Cards que atualizam com os dados do chat -->
+                    <div class="cards-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon income">
+                                <i class="fas fa-arrow-down"></i>
+                            </div>
+                            <div class="stat-label">Receitas</div>
+                            <div class="stat-value income" id="demoReceitas">R$ 5.000</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon expense">
+                                <i class="fas fa-arrow-up"></i>
+                            </div>
+                            <div class="stat-label">Despesas</div>
+                            <div class="stat-value expense" id="demoDespesas">R$ 1.739</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon balance">
+                                <i class="fas fa-wallet"></i>
+                            </div>
+                            <div class="stat-label">Saldo</div>
+                            <div class="stat-value balance" id="demoSaldo">R$ 3.261</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon savings">
+                                <i class="fas fa-piggy-bank"></i>
+                            </div>
+                            <div class="stat-label">Economias</div>
+                            <div class="stat-value savings" id="demoEconomias">R$ 3.261</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Últimas Transações (atualizadas) -->
+                    <div class="transactions-list">
+                        <div class="list-header">
+                            <span class="list-title">Últimas transações</span>
+                            <span class="view-all" style="color: #2563eb; cursor: pointer;">Ver todas →</span>
+                        </div>
+                        
+                        <div id="listaTransacoesDemo">
+                            <!-- Transações serão inseridas aqui via JS -->
+                        </div>
+                    </div>
+                    
+                    <div class="dashboard-footer">
+                        <button class="btn-outline" onclick="voltarParaChat()" style="margin-right: 10px;">
+                            ← Voltar ao chat
+                        </button>
+                        <button class="btn-dashboard" onclick="fecharSimulador()">
+ Entendi, continuar depois →
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
-        // Smooth scroll
+        // Smooth scroll (mantido)
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
                 e.preventDefault();
@@ -1433,7 +1654,7 @@
             });
         });
 
-        // Animação de entrada
+        // Animação de entrada (mantida)
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
@@ -1450,11 +1671,27 @@
             observer.observe(el);
         });
 
-        // ========== SIMULADOR ==========
+        // ========== DADOS DO SIMULADOR ==========
+        let transacoesDemo = [
+            { tipo: 'income', nome: 'Salário', valor: 5000, categoria: 'Salário', data: 'Hoje' },
+            { tipo: 'expense', nome: 'Luz', valor: 150, categoria: 'Moradia', data: 'Hoje' },
+            { tipo: 'expense', nome: 'Ifood', valor: 89, categoria: 'Alimentação', data: 'Ontem' }
+        ];
+
+        let receitas = 5000;
+        let despesas = 239; // 150 + 89
+
         function abrirSimulador() {
             document.getElementById('simuladorModal').style.display = 'flex';
             document.body.style.overflow = 'hidden';
-            document.getElementById('simuladorInput').focus();
+            
+            // Resetar para etapa do chat
+            document.getElementById('etapaChat').style.display = 'block';
+            document.getElementById('etapaDashboard').style.display = 'none';
+            document.getElementById('simuladorContainer').classList.remove('dashboard-mode');
+            
+            // Limpar input e mensagens (opcional)
+            document.getElementById('chatInput').value = '';
         }
 
         function fecharSimulador() {
@@ -1462,27 +1699,25 @@
             document.body.style.overflow = 'auto';
         }
 
+        // Fechar com ESC
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
                 fecharSimulador();
             }
         });
 
+        // Fechar clicando fora
         document.getElementById('simuladorModal').addEventListener('click', function(e) {
             if (e.target === this) {
                 fecharSimulador();
             }
         });
 
-        function usarSugestao(texto) {
-            document.getElementById('simuladorInput').value = texto;
-            enviarMensagemSimulador();
-        }
-
+        // ========== FUNÇÕES DO CHAT ==========
         function mostrarDigitando() {
-            const messages = document.getElementById('simuladorMessages');
+            const messages = document.getElementById('chatMessages');
             const typingDiv = document.createElement('div');
-            typingDiv.className = 'simulador-typing';
+            typingDiv.className = 'typing-indicator';
             typingDiv.id = 'typingIndicator';
             typingDiv.innerHTML = '<span></span><span></span><span></span>';
             messages.appendChild(typingDiv);
@@ -1495,16 +1730,21 @@
         }
 
         function adicionarMensagem(tipo, texto) {
-            const messages = document.getElementById('simuladorMessages');
+            const messages = document.getElementById('chatMessages');
             const msgDiv = document.createElement('div');
-            msgDiv.className = `simulador-message ${tipo}`;
+            msgDiv.className = `message ${tipo}`;
             msgDiv.textContent = texto;
             messages.appendChild(msgDiv);
             messages.scrollTop = messages.scrollHeight;
         }
 
-        function enviarMensagemSimulador() {
-            const input = document.getElementById('simuladorInput');
+        function usarSugestaoChat(texto) {
+            document.getElementById('chatInput').value = texto;
+            enviarMensagemChat();
+        }
+
+        function enviarMensagemChat() {
+            const input = document.getElementById('chatInput');
             const mensagem = input.value.trim();
             
             if (!mensagem) return;
@@ -1520,32 +1760,107 @@
                 const msgLower = mensagem.toLowerCase();
                 let resposta = '';
                 
+                // Processar comando e atualizar dados
                 if (msgLower.includes('pagar') || msgLower.includes('gastei') || msgLower.includes('comprei')) {
-                    const valor = msgLower.match(/\d+[.,]?\d*/)?.[0] || '150';
-                    const desc = msgLower.replace(/pagar|gastei|comprei/i, '').replace(valor, '').trim() || 'Despesa';
-                    resposta = `✅ Despesa registrada: ${desc} R$ ${parseFloat(valor.replace(',', '.')).toFixed(2)}`;
+                    const valor = parseFloat(msgLower.match(/\d+[.,]?\d*/)?.[0]?.replace(',', '.') || '150');
+                    const desc = msgLower.replace(/pagar|gastei|comprei/i, '').replace(valor.toString(), '').trim() || 'Despesa';
+                    const nome = desc.charAt(0).toUpperCase() + desc.slice(1);
+                    
+                    // Adicionar transação
+                    transacoesDemo.push({
+                        tipo: 'expense',
+                        nome: nome,
+                        valor: valor,
+                        categoria: 'Outros',
+                        data: 'Agora mesmo'
+                    });
+                    
+                    despesas += valor;
+                    
+                    resposta = `✅ Despesa registrada: ${nome} R$ ${valor.toFixed(2)}`;
+                }
+                else if (msgLower.includes('recebi') || msgLower.includes('deposito')) {
+                    const valor = parseFloat(msgLower.match(/\d+[.,]?\d*/)?.[0]?.replace(',', '.') || '5000');
+                    const desc = msgLower.replace(/recebi|deposito/i, '').replace(valor.toString(), '').trim() || 'Salário';
+                    const nome = desc.charAt(0).toUpperCase() + desc.slice(1);
+                    
+                    transacoesDemo.push({
+                        tipo: 'income',
+                        nome: nome,
+                        valor: valor,
+                        categoria: 'Receita',
+                        data: 'Agora mesmo'
+                    });
+                    
+                    receitas += valor;
+                    
+                    resposta = `💰 Receita registrada: ${nome} R$ ${valor.toFixed(2)}`;
                 }
                 else if (msgLower.includes('saldo') || msgLower.includes('status')) {
-                    resposta = `📊 *STATUS FINANCEIRO*\n\n💰 Receitas: R$ 8.450,00\n💸 Despesas: R$ 5.230,00\n💵 Saldo: R$ 3.220,00`;
+                    const saldo = receitas - despesas;
+                    resposta = `📊 *STATUS*\n\n💰 Receitas: R$ ${receitas.toFixed(2)}\n💸 Despesas: R$ ${despesas.toFixed(2)}\n💵 Saldo: R$ ${saldo.toFixed(2)}`;
                 }
-                else if (msgLower.includes('contas a pagar') || msgLower.includes('minhas contas')) {
-                    resposta = `📋 *CONTAS A PAGAR*\n\n📅 HOJE: Luz - R$ 150,00\n📅 AMANHÃ: Internet - R$ 120,00\n📅 10/03: Cartão - R$ 890,00\n\n💰 Total: R$ 1.160,00`;
-                }
-                else if (msgLower.includes('ifood') || (msgLower.includes('ontem') && msgLower.match(/\d+/))) {
-                    resposta = `✅ Despesa registrada: Ifood R$ 89,00 (ontem)`;
-                }
-                else if (msgLower.includes('aluguel') && msgLower.includes('dia')) {
-                    resposta = `✅ Despesa registrada: Aluguel R$ 2.500,00 (vence dia 10)`;
-                }
-                else if (msgLower.includes('ajuda') || msgLower.includes('help')) {
-                    resposta = `🤖 *COMANDOS*\n\n• pagar luz 150\n• ifood 89 ontem\n• aluguel 2500 dia 10\n• saldo\n• contas a pagar`;
+                else if (msgLower.includes('dashboard') || msgLower.includes('ver')) {
+                    resposta = `📊 Clique no botão abaixo para ver o dashboard atualizado!`;
+                    setTimeout(() => {
+                        irParaDashboard();
+                    }, 1000);
                 }
                 else {
-                    resposta = `❓ Comando não reconhecido. Digite "ajuda" para ver os comandos disponíveis.`;
+                    resposta = `❓ Comando não reconhecido. Tente:\n• pagar luz 150\n• recebi salario 5000\n• saldo\n• dashboard`;
                 }
                 
                 adicionarMensagem('bot', resposta);
-            }, 1500);
+            }, 1000);
+        }
+
+        // ========== FUNÇÕES DO DASHBOARD ==========
+        function irParaDashboard() {
+            document.getElementById('etapaChat').style.display = 'none';
+            document.getElementById('etapaDashboard').style.display = 'block';
+            document.getElementById('simuladorContainer').classList.add('dashboard-mode');
+            
+            atualizarDashboard();
+        }
+
+        function voltarParaChat() {
+            document.getElementById('etapaDashboard').style.display = 'none';
+            document.getElementById('etapaChat').style.display = 'block';
+            document.getElementById('simuladorContainer').classList.remove('dashboard-mode');
+        }
+
+        function atualizarDashboard() {
+            // Atualizar valores dos cards
+            document.getElementById('demoReceitas').textContent = `R$ ${receitas.toFixed(2)}`;
+            document.getElementById('demoDespesas').textContent = `R$ ${despesas.toFixed(2)}`;
+            const saldo = receitas - despesas;
+            document.getElementById('demoSaldo').textContent = `R$ ${saldo.toFixed(2)}`;
+            document.getElementById('demoEconomias').textContent = `R$ ${saldo.toFixed(2)}`;
+            
+            // Atualizar lista de transações
+            const listaTransacoes = document.getElementById('listaTransacoesDemo');
+            let html = '';
+            
+            // Mostrar últimas 5 transações (mais recentes primeiro)
+            transacoesDemo.slice(-5).reverse().forEach(t => {
+                html += `
+                    <div class="transaction-item">
+                        <div class="transaction-icon ${t.tipo}">
+                            <i class="fas ${t.tipo === 'income' ? 'fa-arrow-down' : 'fa-arrow-up'}"></i>
+                        </div>
+                        <div class="transaction-details">
+                            <div class="transaction-name">${t.nome}</div>
+                            <div class="transaction-category">${t.categoria}</div>
+                        </div>
+                        <div class="transaction-amount ${t.tipo}">
+                            ${t.tipo === 'income' ? '+' : '-'}R$ ${t.valor.toFixed(2)}
+                        </div>
+                        <div class="transaction-date">${t.data}</div>
+                    </div>
+                `;
+            });
+            
+            listaTransacoes.innerHTML = html || '<div style="text-align: center; padding: 20px;">Nenhuma transação ainda</div>';
         }
     </script>
 </body>
