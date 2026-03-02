@@ -1,0 +1,1141 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Atlas Financeiro - Seu dinheiro sob controle, automaticamente</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f8fafc;
+            color: #0f172a;
+            line-height: 1.5;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        /* HEADER MODERNO */
+        .header {
+            padding: 24px 0;
+            position: sticky;
+            top: 0;
+            background: rgba(255,255,255,0.8);
+            backdrop-filter: blur(12px);
+            z-index: 100;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 24px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #2563eb, #7c3aed);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .logo i {
+            background: linear-gradient(135deg, #2563eb, #7c3aed);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 28px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 40px;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #334155;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover {
+            color: #2563eb;
+        }
+
+        .header-cta {
+            background: #0f172a;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .header-cta:hover {
+            background: #2563eb;
+            transform: scale(1.05);
+        }
+
+        /* HERO SECTION - IMPACTANTE */
+        .hero {
+            padding: 80px 0 60px;
+            position: relative;
+        }
+
+        .hero-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+        }
+
+        .hero-badge {
+            background: #dbeafe;
+            color: #2563eb;
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 24px;
+        }
+
+        .hero-title {
+            font-size: 56px;
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 24px;
+            background: linear-gradient(135deg, #0f172a 0%, #2563eb 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-subtitle {
+            font-size: 20px;
+            color: #475569;
+            margin-bottom: 32px;
+            max-width: 90%;
+        }
+
+        .hero-cta-group {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 40px;
+        }
+
+        .btn-primary {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 16px 32px;
+            border-radius: 40px;
+            font-weight: 700;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 20px 30px -10px rgba(37,99,235,0.3);
+        }
+
+        .btn-primary:hover {
+            background: #1d4ed8;
+            transform: translateY(-2px);
+            box-shadow: 0 30px 40px -10px rgba(37,99,235,0.4);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #0f172a;
+            border: 1px solid #e2e8f0;
+            padding: 16px 32px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-secondary:hover {
+            border-color: #2563eb;
+            color: #2563eb;
+        }
+
+        .hero-stats {
+            display: flex;
+            gap: 40px;
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .stat-number {
+            font-size: 32px;
+            font-weight: 800;
+            color: #0f172a;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #64748b;
+        }
+
+        /* HERO IMAGE - DASHBOARD REAL */
+        .hero-image {
+            position: relative;
+        }
+
+        .dashboard-preview {
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 50px 70px -20px rgba(0,0,0,0.3);
+            overflow: hidden;
+            transform: perspective(1000px) rotateY(-5deg) rotateX(2deg);
+            transition: transform 0.5s;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .dashboard-preview:hover {
+            transform: perspective(1000px) rotateY(-3deg) rotateX(1deg) translateY(-10px);
+        }
+
+        .dashboard-header {
+            background: #0f172a;
+            padding: 16px;
+            display: flex;
+            gap: 8px;
+        }
+
+        .dashboard-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #ef4444;
+        }
+
+        .dashboard-dot:nth-child(2) { background: #f59e0b; }
+        .dashboard-dot:nth-child(3) { background: #10b981; }
+
+        .dashboard-content {
+            padding: 24px;
+            background: white;
+        }
+
+        .dashboard-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .dashboard-card {
+            background: #f8fafc;
+            padding: 16px;
+            border-radius: 16px;
+            width: 48%;
+        }
+
+        .dashboard-card .label {
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        .dashboard-card .value {
+            font-size: 24px;
+            font-weight: 700;
+            margin-top: 4px;
+        }
+
+        .dashboard-card.income .value { color: #10b981; }
+        .dashboard-card.expense .value { color: #ef4444; }
+
+        .dashboard-chart {
+            height: 100px;
+            background: linear-gradient(90deg, #2563eb20 0%, #7c3aed20 100%);
+            border-radius: 12px;
+            margin: 16px 0;
+            display: flex;
+            align-items: flex-end;
+            padding: 8px;
+            gap: 8px;
+        }
+
+        .chart-bar {
+            flex: 1;
+            height: 60px;
+            background: linear-gradient(180deg, #2563eb, #7c3aed);
+            border-radius: 6px 6px 0 0;
+            animation: bar-grow 1.5s ease-out;
+        }
+
+        .chart-bar:nth-child(2) { height: 40px; }
+        .chart-bar:nth-child(3) { height: 70px; }
+        .chart-bar:nth-child(4) { height: 30px; }
+        .chart-bar:nth-child(5) { height: 50px; }
+        .chart-bar:nth-child(6) { height: 80px; }
+        .chart-bar:nth-child(7) { height: 45px; }
+
+        @keyframes bar-grow {
+            from { height: 0; }
+        }
+
+        .floating-badge {
+            position: absolute;
+            bottom: -20px;
+            right: -20px;
+            background: #10b981;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 40px;
+            font-weight: 700;
+            box-shadow: 0 10px 25px -5px #10b981;
+            animation: float 3s infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        /* SEÇÃO COMO FUNCIONA */
+        .how-it-works {
+            padding: 100px 0;
+            background: white;
+        }
+
+        .section-tag {
+            text-align: center;
+            color: #2563eb;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 16px;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 40px;
+            font-weight: 800;
+            margin-bottom: 24px;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .section-subtitle {
+            text-align: center;
+            color: #64748b;
+            font-size: 18px;
+            max-width: 600px;
+            margin: 0 auto 60px;
+        }
+
+        .steps-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 30px;
+        }
+
+        .step-card {
+            background: #f8fafc;
+            padding: 32px 24px;
+            border-radius: 24px;
+            position: relative;
+            transition: all 0.3s;
+        }
+
+        .step-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 30px 40px -20px rgba(0,0,0,0.2);
+        }
+
+        .step-number {
+            font-size: 60px;
+            font-weight: 800;
+            color: #e2e8f0;
+            position: absolute;
+            top: 10px;
+            right: 20px;
+        }
+
+        .step-icon {
+            width: 60px;
+            height: 60px;
+            background: #dbeafe;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 24px;
+            color: #2563eb;
+            font-size: 24px;
+        }
+
+        .step-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .step-description {
+            color: #475569;
+            font-size: 15px;
+        }
+
+        /* SEÇÃO RECURSOS - DESTRUIDORA */
+        .features {
+            padding: 100px 0;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            margin-top: 60px;
+        }
+
+        .feature-card {
+            background: white;
+            padding: 40px 30px;
+            border-radius: 30px;
+            box-shadow: 0 20px 40px -15px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+            border: 1px solid rgba(0,0,0,0.02);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 40px 60px -20px #2563eb40;
+            border-color: #2563eb20;
+        }
+
+        .feature-icon {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, #2563eb10, #7c3aed10);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 24px;
+            font-size: 30px;
+            color: #2563eb;
+        }
+
+        .feature-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+
+        .feature-desc {
+            color: #475569;
+            margin-bottom: 24px;
+        }
+
+        .feature-badge {
+            background: #dbeafe;
+            color: #2563eb;
+            padding: 6px 12px;
+            border-radius: 30px;
+            font-size: 13px;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        /* SEÇÃO DE PROVA SOCIAL - DEPOIMENTOS */
+        .testimonials {
+            padding: 100px 0;
+            background: white;
+        }
+
+        .testimonials-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            margin-top: 60px;
+        }
+
+        .testimonial-card {
+            background: #f8fafc;
+            padding: 40px 30px;
+            border-radius: 24px;
+            position: relative;
+        }
+
+        .testimonial-quote {
+            font-size: 40px;
+            color: #2563eb20;
+            position: absolute;
+            top: 20px;
+            right: 30px;
+        }
+
+        .testimonial-text {
+            font-size: 16px;
+            line-height: 1.7;
+            color: #1e293b;
+            margin-bottom: 30px;
+            font-style: italic;
+        }
+
+        .testimonial-author {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .author-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #2563eb, #7c3aed);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+        }
+
+        .author-info h4 {
+            font-weight: 700;
+        }
+
+        .author-info p {
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        /* SEÇÃO PLANOS - CONVERSORA */
+        .pricing {
+            padding: 100px 0;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: white;
+        }
+
+        .pricing .section-title {
+            color: white;
+        }
+
+        .pricing .section-subtitle {
+            color: #94a3b8;
+        }
+
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            margin-top: 60px;
+        }
+
+        .pricing-card {
+            background: white;
+            border-radius: 40px;
+            padding: 40px;
+            color: #0f172a;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .pricing-card:hover {
+            transform: translateY(-10px);
+        }
+
+        .pricing-card.popular {
+            transform: scale(1.05);
+            border: 2px solid #fbbf24;
+            box-shadow: 0 30px 60px -20px #fbbf24;
+        }
+
+        .popular-badge {
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #fbbf24;
+            color: #0f172a;
+            padding: 8px 24px;
+            border-radius: 40px;
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .pricing-name {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+
+        .pricing-price {
+            font-size: 48px;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+
+        .pricing-price small {
+            font-size: 16px;
+            font-weight: 400;
+            color: #64748b;
+        }
+
+        .pricing-period {
+            color: #64748b;
+            margin-bottom: 30px;
+        }
+
+        .pricing-features {
+            list-style: none;
+            margin-bottom: 40px;
+        }
+
+        .pricing-features li {
+            padding: 10px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .pricing-features i {
+            color: #10b981;
+        }
+
+        .pricing-cta {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 40px;
+            font-weight: 700;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: #0f172a;
+            color: white;
+        }
+
+        .pricing-cta:hover {
+            background: #2563eb;
+        }
+
+        .pricing-card.popular .pricing-cta {
+            background: #fbbf24;
+            color: #0f172a;
+        }
+
+        /* CTA FINAL */
+        .final-cta {
+            padding: 80px 0;
+            text-align: center;
+            background: white;
+        }
+
+        .final-cta h2 {
+            font-size: 48px;
+            font-weight: 800;
+            margin-bottom: 30px;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .final-cta button {
+            font-size: 20px;
+            padding: 20px 50px;
+        }
+
+        footer {
+            padding: 60px 0 30px;
+            background: #0f172a;
+            color: white;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 60px;
+            margin-bottom: 60px;
+        }
+
+        .footer-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .footer-logo i {
+            color: #2563eb;
+        }
+
+        .footer-about {
+            color: #94a3b8;
+            line-height: 1.7;
+        }
+
+        .footer-links h4 {
+            margin-bottom: 20px;
+        }
+
+        .footer-links ul {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 12px;
+        }
+
+        .footer-links a {
+            color: #94a3b8;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .footer-links a:hover {
+            color: white;
+        }
+
+        .copyright {
+            text-align: center;
+            padding-top: 30px;
+            border-top: 1px solid #1e293b;
+            color: #94a3b8;
+        }
+
+        @media (max-width: 1024px) {
+            .hero-title { font-size: 48px; }
+            .steps-grid, .features-grid, .testimonials-grid, .pricing-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .footer-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero-grid { grid-template-columns: 1fr; }
+            .hero-title { font-size: 40px; }
+            .nav-links { display: none; }
+            .steps-grid, .features-grid, .testimonials-grid, .pricing-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container header-content">
+            <div class="logo">
+                <i class="fas fa-wallet"></i>
+                Atlas
+            </div>
+            <nav class="nav-links">
+                <a href="#como-funciona">Como funciona</a>
+                <a href="#recursos">Recursos</a>
+                <a href="#planos">Planos</a>
+                <a href="#contato">Contato</a>
+            </nav>
+            <button class="header-cta" onclick="document.querySelector('#planos').scrollIntoView({behavior: 'smooth'})">
+                Começar agora <i class="fas fa-arrow-right"></i>
+            </button>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="container hero-grid">
+            <div class="hero-content">
+                <div class="hero-badge">
+                    <i class="fas fa-rocket"></i> Lançamento 2025
+                </div>
+                <h1 class="hero-title">
+                    Seu dinheiro sob controle,<br>automaticamente
+                </h1>
+                <p class="hero-subtitle">
+                    O Atlas conecta suas contas, organiza seus gastos e mostra exatamente para onde vai seu dinheiro — sem planilhas, sem estresse.
+                </p>
+                <div class="hero-cta-group">
+                    <button class="btn-primary" onclick="document.querySelector('#planos').scrollIntoView({behavior: 'smooth'})">
+                        Começar grátis <i class="fas fa-arrow-right"></i>
+                    </button>
+                    <button class="btn-secondary">
+                        <i class="fas fa-play"></i> Ver demo
+                    </button>
+                </div>
+                <div class="hero-stats">
+                    <div class="stat-item">
+                        <span class="stat-number">+50k</span>
+                        <span class="stat-label">usuários</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">R$ 2B</span>
+                        <span class="stat-label">organizados</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">4.9★</span>
+                        <span class="stat-label">avaliação</span>
+                    </div>
+                </div>
+            </div>
+            <div class="hero-image">
+                <div class="dashboard-preview">
+                    <div class="dashboard-header">
+                        <span class="dashboard-dot"></span>
+                        <span class="dashboard-dot"></span>
+                        <span class="dashboard-dot"></span>
+                    </div>
+                    <div class="dashboard-content">
+                        <div class="dashboard-row">
+                            <div class="dashboard-card income">
+                                <span class="label">Receitas do mês</span>
+                                <span class="value">R$ 8.450,00</span>
+                            </div>
+                            <div class="dashboard-card expense">
+                                <span class="label">Despesas do mês</span>
+                                <span class="value">R$ 5.230,00</span>
+                            </div>
+                        </div>
+                        <div class="dashboard-chart">
+                            <div class="chart-bar"></div>
+                            <div class="chart-bar"></div>
+                            <div class="chart-bar"></div>
+                            <div class="chart-bar"></div>
+                            <div class="chart-bar"></div>
+                            <div class="chart-bar"></div>
+                            <div class="chart-bar"></div>
+                        </div>
+                        <div class="dashboard-row">
+                            <div style="flex:1; background: #f1f5f9; padding: 12px; border-radius: 12px;">
+                                <span class="label">Contas a pagar</span>
+                                <span class="value" style="color: #ef4444; font-size: 18px;">R$ 1.250,00</span>
+                            </div>
+                            <div style="flex:1; background: #f1f5f9; padding: 12px; border-radius: 12px;">
+                                <span class="label">Economias</span>
+                                <span class="value" style="color: #10b981; font-size: 18px;">R$ 3.220,00</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="floating-badge">
+                    <i class="fas fa-robot"></i> + inteligência artificial
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="como-funciona" class="how-it-works">
+        <div class="container">
+            <div class="section-tag">SIMPLES COMO DEVERIA SER</div>
+            <h2 class="section-title">Como o Atlas organiza sua vida financeira</h2>
+            <p class="section-subtitle">Em 4 passos, você nunca mais vai se preocupar com contas ou planilhas</p>
+
+            <div class="steps-grid">
+                <div class="step-card">
+                    <span class="step-number">1</span>
+                    <div class="step-icon">
+                        <i class="fas fa-link"></i>
+                    </div>
+                    <h3 class="step-title">Conecte suas contas</h3>
+                    <p class="step-description">Banco, cartões, carteiras digitais. Tudo centralizado em um só lugar de forma segura.</p>
+                </div>
+
+                <div class="step-card">
+                    <span class="step-number">2</span>
+                    <div class="step-icon">
+                        <i class="fas fa-magic"></i>
+                    </div>
+                    <h3 class="step-title">Assista o Atlas trabalhar</h3>
+                    <p class="step-description">Nossa IA categoriza automaticamente cada transação e identifica padrões.</p>
+                </div>
+
+                <div class="step-card">
+                    <span class="step-number">3</span>
+                    <div class="step-icon">
+                        <i class="fas fa-chart-pie"></i>
+                    </div>
+                    <h3 class="step-title">Visualize seus dados</h3>
+                    <p class="step-description">Gráficos claros mostram para onde vai cada real — em tempo real.</p>
+                </div>
+
+                <div class="step-card">
+                    <span class="step-number">4</span>
+                    <div class="step-icon">
+                        <i class="fas fa-bullseye"></i>
+                    </div>
+                    <h3 class="step-title">Decida com confiança</h3>
+                    <p class="step-description">Corte gastos, invista mais, alcance suas metas financeiras.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="recursos" class="features">
+        <div class="container">
+            <div class="section-tag">TUDO QUE VOCÊ PRECISA</div>
+            <h2 class="section-title">Recursos profissionais ao seu alcance</h2>
+            <p class="section-subtitle">O que o Atlas faz que os outros não fazem</p>
+
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <h3 class="feature-title">Categorização por IA</h3>
+                    <p class="feature-desc">Nossa inteligência artificial aprende seus hábitos e classifica automaticamente cada gasto.</p>
+                    <span class="feature-badge">EXCLUSIVO</span>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-bell"></i>
+                    </div>
+                    <h3 class="feature-title">Alertas inteligentes</h3>
+                    <p class="feature-desc">Receba notificações de vencimentos, gastos acima da média e oportunidades de economia.</p>
+                    <span class="feature-badge">TEMPO REAL</span>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <h3 class="feature-title">Bot no Telegram</h3>
+                    <p class="feature-desc">Registre gastos e consulte saldo conversando com nosso bot — sem abrir o app.</p>
+                    <span class="feature-badge">PRÁTICO</span>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-calendar-alt"></i>
+                    </div>
+                    <h3 class="feature-title">Contas recorrentes</h3>
+                    <p class="feature-desc">Configure aluguel, academia, assinaturas — o Atlas lembra você automaticamente.</p>
+                    <span class="feature-badge">ECONOMIA</span>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3 class="feature-title">Metas de economia</h3>
+                    <p class="feature-desc">Defina objetivos e acompanhe seu progresso diário para alcançá-los.</p>
+                    <span class="feature-badge">MOTIVACIONAL</span>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3 class="feature-title">Criptografia bancária</h3>
+                    <p class="feature-desc">Seus dados são protegidos com o mesmo nível de segurança dos bancos.</p>
+                    <span class="feature-badge">SEGURO</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="testimonials">
+        <div class="container">
+            <div class="section-tag">QUEM USA, APROVA</div>
+            <h2 class="section-title">Mais de 50 mil pessoas já organizaram suas finanças</h2>
+            <p class="section-subtitle">Veja o que nossos usuários estão dizendo</p>
+
+            <div class="testimonials-grid">
+                <div class="testimonial-card">
+                    <div class="testimonial-quote">"</div>
+                    <p class="testimonial-text">"Nunca consegui economizar um real até o Atlas. Em 3 meses já tinha R$ 5 mil guardados sem perceber. A categorização automática é bizarra de precisa!"</p>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">CB</div>
+                        <div class="author-info">
+                            <h4>Camila Borges</h4>
+                            <p>Designer • 8 meses</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="testimonial-card">
+                    <div class="testimonial-quote">"</div>
+                    <p class="testimonial-text">"Uso o bot no Telegram direto. Mando 'pagar luz 150' e pronto. Minha esposa também usa, tudo sincronizado. Vale cada centavo do plano anual."</p>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">RM</div>
+                        <div class="author-info">
+                            <h4>Rafael Mendes</h4>
+                            <p>Empresário • 1 ano</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="testimonial-card">
+                    <div class="testimonial-quote">"</div>
+                    <p class="testimonial-text">"Já testei 5 apps de finanças. O Atlas é o único que realmente entende o brasileiro. As categorias fazem sentido, os alertas são úteis, e o suporte é humano."</p>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">TL</div>
+                        <div class="author-info">
+                            <h4>Thiago Lima</h4>
+                            <p>Engenheiro • 4 meses</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="planos" class="pricing">
+        <div class="container">
+            <div class="section-tag">INVISTA EM VOCÊ</div>
+            <h2 class="section-title">Planos para todos os perfis</h2>
+            <p class="section-subtitle">Comece gratuito. Escale conforme sua necessidade.</p>
+
+            <div class="pricing-grid">
+                <div class="pricing-card">
+                    <h3 class="pricing-name">Básico</h3>
+                    <div class="pricing-price">R$ 0</div>
+                    <div class="pricing-period">para sempre</div>
+                    <ul class="pricing-features">
+                        <li><i class="fas fa-check"></i> Até 50 transações/mês</li>
+                        <li><i class="fas fa-check"></i> Categorização manual</li>
+                        <li><i class="fas fa-check"></i> Dashboard básico</li>
+                        <li><i class="fas fa-check"></i> Bot no Telegram</li>
+                        <li><i class="fas fa-times" style="color: #94a3b8;"></i> Categorização por IA</li>
+                        <li><i class="fas fa-times" style="color: #94a3b8;"></i> Contas recorrentes</li>
+                    </ul>
+                    <button class="pricing-cta">Começar grátis</button>
+                </div>
+
+                <div class="pricing-card popular">
+                    <div class="popular-badge">MAIS ESCOLHIDO</div>
+                    <h3 class="pricing-name">Profissional</h3>
+                    <div class="pricing-price">R$ 29,90 <small>/mês</small></div>
+                    <div class="pricing-period">ou R$ 299/ano (economize 2 meses)</div>
+                    <ul class="pricing-features">
+                        <li><i class="fas fa-check"></i> Transações ilimitadas</li>
+                        <li><i class="fas fa-check"></i> Categorização por IA</li>
+                        <li><i class="fas fa-check"></i> Contas recorrentes</li>
+                        <li><i class="fas fa-check"></i> Alertas inteligentes</li>
+                        <li><i class="fas fa-check"></i> Metas de economia</li>
+                        <li><i class="fas fa-check"></i> Exportação de dados</li>
+                    </ul>
+                    <button class="pricing-cta">Assinar mensal</button>
+                </div>
+
+                <div class="pricing-card">
+                    <h3 class="pricing-name">Família</h3>
+                    <div class="pricing-price">R$ 49,90 <small>/mês</small></div>
+                    <div class="pricing-period">até 5 membros</div>
+                    <ul class="pricing-features">
+                        <li><i class="fas fa-check"></i> Tudo do Profissional</li>
+                        <li><i class="fas fa-check"></i> 5 usuários simultâneos</li>
+                        <li><i class="fas fa-check"></i> Orçamento compartilhado</li>
+                        <li><i class="fas fa-check"></i> Metas em grupo</li>
+                        <li><i class="fas fa-check"></i> Suporte prioritário</li>
+                    </ul>
+                    <button class="pricing-cta">Assinar família</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="final-cta">
+        <div class="container">
+            <h2>Pare de se preocupar com dinheiro.<br>Comece a deixar o Atlas cuidar.</h2>
+            <button class="btn-primary" onclick="document.querySelector('#planos').scrollIntoView({behavior: 'smooth'})">
+                Quero organizar minhas finanças agora
+            </button>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div>
+                    <div class="footer-logo">
+                        <i class="fas fa-wallet"></i> Atlas
+                    </div>
+                    <p class="footer-about">
+                        O Atlas é a forma mais inteligente de controlar seu dinheiro. Conecte suas contas, relaxe, e deixe a IA trabalhar por você.
+                    </p>
+                </div>
+                <div class="footer-links">
+                    <h4>Produto</h4>
+                    <ul>
+                        <li><a href="#como-funciona">Como funciona</a></li>
+                        <li><a href="#recursos">Recursos</a></li>
+                        <li><a href="#planos">Planos</a></li>
+                        <li><a href="#">Segurança</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links">
+                    <h4>Suporte</h4>
+                    <ul>
+                        <li><a href="#">Central de ajuda</a></li>
+                        <li><a href="#">Contato</a></li>
+                        <li><a href="#">Status do sistema</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links">
+                    <h4>Legal</h4>
+                    <ul>
+                        <li><a href="#">Termos de uso</a></li>
+                        <li><a href="#">Privacidade</a></li>
+                        <li><a href="#">Cookies</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="copyright">
+                © 2025 Atlas Financeiro. Todos os direitos reservados.
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Smooth scroll para links internos
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+
+        // Animação de entrada nos elementos ao scroll
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = 1;
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.step-card, .feature-card, .testimonial-card, .pricing-card').forEach(el => {
+            el.style.opacity = 0;
+            el.style.transform = 'translateY(30px)';
+            el.style.transition = 'all 0.6s ease-out';
+            observer.observe(el);
+        });
+    </script>
+</body>
+</html>
