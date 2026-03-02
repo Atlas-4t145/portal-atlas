@@ -1004,66 +1004,61 @@
     <section id="planos" class="pricing">
         <div class="container">
             <div class="section-tag">INVISTA EM VOCÊ</div>
-            <h2 class="section-title">Planos para todos os perfis</h2>
-            <p class="section-subtitle">Comece gratuito. Escale conforme sua necessidade.</p>
+            <h2 class="section-title">Escolha o plano ideal para você</h2>
+            <p class="section-subtitle">Comece com 7 dias grátis. Cancele quando quiser.</p>
 
-            <div class="pricing-grid">
+            <div class="pricing-grid" style="grid-template-columns: repeat(2, 1fr); max-width: 800px; margin-left: auto; margin-right: auto;">
+                <!-- PLANO MENSAL -->
                 <div class="pricing-card">
-                    <h3 class="pricing-name">Básico</h3>
-                    <div class="pricing-price">R$ 0</div>
-                    <div class="pricing-period">para sempre</div>
-                    <ul class="pricing-features">
-                        <li><i class="fas fa-check"></i> Até 50 transações/mês</li>
-                        <li><i class="fas fa-check"></i> Categorização manual</li>
-                        <li><i class="fas fa-check"></i> Dashboard básico</li>
-                        <li><i class="fas fa-check"></i> Bot no Telegram</li>
-                        <li><i class="fas fa-times" style="color: #94a3b8;"></i> Categorização por IA</li>
-                        <li><i class="fas fa-times" style="color: #94a3b8;"></i> Contas recorrentes</li>
-                    </ul>
-                    <button class="pricing-cta">Começar grátis</button>
-                </div>
-
-                <div class="pricing-card popular">
-                    <div class="popular-badge">MAIS ESCOLHIDO</div>
-                    <h3 class="pricing-name">Profissional</h3>
-                    <div class="pricing-price">R$ 29,90 <small>/mês</small></div>
-                    <div class="pricing-period">ou R$ 299/ano (economize 2 meses)</div>
+                    <h3 class="pricing-name">Mensal</h3>
+                    <div class="pricing-price">R$ 19,90 <small>/mês</small></div>
+                    <div class="pricing-period">cobrança mensal recorrente</div>
                     <ul class="pricing-features">
                         <li><i class="fas fa-check"></i> Transações ilimitadas</li>
                         <li><i class="fas fa-check"></i> Categorização por IA</li>
                         <li><i class="fas fa-check"></i> Contas recorrentes</li>
                         <li><i class="fas fa-check"></i> Alertas inteligentes</li>
                         <li><i class="fas fa-check"></i> Metas de economia</li>
-                        <li><i class="fas fa-check"></i> Exportação de dados</li>
-                    </ul>
-                    <button class="pricing-cta">Assinar mensal</button>
-                </div>
-
-                <div class="pricing-card">
-                    <h3 class="pricing-name">Família</h3>
-                    <div class="pricing-price">R$ 49,90 <small>/mês</small></div>
-                    <div class="pricing-period">até 5 membros</div>
-                    <ul class="pricing-features">
-                        <li><i class="fas fa-check"></i> Tudo do Profissional</li>
-                        <li><i class="fas fa-check"></i> 5 usuários simultâneos</li>
-                        <li><i class="fas fa-check"></i> Orçamento compartilhado</li>
-                        <li><i class="fas fa-check"></i> Metas em grupo</li>
+                        <li><i class="fas fa-check"></i> Bot no Telegram</li>
                         <li><i class="fas fa-check"></i> Suporte prioritário</li>
                     </ul>
-                    <button class="pricing-cta">Assinar família</button>
+                    <button class="pricing-cta">Assinar mensal</button>
+                    <p style="text-align: center; margin-top: 16px; font-size: 13px; color: #94a3b8;">
+                        <i class="fas fa-credit-card"></i> 7 dias grátis
+                    </p>
+                </div>
+
+                <!-- PLANO ANUAL (DESTAQUE) -->
+                <div class="pricing-card popular">
+                    <div class="popular-badge">ECONOMIZE 2 MESES</div>
+                    <h3 class="pricing-name">Anual</h3>
+                    <div class="pricing-price">R$ 199,90 <small>/ano</small></div>
+                    <div class="pricing-period">equivalente a R$ 16,66/mês</div>
+                    <ul class="pricing-features">
+                        <li><i class="fas fa-check"></i> Tudo do plano mensal</li>
+                        <li><i class="fas fa-check"></i> 2 meses grátis</li>
+                        <li><i class="fas fa-check"></i> Suporte VIP</li>
+                        <li><i class="fas fa-check"></i> Relatórios avançados</li>
+                        <li><i class="fas fa-check"></i> Exportação de dados</li>
+                        <li><i class="fas fa-check"></i> Backup em nuvem</li>
+                        <li style="color: #fbbf24;"><i class="fas fa-star"></i> Prioridade em novas features</li>
+                    </ul>
+                    <button class="pricing-cta">Assinar anual</button>
+                    <p style="text-align: center; margin-top: 16px; font-size: 13px; color: #fbbf24; font-weight: 600;">
+                        <i class="fas fa-gift"></i> Economia de R$ 38,90
+                    </p>
                 </div>
             </div>
         </div>
     </section>
-
-    <section class="final-cta">
-        <div class="container">
-            <h2>Pare de se preocupar com dinheiro.<br>Comece a deixar o Atlas cuidar.</h2>
-            <button class="btn-primary" onclick="document.querySelector('#planos').scrollIntoView({behavior: 'smooth'})">
-                Quero organizar minhas finanças agora
-            </button>
-        </div>
-    </section>
+        <section class="final-cta">
+            <div class="container">
+                <h2>Pare de se preocupar com dinheiro.<br>Comece a deixar o Atlas cuidar.</h2>
+                <button class="btn-primary" onclick="document.querySelector('#planos').scrollIntoView({behavior: 'smooth'})">
+                    Quero organizar minhas finanças agora
+                </button>
+            </div>
+        </section>
 
     <footer>
         <div class="container">
