@@ -204,319 +204,141 @@
             color: #64748b;
         }
 
-        /* ========== DASHBOARD FOTORREALISTA ========== */
-        .hero-image {
-            position: relative;
-            perspective: 1500px;
-        }
-
+        /* ========== DASHBOARD REAL (IGUAL AO CHAT) ========== */
         .dashboard-real {
             background: white;
-            border-radius: 32px;
-            box-shadow: 
-                0 50px 70px -20px rgba(0,0,0,0.3),
-                inset 0 1px 1px rgba(255,255,255,0.5);
+            border-radius: 24px;
+            box-shadow: 0 50px 70px -20px rgba(0,0,0,0.3);
             overflow: hidden;
-            transform: perspective(1500px) rotateY(-5deg) rotateX(2deg);
+            transform: perspective(1000px) rotateY(-5deg) rotateX(2deg);
             transition: transform 0.5s;
             border: 1px solid rgba(255,255,255,0.2);
-            backdrop-filter: blur(10px);
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
         }
 
         .dashboard-real:hover {
-            transform: perspective(1500px) rotateY(-3deg) rotateX(1deg) translateY(-10px);
+            transform: perspective(1000px) rotateY(-3deg) rotateX(1deg) translateY(-10px);
         }
 
         /* Header do Dashboard */
         .dashboard-header {
             background: #0f172a;
-            padding: 16px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #1e293b;
-        }
-
-        .window-controls {
+            padding: 16px;
             display: flex;
             gap: 8px;
         }
 
-        .window-dot {
+        .dashboard-dot {
             width: 12px;
             height: 12px;
             border-radius: 50%;
+            background: #ef4444;
         }
 
-        .window-dot.red { background: #ef4444; }
-        .window-dot.yellow { background: #f59e0b; }
-        .window-dot.green { background: #10b981; }
+        .dashboard-dot:nth-child(2) { background: #f59e0b; }
+        .dashboard-dot:nth-child(3) { background: #10b981; }
 
-        .dashboard-title {
-            color: #94a3b8;
+        /* Conteúdo - IGUAL AO DASHBOARD REAL */
+        .dashboard-content {
+            padding: 24px;
+            background: white;
+        }
+
+        /* Cards de Resumo */
+        .dashboard-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .dashboard-card {
+            background: #f8fafc;
+            padding: 16px;
+            border-radius: 16px;
+            width: 48%;
+            border: 1px solid #e2e8f0;
+        }
+
+        .dashboard-card .label {
+            color: #64748b;
             font-size: 14px;
             font-weight: 500;
         }
 
-        .dashboard-actions {
-            display: flex;
-            gap: 16px;
-            color: #64748b;
-            font-size: 14px;
-        }
-
-        /* Conteúdo */
-        .dashboard-content {
-            padding: 24px;
-            background: #f8fafc;
-        }
-
-        /* Cards de Resumo */
-        .summary-cards {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 16px;
-            margin-bottom: 24px;
-        }
-
-        .summary-card {
-            background: white;
-            padding: 20px;
-            border-radius: 20px;
-            box-shadow: 0 4px 6px -2px rgba(0,0,0,0.05);
-            border: 1px solid #e2e8f0;
-        }
-
-        .summary-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 12px;
-            font-size: 18px;
-        }
-
-        .summary-icon.income { background: #10b98120; color: #10b981; }
-        .summary-icon.expense { background: #ef444420; color: #ef4444; }
-        .summary-icon.balance { background: #2563eb20; color: #2563eb; }
-        .summary-icon.savings { background: #f59e0b20; color: #f59e0b; }
-
-        .summary-label {
-            font-size: 14px;
-            color: #64748b;
-            margin-bottom: 4px;
-        }
-
-        .summary-value {
+        .dashboard-card .value {
             font-size: 24px;
             font-weight: 700;
+            margin-top: 4px;
         }
 
-        .summary-value.income { color: #10b981; }
-        .summary-value.expense { color: #ef4444; }
-        .summary-value.balance { color: #0f172a; }
-        .summary-value.savings { color: #f59e0b; }
+        .dashboard-card.income .value { color: #10b981; }
+        .dashboard-card.expense .value { color: #ef4444; }
 
-        .summary-change {
-            font-size: 12px;
-            margin-top: 8px;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .change-positive { color: #10b981; }
-        .change-negative { color: #ef4444; }
-
-        /* Gráficos */
-        .charts-row {
-            display: grid;
-            grid-template-columns: 1.5fr 1fr;
-            gap: 20px;
-            margin-bottom: 24px;
-        }
-
-        .chart-card {
-            background: white;
-            border-radius: 20px;
-            padding: 20px;
-            border: 1px solid #e2e8f0;
-        }
-
-        .chart-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 16px;
-        }
-
-        .chart-title {
-            font-weight: 600;
-            font-size: 16px;
-        }
-
-        .chart-period {
-            font-size: 13px;
-            color: #64748b;
-            background: #f1f5f9;
-            padding: 4px 10px;
-            border-radius: 20px;
-        }
-
-        /* Gráfico de Barras */
-        .bar-chart {
+        /* Gráfico */
+        .dashboard-chart {
+            height: 100px;
+            background: linear-gradient(90deg, #2563eb20 0%, #7c3aed20 100%);
+            border-radius: 12px;
+            margin: 16px 0;
             display: flex;
             align-items: flex-end;
-            gap: 12px;
-            height: 150px;
-            margin-top: 20px;
-        }
-
-        .bar-container {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            padding: 8px;
             gap: 8px;
-        }
-
-        .bar {
-            width: 100%;
-            background: linear-gradient(180deg, #2563eb, #1d4ed8);
-            border-radius: 8px 8px 4px 4px;
-            transition: height 0.3s;
-            min-height: 4px;
-        }
-
-        .bar-label {
-            font-size: 12px;
-            color: #64748b;
-        }
-
-        /* Gráfico de Pizza (simulado) */
-        .pie-chart {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 20px 0;
-        }
-
-        .pie {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            background: conic-gradient(#10b981 0deg 130deg, #ef4444 130deg 250deg, #f59e0b 250deg 360deg);
-            box-shadow: 0 10px 20px -5px rgba(0,0,0,0.1);
-        }
-
-        .pie-legend {
-            margin-left: 20px;
-            flex: 1;
-        }
-
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 8px;
-            font-size: 13px;
-        }
-
-        .legend-color {
-            width: 12px;
-            height: 12px;
-            border-radius: 4px;
-        }
-
-        .legend-color.food { background: #10b981; }
-        .legend-color.housing { background: #ef4444; }
-        .legend-color.leisure { background: #f59e0b; }
-
-        .legend-value {
-            font-weight: 600;
-            margin-left: auto;
-        }
-
-        /* Tabela de Transações */
-        .transactions-card {
-            background: white;
-            border-radius: 20px;
-            padding: 20px;
             border: 1px solid #e2e8f0;
         }
 
-        .transactions-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 16px;
-        }
-
-        .transactions-title {
-            font-weight: 600;
-            font-size: 16px;
-        }
-
-        .view-all {
-            color: #2563eb;
-            font-size: 14px;
-            cursor: pointer;
-        }
-
-        .transaction-item {
-            display: flex;
-            align-items: center;
-            padding: 12px 0;
-            border-bottom: 1px solid #f1f5f9;
-        }
-
-        .transaction-item:last-child {
-            border-bottom: none;
-        }
-
-        .transaction-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 12px;
-            font-size: 16px;
-        }
-
-        .transaction-icon.income { background: #10b98120; color: #10b981; }
-        .transaction-icon.expense { background: #ef444420; color: #ef4444; }
-
-        .transaction-details {
+        .chart-bar {
             flex: 1;
+            height: 60px;
+            background: linear-gradient(180deg, #2563eb, #7c3aed);
+            border-radius: 6px 6px 0 0;
+            animation: bar-grow 1.5s ease-out;
         }
 
-        .transaction-name {
-            font-weight: 600;
-            margin-bottom: 4px;
+        .chart-bar:nth-child(1) { height: 45px; }
+        .chart-bar:nth-child(2) { height: 70px; }
+        .chart-bar:nth-child(3) { height: 30px; }
+        .chart-bar:nth-child(4) { height: 55px; }
+        .chart-bar:nth-child(5) { height: 80px; }
+        .chart-bar:nth-child(6) { height: 40px; }
+        .chart-bar:nth-child(7) { height: 65px; }
+
+        @keyframes bar-grow {
+            from { height: 0; }
         }
 
-        .transaction-category {
-            font-size: 12px;
+        /* Cards Inferiores */
+        .dashboard-footer {
+            display: flex;
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .footer-card {
+            flex: 1;
+            background: #f1f5f9;
+            padding: 12px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .footer-card .label {
             color: #64748b;
+            font-size: 13px;
         }
 
-        .transaction-amount {
+        .footer-card .value {
+            font-size: 18px;
             font-weight: 700;
+            margin-top: 4px;
         }
 
-        .transaction-amount.income { color: #10b981; }
-        .transaction-amount.expense { color: #ef4444; }
+        .footer-card .value.expense { color: #ef4444; }
+        .footer-card .value.savings { color: #10b981; }
 
-        .transaction-date {
-            font-size: 12px;
-            color: #64748b;
-            margin-left: 16px;
-        }
-
+        /* Badge Flutuante */
         .floating-badge {
             position: absolute;
             bottom: -20px;
@@ -948,7 +770,7 @@
             color: #94a3b8;
         }
 
-        /* ========== SIMULADOR ========== */
+        /* ========== SIMULADOR DO BOT ========== */
         .simulador-modal {
             position: fixed;
             top: 0;
@@ -1158,110 +980,11 @@
             margin-top: 10px;
         }
 
-        /* ========== TOUR ========== */
-        .tour-highlight {
-            position: relative;
-            z-index: 1001;
-            box-shadow: 0 0 0 4px #2563eb, 0 0 30px #2563eb;
-            border-radius: 12px;
-            transition: all 0.3s;
-            animation: pulse 1.5s infinite;
-        }
-
-        @keyframes pulse {
-            0% { box-shadow: 0 0 0 4px #2563eb, 0 0 20px #2563eb; }
-            50% { box-shadow: 0 0 0 8px #2563eb, 0 0 30px #2563eb; }
-            100% { box-shadow: 0 0 0 4px #2563eb, 0 0 20px #2563eb; }
-        }
-
-        .tour-tooltip {
-            position: absolute;
-            background: white;
-            padding: 16px 24px;
-            border-radius: 16px;
-            box-shadow: 0 20px 40px -10px rgba(0,0,0,0.3);
-            max-width: 300px;
-            z-index: 1002;
-            border-left: 4px solid #2563eb;
-            animation: tooltipIn 0.3s;
-        }
-
-        @keyframes tooltipIn {
-            from { transform: scale(0.9) translateY(10px); opacity: 0; }
-            to { transform: scale(1) translateY(0); opacity: 1; }
-        }
-
-        .tour-tooltip h4 {
-            font-size: 18px;
-            margin-bottom: 8px;
-            color: #0f172a;
-        }
-
-        .tour-tooltip p {
-            font-size: 14px;
-            color: #475569;
-            margin-bottom: 16px;
-        }
-
-        .tour-buttons {
-            display: flex;
-            gap: 10px;
-            justify-content: flex-end;
-        }
-
-        .tour-btn {
-            padding: 8px 16px;
-            border: none;
-            border-radius: 30px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .tour-btn.next {
-            background: #2563eb;
-            color: white;
-        }
-
-        .tour-btn.next:hover {
-            background: #1d4ed8;
-        }
-
-        .tour-btn.skip {
-            background: #f1f5f9;
-            color: #475569;
-        }
-
-        .tour-btn.skip:hover {
-            background: #e2e8f0;
-        }
-
-        .tour-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            z-index: 999;
-            display: none;
-            pointer-events: none;
-        }
-
-        .tour-overlay.active {
-            display: block;
-        }
-
+        /* Responsividade */
         @media (max-width: 1024px) {
             .hero-title { font-size: 48px; }
             .steps-grid, .features-grid, .testimonials-grid {
                 grid-template-columns: repeat(2, 1fr);
-            }
-            .summary-cards {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            .charts-row {
-                grid-template-columns: 1fr;
             }
             .footer-grid {
                 grid-template-columns: 1fr 1fr;
@@ -1273,9 +996,6 @@
             .hero-title { font-size: 40px; }
             .nav-links { display: none; }
             .steps-grid, .features-grid, .testimonials-grid {
-                grid-template-columns: 1fr;
-            }
-            .summary-cards {
                 grid-template-columns: 1fr;
             }
             .simulador-container {
@@ -1316,14 +1036,14 @@
                     Seu dinheiro sob controle,<br>automaticamente
                 </h1>
                 <p class="hero-subtitle">
-                    O Atlas organiza seus gastos, mostra para onde vai cada real e te ajuda a economizar — tudo pelo Telegram.
+                    Registre gastos pelo Telegram e veja tudo organizado no dashboard. Sem planilhas, sem estresse.
                 </p>
                 <div class="hero-cta-group">
                     <button class="btn-primary" onclick="document.querySelector('#planos').scrollIntoView({behavior: 'smooth'})">
                         Começar grátis <i class="fas fa-arrow-right"></i>
                     </button>
-                    <button class="btn-secondary" onclick="iniciarTour()">
-                        <i class="fas fa-play"></i> Tour interativo
+                    <button class="btn-secondary" onclick="abrirSimulador()">
+                        <i class="fas fa-comment"></i> Testar o bot
                     </button>
                 </div>
                 <div class="hero-stats">
@@ -1342,200 +1062,48 @@
                 </div>
             </div>
             
-            <!-- ========== DASHBOARD FOTORREALISTA ========== -->
-            <div class="hero-image" id="tour-dashboard">
+            <!-- ========== DASHBOARD REAL (IGUAL AO CHAT) ========== -->
+            <div class="hero-image">
                 <div class="dashboard-real">
-                    <!-- Header com controles de janela -->
                     <div class="dashboard-header">
-                        <div class="window-controls">
-                            <span class="window-dot red"></span>
-                            <span class="window-dot yellow"></span>
-                            <span class="window-dot green"></span>
-                        </div>
-                        <span class="dashboard-title">Atlas Dashboard • Março 2025</span>
-                        <div class="dashboard-actions">
-                            <i class="fas fa-search"></i>
-                            <i class="fas fa-bell"></i>
-                            <i class="fas fa-user"></i>
-                        </div>
+                        <span class="dashboard-dot"></span>
+                        <span class="dashboard-dot"></span>
+                        <span class="dashboard-dot"></span>
                     </div>
-                    
-                    <!-- Conteúdo do Dashboard -->
                     <div class="dashboard-content">
-                        <!-- Cards de Resumo -->
-                        <div class="summary-cards">
-                            <div class="summary-card" id="tour-income">
-                                <div class="summary-icon income">
-                                    <i class="fas fa-arrow-down"></i>
-                                </div>
-                                <div class="summary-label">Receitas</div>
-                                <div class="summary-value income">R$ 12.450</div>
-                                <div class="summary-change change-positive">
-                                    <i class="fas fa-arrow-up"></i> +12% vs mês passado
-                                </div>
+                        <div class="dashboard-row">
+                            <div class="dashboard-card income">
+                                <span class="label">Receitas do mês</span>
+                                <span class="value">R$ 8.450,00</span>
                             </div>
-                            
-                            <div class="summary-card" id="tour-expense">
-                                <div class="summary-icon expense">
-                                    <i class="fas fa-arrow-up"></i>
-                                </div>
-                                <div class="summary-label">Despesas</div>
-                                <div class="summary-value expense">R$ 8.230</div>
-                                <div class="summary-change change-negative">
-                                    <i class="fas fa-arrow-down"></i> -5% vs mês passado
-                                </div>
-                            </div>
-                            
-                            <div class="summary-card" id="tour-balance">
-                                <div class="summary-icon balance">
-                                    <i class="fas fa-wallet"></i>
-                                </div>
-                                <div class="summary-label">Saldo</div>
-                                <div class="summary-value balance">R$ 4.220</div>
-                                <div class="summary-change change-positive">
-                                    <i class="fas fa-arrow-up"></i> +R$ 1.200 este mês
-                                </div>
-                            </div>
-                            
-                            <div class="summary-card" id="tour-savings">
-                                <div class="summary-icon savings">
-                                    <i class="fas fa-piggy-bank"></i>
-                                </div>
-                                <div class="summary-label">Economias</div>
-                                <div class="summary-value savings">R$ 15.800</div>
-                                <div class="summary-change change-positive">
-                                    <i class="fas fa-arrow-up"></i> 68% da meta
-                                </div>
+                            <div class="dashboard-card expense">
+                                <span class="label">Despesas do mês</span>
+                                <span class="value">R$ 5.230,00</span>
                             </div>
                         </div>
-                        
-                        <!-- Gráficos -->
-                        <div class="charts-row">
-                            <!-- Gráfico de Barras (Gastos por categoria) -->
-                            <div class="chart-card" id="tour-chart">
-                                <div class="chart-header">
-                                    <span class="chart-title">Gastos por categoria</span>
-                                    <span class="chart-period">Últimos 7 dias</span>
-                                </div>
-                                <div class="bar-chart">
-                                    <div class="bar-container">
-                                        <div class="bar" style="height: 80px;"></div>
-                                        <span class="bar-label">Alim.</span>
-                                    </div>
-                                    <div class="bar-container">
-                                        <div class="bar" style="height: 60px;"></div>
-                                        <span class="bar-label">Moradia</span>
-                                    </div>
-                                    <div class="bar-container">
-                                        <div class="bar" style="height: 45px;"></div>
-                                        <span class="bar-label">Transp.</span>
-                                    </div>
-                                    <div class="bar-container">
-                                        <div class="bar" style="height: 70px;"></div>
-                                        <span class="bar-label">Lazer</span>
-                                    </div>
-                                    <div class="bar-container">
-                                        <div class="bar" style="height: 30px;"></div>
-                                        <span class="bar-label">Saúde</span>
-                                    </div>
-                                    <div class="bar-container">
-                                        <div class="bar" style="height: 55px;"></div>
-                                        <span class="bar-label">Outros</span>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- Gráfico de Pizza (Distribuição) -->
-                            <div class="chart-card">
-                                <div class="chart-header">
-                                    <span class="chart-title">Distribuição</span>
-                                    <span class="chart-period">Mês atual</span>
-                                </div>
-                                <div class="pie-chart">
-                                    <div class="pie"></div>
-                                    <div class="pie-legend">
-                                        <div class="legend-item">
-                                            <span class="legend-color food"></span>
-                                            <span>Alimentação</span>
-                                            <span class="legend-value">R$ 2.450</span>
-                                        </div>
-                                        <div class="legend-item">
-                                            <span class="legend-color housing"></span>
-                                            <span>Moradia</span>
-                                            <span class="legend-value">R$ 1.800</span>
-                                        </div>
-                                        <div class="legend-item">
-                                            <span class="legend-color leisure"></span>
-                                            <span>Lazer</span>
-                                            <span class="legend-value">R$ 980</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                        <div class="dashboard-chart">
+                            <div class="chart-bar"></div>
+                            <div class="chart-bar"></div>
+                            <div class="chart-bar"></div>
+                            <div class="chart-bar"></div>
+                            <div class="chart-bar"></div>
+                            <div class="chart-bar"></div>
+                            <div class="chart-bar"></div>
                         </div>
-                        
-                        <!-- Últimas Transações -->
-                        <div class="transactions-card" id="tour-transactions">
-                            <div class="transactions-header">
-                                <span class="transactions-title">Últimas transações</span>
-                                <span class="view-all">Ver todas <i class="fas fa-arrow-right"></i></span>
+                        <div class="dashboard-footer">
+                            <div class="footer-card">
+                                <span class="label">Contas a pagar</span>
+                                <span class="value expense">R$ 1.250,00</span>
                             </div>
-                            
-                            <div class="transaction-item">
-                                <div class="transaction-icon expense">
-                                    <i class="fas fa-shopping-cart"></i>
-                                </div>
-                                <div class="transaction-details">
-                                    <div class="transaction-name">Supermercado</div>
-                                    <div class="transaction-category">Alimentação</div>
-                                </div>
-                                <div class="transaction-amount expense">-R$ 347,90</div>
-                                <div class="transaction-date">Hoje</div>
-                            </div>
-                            
-                            <div class="transaction-item">
-                                <div class="transaction-icon income">
-                                    <i class="fas fa-briefcase"></i>
-                                </div>
-                                <div class="transaction-details">
-                                    <div class="transaction-name">Salário</div>
-                                    <div class="transaction-category">Receita</div>
-                                </div>
-                                <div class="transaction-amount income">+R$ 5.400,00</div>
-                                <div class="transaction-date">Ontem</div>
-                            </div>
-                            
-                            <div class="transaction-item">
-                                <div class="transaction-icon expense">
-                                    <i class="fas fa-bolt"></i>
-                                </div>
-                                <div class="transaction-details">
-                                    <div class="transaction-name">Conta de luz</div>
-                                    <div class="transaction-category">Moradia</div>
-                                </div>
-                                <div class="transaction-amount expense">-R$ 189,40</div>
-                                <div class="transaction-date">25/03</div>
-                            </div>
-                            
-                            <div class="transaction-item">
-                                <div class="transaction-icon expense">
-                                    <i class="fas fa-film"></i>
-                                </div>
-                                <div class="transaction-details">
-                                    <div class="transaction-name">Cinema</div>
-                                    <div class="transaction-category">Lazer</div>
-                                </div>
-                                <div class="transaction-amount expense">-R$ 78,00</div>
-                                <div class="transaction-date">24/03</div>
+                            <div class="footer-card">
+                                <span class="label">Economias</span>
+                                <span class="value savings">R$ 3.220,00</span>
                             </div>
                         </div>
                     </div>
                 </div>
-                
-                <!-- Badge flutuante -->
-                <div class="floating-badge" id="tour-ai">
-                    <i class="fas fa-robot"></i>
-                    <span>IA processando...</span>
+                <div class="floating-badge">
+                    <i class="fas fa-robot"></i> + inteligência artificial
                 </div>
             </div>
         </div>
@@ -1853,9 +1421,6 @@
         </div>
     </div>
 
-    <!-- TOUR OVERLAY -->
-    <div class="tour-overlay" id="tourOverlay"></div>
-
     <script>
         // Smooth scroll
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
@@ -1885,173 +1450,6 @@
             observer.observe(el);
         });
 
-        // ========== TOUR INTERATIVO ==========
-        let tourStep = 0;
-        let tourActive = false;
-        let currentTooltip = null;
-
-        const tourSteps = [
-            {
-                element: '#tour-dashboard',
-                title: '📊 Dashboard Completo',
-                description: 'Aqui você vê todas as suas finanças organizadas: receitas, despesas, gráficos e últimas transações.',
-                position: 'bottom'
-            },
-            {
-                element: '#tour-income',
-                title: '💰 Receitas',
-                description: 'Acompanhe todas as entradas do mês. Salário, freelas, investimentos... Tudo em um só lugar.',
-                position: 'top'
-            },
-            {
-                element: '#tour-expense',
-                title: '💸 Despesas',
-                description: 'Veja exatamente para onde está indo seu dinheiro. Identifique gastos desnecessários.',
-                position: 'top'
-            },
-            {
-                element: '#tour-balance',
-                title: '💵 Saldo',
-                description: 'Saldo do mês calculado automaticamente. Saiba se está no azul ou vermelho.',
-                position: 'top'
-            },
-            {
-                element: '#tour-savings',
-                title: '🏦 Economias',
-                description: 'Acompanhe seu progresso rumo às metas financeiras. Cada real economizado é contabilizado.',
-                position: 'top'
-            },
-            {
-                element: '#tour-chart',
-                title: '📈 Gráficos',
-                description: 'Visualização clara dos seus gastos por categoria. A IA identifica padrões automaticamente.',
-                position: 'top'
-            },
-            {
-                element: '#tour-transactions',
-                title: '📋 Últimas Transações',
-                description: 'Histórico completo de todas as movimentações. Organizado por data e categoria.',
-                position: 'top'
-            },
-            {
-                element: '#tour-ai',
-                title: '🤖 IA em Ação',
-                description: 'Nossa inteligência artificial trabalha 24/7 categorizando gastos e sugerindo economias.',
-                position: 'left'
-            }
-        ];
-
-        function iniciarTour() {
-            if (tourActive) return;
-            
-            tourActive = true;
-            tourStep = 0;
-            
-            document.getElementById('tourOverlay').classList.add('active');
-            
-            document.querySelector('.hero-image').scrollIntoView({ behavior: 'smooth', block: 'center' });
-            
-            setTimeout(() => {
-                mostrarPassoTour();
-            }, 800);
-        }
-
-        function mostrarPassoTour() {
-            if (currentTooltip) {
-                currentTooltip.remove();
-            }
-            
-            document.querySelectorAll('.tour-highlight').forEach(el => {
-                el.classList.remove('tour-highlight');
-            });
-            
-            if (tourStep >= tourSteps.length) {
-                finalizarTour();
-                return;
-            }
-            
-            const step = tourSteps[tourStep];
-            const element = document.querySelector(step.element);
-            
-            if (!element) {
-                tourStep++;
-                mostrarPassoTour();
-                return;
-            }
-            
-            element.classList.add('tour-highlight');
-            
-            const rect = element.getBoundingClientRect();
-            const tooltip = document.createElement('div');
-            tooltip.className = 'tour-tooltip';
-            tooltip.innerHTML = `
-                <h4>${step.title}</h4>
-                <p>${step.description}</p>
-                <div class="tour-buttons">
-                    <button class="tour-btn skip" onclick="finalizarTour()">Pular</button>
-                    <button class="tour-btn next" onclick="proximoPasso()">
-                        ${tourStep === tourSteps.length - 1 ? 'Finalizar' : 'Próximo'} →
-                    </button>
-                </div>
-            `;
-            
-            document.body.appendChild(tooltip);
-            currentTooltip = tooltip;
-            
-            const tooltipRect = tooltip.getBoundingClientRect();
-            let top, left;
-            
-            switch(step.position) {
-                case 'top':
-                    top = rect.top - tooltipRect.height - 20;
-                    left = rect.left + (rect.width / 2) - (tooltipRect.width / 2);
-                    break;
-                case 'bottom':
-                    top = rect.bottom + 20;
-                    left = rect.left + (rect.width / 2) - (tooltipRect.width / 2);
-                    break;
-                case 'left':
-                    top = rect.top + (rect.height / 2) - (tooltipRect.height / 2);
-                    left = rect.left - tooltipRect.width - 20;
-                    break;
-                case 'right':
-                    top = rect.top + (rect.height / 2) - (tooltipRect.height / 2);
-                    left = rect.right + 20;
-                    break;
-            }
-            
-            left = Math.max(20, Math.min(left, window.innerWidth - tooltipRect.width - 20));
-            top = Math.max(20, Math.min(top, window.innerHeight - tooltipRect.height - 20));
-            
-            tooltip.style.top = top + 'px';
-            tooltip.style.left = left + 'px';
-        }
-
-        function proximoPasso() {
-            tourStep++;
-            mostrarPassoTour();
-        }
-
-        function finalizarTour() {
-            tourActive = false;
-            
-            document.getElementById('tourOverlay').classList.remove('active');
-            
-            if (currentTooltip) {
-                currentTooltip.remove();
-            }
-            
-            document.querySelectorAll('.tour-highlight').forEach(el => {
-                el.classList.remove('tour-highlight');
-            });
-            
-            setTimeout(() => {
-                if (confirm('Quer testar o Atlas na prática agora?')) {
-                    abrirSimulador();
-                }
-            }, 500);
-        }
-
         // ========== SIMULADOR ==========
         function abrirSimulador() {
             document.getElementById('simuladorModal').style.display = 'flex';
@@ -2067,7 +1465,6 @@
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
                 fecharSimulador();
-                if (tourActive) finalizarTour();
             }
         });
 
