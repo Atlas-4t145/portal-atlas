@@ -141,6 +141,7 @@
             display: flex;
             gap: 16px;
             margin-bottom: 40px;
+            flex-wrap: wrap;
         }
 
         .btn-primary {
@@ -725,6 +726,216 @@
             color: #94a3b8;
         }
 
+        /* ========== ESTILOS DO SIMULADOR ========== */
+        .simulador-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+            animation: fadeIn 0.3s;
+        }
+
+        .simulador-container {
+            background: white;
+            width: 450px;
+            border-radius: 30px;
+            overflow: hidden;
+            box-shadow: 0 50px 70px -20px rgba(0,0,0,0.5);
+            transform: scale(0.9);
+            animation: slideUp 0.3s forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from { transform: scale(0.9) translateY(20px); opacity: 0; }
+            to { transform: scale(1) translateY(0); opacity: 1; }
+        }
+
+        .simulador-header {
+            background: linear-gradient(135deg, #2563eb, #7c3aed);
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .simulador-header h3 {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 18px;
+        }
+
+        .simulador-close {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            font-size: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .simulador-close:hover {
+            background: rgba(255,255,255,0.3);
+            transform: rotate(90deg);
+        }
+
+        .simulador-messages {
+            height: 400px;
+            padding: 20px;
+            overflow-y: auto;
+            background: #f8fafc;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .simulador-message {
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            font-size: 14px;
+            line-height: 1.4;
+            animation: messageIn 0.3s;
+        }
+
+        @keyframes messageIn {
+            from { transform: translateY(10px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .simulador-message.bot {
+            background: white;
+            color: #0f172a;
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .simulador-message.user {
+            background: #2563eb;
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+        }
+
+        .simulador-footer {
+            padding: 20px;
+            background: white;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .simulador-input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .simulador-input {
+            flex: 1;
+            padding: 14px;
+            border: 2px solid #e2e8f0;
+            border-radius: 25px;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .simulador-input:focus {
+            outline: none;
+            border-color: #2563eb;
+        }
+
+        .simulador-send {
+            background: #2563eb;
+            color: white;
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .simulador-send:hover {
+            background: #1d4ed8;
+            transform: scale(1.05);
+        }
+
+        .simulador-suggestions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        .suggestion-chip {
+            background: #f1f5f9;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 30px;
+            font-size: 12px;
+            color: #334155;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .suggestion-chip:hover {
+            background: #2563eb;
+            color: white;
+        }
+
+        .simulador-typing {
+            display: flex;
+            gap: 5px;
+            padding: 12px 16px;
+            background: white;
+            border-radius: 18px;
+            width: fit-content;
+            margin-bottom: 10px;
+        }
+
+        .simulador-typing span {
+            width: 8px;
+            height: 8px;
+            background: #94a3b8;
+            border-radius: 50%;
+            animation: typing 1.4s infinite;
+        }
+
+        .simulador-typing span:nth-child(2) { animation-delay: 0.2s; }
+        .simulador-typing span:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-10px); }
+        }
+
+        .simulador-footer small {
+            display: block;
+            text-align: center;
+            color: #94a3b8;
+            font-size: 12px;
+            margin-top: 10px;
+        }
+
         @media (max-width: 1024px) {
             .hero-title { font-size: 48px; }
             .steps-grid, .features-grid, .testimonials-grid, .pricing-grid {
@@ -741,6 +952,10 @@
             .nav-links { display: none; }
             .steps-grid, .features-grid, .testimonials-grid, .pricing-grid {
                 grid-template-columns: 1fr;
+            }
+            .simulador-container {
+                width: 90%;
+                margin: 0 20px;
             }
         }
     </style>
@@ -780,8 +995,8 @@
                     <button class="btn-primary" onclick="document.querySelector('#planos').scrollIntoView({behavior: 'smooth'})">
                         Começar grátis <i class="fas fa-arrow-right"></i>
                     </button>
-                    <button class="btn-secondary">
-                        <i class="fas fa-play"></i> Ver demo
+                    <button class="btn-secondary" onclick="abrirSimulador()">
+                        <i class="fas fa-gamepad"></i> Testar agora (30s)
                     </button>
                 </div>
                 <div class="hero-stats">
@@ -1051,14 +1266,15 @@
             </div>
         </div>
     </section>
-        <section class="final-cta">
-            <div class="container">
-                <h2>Pare de se preocupar com dinheiro.<br>Comece a deixar o Atlas cuidar.</h2>
-                <button class="btn-primary" onclick="document.querySelector('#planos').scrollIntoView({behavior: 'smooth'})">
-                    Quero organizar minhas finanças agora
-                </button>
-            </div>
-        </section>
+
+    <section class="final-cta">
+        <div class="container">
+            <h2>Pare de se preocupar com dinheiro.<br>Comece a deixar o Atlas cuidar.</h2>
+            <button class="btn-primary" onclick="document.querySelector('#planos').scrollIntoView({behavior: 'smooth'})">
+                Quero organizar minhas finanças agora
+            </button>
+        </div>
+    </section>
 
     <footer>
         <div class="container">
@@ -1103,6 +1319,53 @@
         </div>
     </footer>
 
+    <!-- ========== SIMULADOR DO ATLAS BOT ========== -->
+    <div class="simulador-modal" id="simuladorModal">
+        <div class="simulador-container">
+            <div class="simulador-header">
+                <h3>
+                    <i class="fas fa-robot"></i>
+                    Atlas Bot - Teste grátis
+                </h3>
+                <button class="simulador-close" onclick="fecharSimulador()">×</button>
+            </div>
+            
+            <div class="simulador-messages" id="simuladorMessages">
+                <div class="simulador-message bot">
+                    👋 Olá! Eu sou o Atlas, seu assistente financeiro.
+                </div>
+                <div class="simulador-message bot">
+                    Teste comandos como:<br>
+                    • "pagar luz 150"<br>
+                    • "saldo"<br>
+                    • "contas a pagar"<br>
+                    • "ifood 89 ontem"<br>
+                    • "aluguel 2500 dia 10"
+                </div>
+            </div>
+            
+            <div class="simulador-footer">
+                <div class="simulador-input-group">
+                    <input type="text" class="simulador-input" id="simuladorInput" placeholder="Digite seu comando..." onkeypress="if(event.key === 'Enter') enviarMensagemSimulador()">
+                    <button class="simulador-send" onclick="enviarMensagemSimulador()">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+                
+                <div class="simulador-suggestions">
+                    <button class="suggestion-chip" onclick="usarSugestao('pagar luz 150')">💡 pagar luz 150</button>
+                    <button class="suggestion-chip" onclick="usarSugestao('saldo')">💰 saldo</button>
+                    <button class="suggestion-chip" onclick="usarSugestao('contas a pagar')">📋 contas a pagar</button>
+                    <button class="suggestion-chip" onclick="usarSugestao('ifood 89 ontem')">🍔 ifood 89 ontem</button>
+                </div>
+                
+                <small>
+                    <i class="fas fa-lock"></i> Teste sem compromisso • Não coleta dados
+                </small>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Smooth scroll para links internos
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
@@ -1131,6 +1394,118 @@
             el.style.transition = 'all 0.6s ease-out';
             observer.observe(el);
         });
+
+        // ========== FUNÇÕES DO SIMULADOR ==========
+        function abrirSimulador() {
+            document.getElementById('simuladorModal').style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+            document.getElementById('simuladorInput').focus();
+        }
+
+        function fecharSimulador() {
+            document.getElementById('simuladorModal').style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        // Fechar com ESC
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                fecharSimulador();
+            }
+        });
+
+        // Fechar clicando fora
+        document.getElementById('simuladorModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                fecharSimulador();
+            }
+        });
+
+        // Atalho Ctrl+D para abrir o simulador
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key === 'd') {
+                e.preventDefault();
+                abrirSimulador();
+            }
+        });
+
+        function usarSugestao(texto) {
+            document.getElementById('simuladorInput').value = texto;
+            enviarMensagemSimulador();
+        }
+
+        function mostrarDigitando() {
+            const messages = document.getElementById('simuladorMessages');
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'simulador-typing';
+            typingDiv.id = 'typingIndicator';
+            typingDiv.innerHTML = '<span></span><span></span><span></span>';
+            messages.appendChild(typingDiv);
+            messages.scrollTop = messages.scrollHeight;
+        }
+
+        function removerDigitando() {
+            const typing = document.getElementById('typingIndicator');
+            if (typing) typing.remove();
+        }
+
+        function adicionarMensagem(tipo, texto) {
+            const messages = document.getElementById('simuladorMessages');
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `simulador-message ${tipo}`;
+            msgDiv.textContent = texto;
+            messages.appendChild(msgDiv);
+            messages.scrollTop = messages.scrollHeight;
+        }
+
+        function enviarMensagemSimulador() {
+            const input = document.getElementById('simuladorInput');
+            const mensagem = input.value.trim();
+            
+            if (!mensagem) return;
+            
+            // Adiciona mensagem do usuário
+            adicionarMensagem('user', mensagem);
+            input.value = '';
+            
+            // Mostra "digitando..."
+            mostrarDigitando();
+            
+            // Simula processamento
+            setTimeout(() => {
+                removerDigitando();
+                
+                const msgLower = mensagem.toLowerCase();
+                let resposta = '';
+                
+                // Lógica do bot (simplificada para demo)
+                if (msgLower.includes('pagar') || msgLower.includes('gastei') || msgLower.includes('comprei')) {
+                    const valor = msgLower.match(/\d+[.,]?\d*/)?.[0] || '150';
+                    const desc = msgLower.replace(/pagar|gastei|comprei/i, '').replace(valor, '').trim() || 'Despesa';
+                    resposta = `✅ Despesa registrada: ${desc} R$ ${parseFloat(valor.replace(',', '.')).toFixed(2)}`;
+                }
+                else if (msgLower.includes('saldo') || msgLower.includes('status')) {
+                    resposta = `📊 *STATUS FINANCEIRO*\n\n💰 Receitas: R$ 8.450,00\n💸 Despesas: R$ 5.230,00\n💵 Saldo: R$ 3.220,00`;
+                }
+                else if (msgLower.includes('contas a pagar') || msgLower.includes('minhas contas')) {
+                    resposta = `📋 *CONTAS A PAGAR*\n\n📅 HOJE: Luz - R$ 150,00\n📅 AMANHÃ: Internet - R$ 120,00\n📅 10/03: Cartão - R$ 890,00\n\n💰 Total: R$ 1.160,00`;
+                }
+                else if (msgLower.includes('ifood') || (msgLower.includes('ontem') && msgLower.match(/\d+/))) {
+                    resposta = `✅ Despesa registrada: Ifood R$ 89,00 (ontem)`;
+                }
+                else if (msgLower.includes('aluguel') && msgLower.includes('dia')) {
+                    resposta = `✅ Despesa registrada: Aluguel R$ 2.500,00 (vence dia 10)`;
+                }
+                else if (msgLower.includes('ajuda') || msgLower.includes('help')) {
+                    resposta = `🤖 *COMANDOS*\n\n• pagar luz 150\n• ifood 89 ontem\n• aluguel 2500 dia 10\n• saldo\n• contas a pagar`;
+                }
+                else {
+                    resposta = `❓ Comando não reconhecido. Digite "ajuda" para ver os comandos disponíveis.`;
+                }
+                
+                adicionarMensagem('bot', resposta);
+            }, 1500);
+        }
     </script>
 </body>
 </html>
