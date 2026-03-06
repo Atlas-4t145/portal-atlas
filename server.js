@@ -683,18 +683,36 @@ app.get('/api/test', (req, res) => {
 app.post('/api/kiwify-webhook', async (req, res) => {
     try {
         const webhookData = req.body;
-        console.log('📩 Webhook recebido:', webhookData);
+        console.log('📩 Webhook recebido:', JSON.stringify(webhookData, null, 2));
         
-        switch(webhookData.event) {
+        // KIWIFY USA webhook_event_type, NÃO event!
+        const eventType = webhookData.webhook_event_type || webhookData.event;
+        
+        console.log('🎯 Tipo de evento:', eventType);
+        
+        switch(eventType) {
+            case 'order_approved':  // <-- KIWIFY USA ISSO!
             case 'purchase_approved':
             case 'subscription_created':
                 await processarNovaAssinatura(webhookData);
                 break;
+                
+            case 'subscription_cancelled':
+                await processarCancelamento(webhookData);
+                break;
+                
+            case 'subscription_expired':
+                await processarExpiracao(webhookData);
+                break;
+                
+            default:
+                console.log('ℹ️ Evento não processado:', eventType);
         }
         
         res.status(200).json({ received: true });
+        
     } catch (error) {
-        console.error('❌ Erro:', error);
+        console.error('❌ Erro no webhook:', error);
         res.status(200).json({ error: error.message });
     }
 });
