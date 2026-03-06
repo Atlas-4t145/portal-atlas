@@ -705,42 +705,102 @@ async function processarNovaAssinatura(data) {
     try {
         await client.query('BEGIN');
         
-        const customer = data.customer || {};
-        const nome = customer.name || 'Usuário';
+        // Pegar dados do cliente (adaptado pro formato que chegou)
+        const customer = data.Customer || {};
+        const subscription = data.Subscription || {};
+        const product = data.Product || {};
+        
+        const nome = customer.full_name || 'Usuário';
         const email = customer.email;
-        const telefone = customer.phone?.replace(/\D/g, '') || '5511999999999';
+        let telefoneRaw = customer.mobile || '';
+        
+        // Limpar telefone (deixar só números)
+        let telefone = telefoneRaw.replace(/\D/g, '');
+        
+        // Se não tiver DDI, adicionar 55
+        if (telefone && !telefone.startsWith('55')) {
+            telefone = '55' + telefone;
+        }
+        
+        // Se não tiver telefone, gerar um placeholder
+        if (!telefone || telefone.length < 10) {
+            telefone = '5511999999999';
+        }
+        
+        // Determinar plano
+        const planName = product.product_name || '';
+        let planType = 'Mensal';
+        let planPrice = 19.90;
+        
+        if (planName.toLowerCase().includes('anual')) {
+            planType = 'Anual';
+            planPrice = 199.90;
+        }
+        
+        console.log('📦 Processando:', { nome, email, telefone, planType });
         
         // Verificar se usuário existe
         const userExists = await client.query(
-            'SELECT id FROM users WHERE email = $1',
-            [email]
+            'SELECT id FROM users WHERE email = $1 OR phone = $2',
+            [email, telefone]
         );
         
-        if (userExists.rows.length === 0) {
+        let userId;
+        let senhaGerada = null;
+        
+        if (userExists.rows.length > 0) {
+            userId = userExists.rows[0].id;
+            console.log('👤 Usuário já existe. ID:', userId);
+        } else {
             // Criar novo usuário
-            const senha = Math.random().toString(36).slice(-8);
-            const hashedPassword = await bcrypt.hash(senha, 10);
+            senhaGerada = Math.random().toString(36).slice(-8) + 
+                          Math.random().toString(36).slice(-8).toUpperCase();
+            const hashedPassword = await bcrypt.hash(senhaGerada, 10);
             
             const newUser = await client.query(
-                `INSERT INTO users (phone, email, name, password) 
-                 VALUES ($1, $2, $3, $4) RETURNING id`,
-                [telefone, email, nome, hashedPassword]
+                `INSERT INTO users (phone, email, name, password, is_admin) 
+                 VALUES ($1, $2, $3, $4, $5) RETURNING id`,
+                [telefone, email, nome, hashedPassword, false]
             );
             
-            console.log('✅ Usuário criado. Senha:', senha);
+            userId = newUser.rows[0].id;
+            console.log('✅ Novo usuário criado. ID:', userId);
+            console.log('🔑 SENHA GERADA:', senhaGerada); // IMPORTANTE: anotar isso!
+            
+            // Criar configurações padrão
+            await client.query(
+                'INSERT INTO user_settings (user_id) VALUES ($1)',
+                [userId]
+            );
         }
         
+        // Registrar assinatura
+        await client.query(
+            `INSERT INTO user_subscriptions 
+             (user_id, kiwify_subscription_id, kiwify_order_id, plan_type, plan_price, status, next_billing_date)
+             VALUES ($1, $2, $3, $4, $5, $6, $7)
+             ON CONFLICT (kiwify_subscription_id) DO NOTHING`,
+            [
+                userId,
+                data.subscription_id || subscription.id,
+                data.order_id,
+                planType,
+                planPrice,
+                subscription.status || 'active',
+                subscription.next_payment ? new Date(subscription.next_payment) : null
+            ]
+        );
+        
         await client.query('COMMIT');
-        console.log('✅ Assinatura processada');
+        console.log('✅ Assinatura processada com sucesso!');
         
     } catch (error) {
         await client.query('ROLLBACK');
-        console.error('❌ Erro:', error);
+        console.error('❌ Erro ao processar:', error);
     } finally {
         client.release();
     }
 }
-
 
 
 
