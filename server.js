@@ -94,6 +94,27 @@ async function criarTabelasSeNaoExistem() {
                 UNIQUE(user_id, name, type)
             )
         `);
+
+                // Tabela de assinaturas Kiwify
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS user_subscriptions (
+                id SERIAL PRIMARY KEY,
+                user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+                kiwify_subscription_id VARCHAR(100) UNIQUE,
+                kiwify_order_id VARCHAR(100),
+                plan_type VARCHAR(50),
+                plan_frequency VARCHAR(20),
+                plan_price DECIMAL(10,2),
+                status VARCHAR(20) DEFAULT 'active',
+                started_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                next_billing_date TIMESTAMP,
+                cancelled_at TIMESTAMP,
+                expired_at TIMESTAMP,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
+
+        
         
         console.log('✅ Tabelas verificadas/criadas com sucesso!');
         
@@ -644,6 +665,82 @@ app.get('/api/test', async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 });
+
+
+// ==================== ROTA DE TESTE ====================
+app.get('/api/test', (req, res) => {
+    res.json({ 
+        status: 'online', 
+        timestamp: new Date().toISOString() 
+    });
+});
+
+
+
+// ==================== ROTAS DE INTEGRAÇÃO KIWIFY ====================
+
+// Endpoint para receber webhooks
+app.post('/api/kiwify-webhook', async (req, res) => {
+    try {
+        const webhookData = req.body;
+        console.log('📩 Webhook recebido:', webhookData);
+        
+        switch(webhookData.event) {
+            case 'purchase_approved':
+            case 'subscription_created':
+                await processarNovaAssinatura(webhookData);
+                break;
+        }
+        
+        res.status(200).json({ received: true });
+    } catch (error) {
+        console.error('❌ Erro:', error);
+        res.status(200).json({ error: error.message });
+    }
+});
+
+// Função para processar assinatura
+async function processarNovaAssinatura(data) {
+    const client = await pool.connect();
+    try {
+        await client.query('BEGIN');
+        
+        const customer = data.customer || {};
+        const nome = customer.name || 'Usuário';
+        const email = customer.email;
+        const telefone = customer.phone?.replace(/\D/g, '') || '5511999999999';
+        
+        // Verificar se usuário existe
+        const userExists = await client.query(
+            'SELECT id FROM users WHERE email = $1',
+            [email]
+        );
+        
+        if (userExists.rows.length === 0) {
+            // Criar novo usuário
+            const senha = Math.random().toString(36).slice(-8);
+            const hashedPassword = await bcrypt.hash(senha, 10);
+            
+            const newUser = await client.query(
+                `INSERT INTO users (phone, email, name, password) 
+                 VALUES ($1, $2, $3, $4) RETURNING id`,
+                [telefone, email, nome, hashedPassword]
+            );
+            
+            console.log('✅ Usuário criado. Senha:', senha);
+        }
+        
+        await client.query('COMMIT');
+        console.log('✅ Assinatura processada');
+        
+    } catch (error) {
+        await client.query('ROLLBACK');
+        console.error('❌ Erro:', error);
+    } finally {
+        client.release();
+    }
+}
+
 
 
 
