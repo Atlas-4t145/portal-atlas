@@ -5,6 +5,76 @@ const jwt = require('jsonwebtoken');
 const { Pool } = require('pg');
 const cors = require('cors');
 
+// ==================== FUNÇÃO PARA GERAR PDF ====================
+const PDFDocument = require('pdfkit');
+
+async function gerarPDFCredenciais(nome, telefone, senha) {
+    return new Promise((resolve) => {
+        const chunks = [];
+        const doc = new PDFDocument({ size: 'A4', margin: 50 });
+        
+        doc.on('data', chunks.push.bind(chunks));
+        doc.on('end', () => resolve(Buffer.concat(chunks)));
+        
+        // CABEÇALHO
+        doc.fontSize(25).fillColor('#2563eb').text('ATLAS FINANCEIRO', { align: 'center' });
+        doc.moveDown();
+        doc.fontSize(18).fillColor('#0f172a').text('Seus dados de acesso', { align: 'center' });
+        doc.moveDown(2);
+        
+        // DADOS
+        doc.fontSize(14).fillColor('#334155');
+        doc.text(`Olá ${nome},`, { align: 'left' });
+        doc.moveDown();
+        doc.text('Sua assinatura foi confirmada! Aqui estão seus dados:', { align: 'left' });
+        doc.moveDown();
+        
+        doc.fontSize(16).fillColor('#0f172a');
+        doc.text(`📱 Telefone: ${telefone}`, { continued: false });
+        doc.text(`🔑 Senha: ${senha}`);
+        doc.moveDown();
+        
+        // LINKS
+        doc.fontSize(14).fillColor('#2563eb');
+        doc.text('🔗 Dashboard: https://seu-site.com/dashboard');
+        doc.text('🤖 Bot: https://t.me/seu_bot');
+        doc.moveDown(2);
+        
+        // RODAPÉ
+        doc.fontSize(10).fillColor('#94a3b8').text('Guarde este PDF. Se perder, use "Esqueci senha" no dashboard.', { align: 'center' });
+        
+        doc.end();
+    });
+}
+
+
+// ==================== FUNÇÃO PARA UPLOAD NA KIWIFY ====================
+async function uploadPDFParaKiwify(orderId, pdfBuffer, nomeArquivo) {
+    // 1. Primeiro, obter URL de upload da Kiwify
+    const uploadUrl = `https://api.kiwify.com/v2/orders/${orderId}/files`;
+    
+    const formData = new FormData();
+    formData.append('file', pdfBuffer, {
+        filename: nomeArquivo,
+        contentType: 'application/pdf'
+    });
+    formData.append('section', 'area-de-membros'); // Ou o nome da seção
+    formData.append('title', 'Seus Dados de Acesso');
+    
+    const response = await fetch(uploadUrl, {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${process.env.KIWIFY_API_KEY}`
+        },
+        body: formData
+    });
+    
+    return response.json();
+}
+
+
+
+
 const app = express();
 app.use(cors());
 app.use(express.json());
@@ -790,6 +860,13 @@ async function processarNovaAssinatura(data) {
                 'INSERT INTO user_settings (user_id) VALUES ($1)',
                 [userId]
             );
+
+                        
+            // GERAR PDF E ENVIAR PARA KIWIFY
+            const pdfBuffer = await gerarPDFCredenciais(nome, telefone, senhaGerada);
+            await uploadPDFParaKiwify(data.order_id, pdfBuffer, `credenciais-${telefone}.pdf`);
+            console.log('✅ PDF enviado para área de membros');
+            
         }
         
         // Registrar assinatura
@@ -817,6 +894,50 @@ async function processarNovaAssinatura(data) {
         console.error('❌ Erro ao processar:', error);
     } finally {
         client.release();
+    }
+}
+
+
+
+// Função para processar cancelamento
+async function processarCancelamento(data) {
+    try {
+        const subscriptionId = data.subscription_id || data.id;
+        
+        if (!subscriptionId) return;
+        
+        await pool.query(
+            `UPDATE user_subscriptions 
+             SET status = 'cancelled', cancelled_at = $1
+             WHERE kiwify_subscription_id = $2`,
+            [new Date(), subscriptionId]
+        );
+        
+        console.log('❌ Assinatura cancelada:', subscriptionId);
+        
+    } catch (error) {
+        console.error('❌ Erro ao processar cancelamento:', error);
+    }
+}
+
+// Função para processar expiração
+async function processarExpiracao(data) {
+    try {
+        const subscriptionId = data.subscription_id || data.id;
+        
+        if (!subscriptionId) return;
+        
+        await pool.query(
+            `UPDATE user_subscriptions 
+             SET status = 'expired', expired_at = $1
+             WHERE kiwify_subscription_id = $2`,
+            [new Date(), subscriptionId]
+        );
+        
+        console.log('⚠️ Assinatura expirada:', subscriptionId);
+        
+    } catch (error) {
+        console.error('❌ Erro ao processar expiração:', error);
     }
 }
 
