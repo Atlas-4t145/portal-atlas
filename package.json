@@ -20,4 +20,6 @@
   "keywords": ["financeiro", "saas", "backend"],
   "author": "Atlas Financeiro",
   "license": "MIT"
+  },
+  "pdfkit": "^0.14.0"
 }
